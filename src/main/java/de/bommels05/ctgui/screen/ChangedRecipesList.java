@@ -1,20 +1,16 @@
 package de.bommels05.ctgui.screen;
 
 import de.bommels05.ctgui.ChangedRecipeManager;
+import de.bommels05.ctgui.ChangedRecipeManager.ChangedRecipe.Type;
 import de.bommels05.ctgui.SupportedRecipe;
-import de.bommels05.ctgui.emi.EmiSupportedRecipe;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
-import net.minecraft.world.item.crafting.CraftingRecipe;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +18,7 @@ import java.util.List;
 public class ChangedRecipesList extends ObjectSelectionList<ChangedRecipesList.Entry> {
 
     private final Button delete;
+    private final Button edit;
     private boolean onlyNew;
 
     public ChangedRecipesList(Minecraft mc, int width, int height, int y, boolean onlyNew) {
@@ -31,6 +28,9 @@ public class ChangedRecipesList extends ObjectSelectionList<ChangedRecipesList.E
         delete = Button.builder(Component.translatable("ctgui.editing.delete"), button -> {
             ChangedRecipeManager.removeChangedRecipe(getSelected().recipe);
             refill(this.onlyNew);
+        }).size(100, 20).build();
+        edit = Button.builder(Component.translatable("ctgui.list.edit"), button -> {
+            minecraft.setScreen(new RecipeEditScreen<>(getSelected().recipe));
         }).size(100, 20).build();
 
         refill(onlyNew);
@@ -61,8 +61,13 @@ public class ChangedRecipesList extends ObjectSelectionList<ChangedRecipesList.E
             graphics.setColor(0.25F, 0.25F, 0.25F, 1.0F);
             graphics.blit(Screen.BACKGROUND_LOCATION, left, this.getY(), 0, 0, width, minecraft.screen.height - this.getY(), 32, 32);
             graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
-            delete.setPosition(left + ((width / 2) - 50), this.getBottom() - 25);
+            int buttonX = left + ((width / 2) - 50);
+            delete.setPosition(buttonX, this.getBottom() - 50);
             delete.render(graphics, mouseX, mouseY, minecraft.getPartialTick());
+            if (getSelected().recipe.getType() != Type.REMOVED) {
+                edit.setPosition(buttonX, this.getBottom() - 25);
+                edit.render(graphics, mouseX, mouseY, minecraft.getPartialTick());
+            }
             recipe.render(left + 5, this.getY() + 5, graphics, mouseX, mouseY, minecraft.screen);
         }
     }
@@ -70,7 +75,7 @@ public class ChangedRecipesList extends ObjectSelectionList<ChangedRecipesList.E
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (!super.mouseClicked(mouseX, mouseY, button)) {
-            return getSelected() != null && delete.mouseClicked(mouseX, mouseY, button);
+            return getSelected() != null && (delete.mouseClicked(mouseX, mouseY, button) || (getSelected().recipe.getType() != Type.REMOVED && edit.mouseClicked(mouseX, mouseY, button)));
         }
         return true;
     }

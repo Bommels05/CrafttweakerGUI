@@ -256,6 +256,10 @@ public class ChangedRecipeManager {
             return new ChangedRecipe<>(Type.REMOVED, null, id, recipe, recipeType);
         }
 
+        public ChangedRecipe<T> withRecipe(T recipe) {
+            return new ChangedRecipe<>(this.type, this.id, this.originalId, recipe, this.recipeType);
+        }
+
         public Component getTitle() {
             return Component.translatable("ctgui.list.change_title", type.getName(),
                     EmiApi.getRecipeManager().getCategories().stream().filter(category -> category.getId().equals(recipeType.getId())).findFirst().orElseThrow().getName());

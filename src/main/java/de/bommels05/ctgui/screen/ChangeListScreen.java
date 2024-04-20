@@ -7,6 +7,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.*;
+import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.DisconnectedScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
@@ -32,8 +33,17 @@ public class ChangeListScreen extends Screen {
                 MutableComponent text = Component.translatable("ctgui.export_notice");
                 if (!minecraft.isLocalServer()) {
                     text = text.append(Component.translatable("ctgui.list.export_server").withStyle(ChatFormatting.RED));
+                    minecraft.setScreen(new DisconnectedScreen(this, Component.translatable("ctgui.list.export"), text, CommonComponents.GUI_OK));
+                } else {
+                    minecraft.setScreen(new ConfirmScreen(b -> {
+                        if (b) {
+                            minecraft.setScreen(null);
+                            minecraft.player.connection.sendCommand("reload");
+                        } else {
+                            minecraft.setScreen(this);
+                        }
+                    }, Component.translatable("ctgui.list.export"), text, Component.literal("Reload"), CommonComponents.GUI_OK));
                 }
-                minecraft.setScreen(new DisconnectedScreen(this, Component.translatable("ctgui.list.export"), text, CommonComponents.GUI_OK));
             }).bounds(this.width / 2 - 75, this.height - 25, 150, 20).build();
             export.visible = Config.editMode;
 

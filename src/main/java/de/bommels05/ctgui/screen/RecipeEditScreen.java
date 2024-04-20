@@ -53,9 +53,10 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
     public int imageWidth;
     public int imageHeight;
     private int optionsHeight;
-    private final boolean editing;
+    private final Action action;
     private String recipeId;
     private ResourceLocation originalRecipeId;
+    private final ChangedRecipeManager.ChangedRecipe<R> change;
     private boolean recipeIdChanged = false;
     private Button saveNew;
     private Button save;
@@ -63,16 +64,31 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
 
     public RecipeEditScreen(SupportedRecipe<R, ? extends SupportedRecipeType<R>> recipe, ResourceLocation recipeId) {
         super(Component.translatable("ctgui.editing.title", ""));
+        this.change = null;
         this.recipe = recipe;
         if (recipeId == null) {
-            editing = false;
+            action = Action.NEW;
             this.recipeId = CraftTweakerGUI.MOD_ID + "/new/" + recipe.getType().getId().getPath() + "/";
         } else {
-            editing = true;
+            action = Action.EDIT;
             recipeIdChanged = true;
             this.originalRecipeId = recipeId;
             this.recipeId = getAutoRecipeId(CraftTweakerGUI.MOD_ID + "/new/" + recipeId.getNamespace() + "/" + recipeId.getPath());
         }
+    }
+
+    public RecipeEditScreen(ChangedRecipeManager.ChangedRecipe<R> change) {
+        super(Component.translatable("ctgui.editing.title", ""));
+        this.change = change;
+        this.recipe = change.toSupportedRecipe();
+        try {
+            this.recipe.setRecipe(change.getRecipe());
+        } catch (UnsupportedViewerException ignored) {
+            //This would be thrown again in init and caught there
+        }
+        action = Action.EDIT_CHANGE;
+        recipeIdChanged = true;
+        this.recipeId = change.getId();
     }
 
     @Override
@@ -101,17 +117,22 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
             ChangedRecipeManager.addChangedRecipe(ChangedRecipeManager.ChangedRecipe.added(recipeId, recipe.getRecipe(), recipe.getType()));
             minecraft.setScreen(new ChangeListScreen());
         }).bounds(getMinX() + 5, getMaxY() - 25, 100, 20).
-                tooltip(Tooltip.create(Component.translatable(editing ? "ctgui.editing.save_new_description_editing" : "ctgui.editing.save_new_description"))).build();
+                tooltip(Tooltip.create(Component.translatable(action.isAnyEdit() ? "ctgui.editing.save_new_description_editing" : "ctgui.editing.save_new_description"))).build();
         saveNew.active = true;
         addRenderableWidget(saveNew);
 
         save = new Button.Builder(Component.translatable("ctgui.editing.save"), button -> {
             minecraft.setScreen(null);
-            ChangedRecipeManager.addChangedRecipe(ChangedRecipeManager.ChangedRecipe.changed(recipeId, originalRecipeId, recipe.getRecipe(), recipe.getType()));
+            if (action.isEdit()) {
+                ChangedRecipeManager.addChangedRecipe(ChangedRecipeManager.ChangedRecipe.changed(recipeId, originalRecipeId, recipe.getRecipe(), recipe.getType()));
+            } else {
+                ChangedRecipeManager.removeChangedRecipe(change);
+                ChangedRecipeManager.addChangedRecipe(change.withRecipe(recipe.getRecipe()));
+            }
             minecraft.setScreen(new ChangeListScreen());
         }).bounds((this.width / 2) - 50, getMaxY() - 25, 100, 20).
-                tooltip(Tooltip.create(Component.translatable(editing ? "ctgui.editing.save_description" : "ctgui.editing.unavailable"))).build();
-        save.active = editing;
+                tooltip(Tooltip.create(Component.translatable(action.isEditChange() ? "ctgui.editing.save_description_editing_change" : action.isEdit() ? "ctgui.editing.save_description" : "ctgui.editing.unavailable"))).build();
+        save.active = action.isAnyEdit();
         addRenderableWidget(save);
 
         Button delete = new Button.Builder(Component.translatable("ctgui.editing.delete"), button -> {
@@ -119,8 +140,8 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
             ChangedRecipeManager.addChangedRecipe(ChangedRecipeManager.ChangedRecipe.removed(originalRecipeId, recipe.getRecipe(), recipe.getType()));
             minecraft.setScreen(new ChangeListScreen());
         }).bounds(getMaxX() - 105, getMaxY() - 25, 100, 20).
-                tooltip(Tooltip.create(Component.translatable(editing ? "ctgui.editing.delete_description" : "ctgui.editing.unavailable"))).build();
-        delete.active = editing;
+                tooltip(Tooltip.create(Component.translatable(action.isEdit() ? "ctgui.editing.delete_description" : "ctgui.editing.unavailable"))).build();
+        delete.active = action.isEdit();
         addRenderableWidget(delete);
 
         idBox = new EditBox(this.font, (this.width / 2) - (imageWidth - 10) / 2, getMinY() + 15, imageWidth - 10, 18, Component.empty());
@@ -131,7 +152,7 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
             option.supplyEditBox(idBox, (id) -> recipeId = id);
             recipeIdChanged = true;
         } else {
-            idBox.setTooltip(Tooltip.create(Component.translatable(editing ?  "ctgui.editing.recipe_id_editing" : "ctgui.editing.recipe_id")));
+            idBox.setTooltip(Tooltip.create(Component.translatable(action.isEdit() ?  "ctgui.editing.recipe_id_editing" : "ctgui.editing.recipe_id")));
             idBox.setMaxLength(256);
             idBox.setValue(recipeId);
             idBox.setFilter(input -> {
@@ -354,9 +375,10 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
     }
 
     public void validate(R recipe) {
-        boolean valid = this.recipe.getType().isValid(recipe != null ? recipe : this.recipe.getRecipe()) && !recipeId.endsWith("/") && !ChangedRecipeManager.idAlreadyUsed(recipeId);
-        saveNew.active = valid;
-        save.active = editing && valid;
+        boolean valid = this.recipe.getType().isValid(recipe != null ? recipe : this.recipe.getRecipe());
+        boolean validId = valid && !ChangedRecipeManager.idAlreadyUsed(recipeId) && !recipeId.endsWith("/");
+        saveNew.active = validId;
+        save.active = valid && ((action.isEdit() && validId) || action.isEditChange());
     }
 
     private String getAutoRecipeId(String id) {
@@ -445,6 +467,28 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
     @Override
     public boolean isPauseScreen() {
         return false;
+    }
+
+    public enum Action {
+        NEW,
+        EDIT,
+        EDIT_CHANGE;
+
+        public boolean isNew() {
+            return this == NEW;
+        }
+
+        public boolean isEdit() {
+            return this == EDIT;
+        }
+
+        public boolean isEditChange() {
+            return this == EDIT_CHANGE;
+        }
+
+        public boolean isAnyEdit() {
+            return isEdit() || isEditChange();
+        }
     }
 
 }
