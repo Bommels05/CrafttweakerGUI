@@ -23,9 +23,10 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.*;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -83,10 +84,13 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
             return;
         }
 
+        if (getOptionsMaxX() >= getMinX()) {
+            minecraft.setScreen(new ConfirmScreen(b -> minecraft.setScreen(b ? new OptionsScreen(null, minecraft.options) : null), Component.translatable("ctgui.editing.to_small"), Component.translatable("ctgui.editing.to_small_description"), CommonComponents.GUI_OK, CommonComponents.GUI_CANCEL));
+            return;
+        }
+
         this.imageWidth = getMaxX() - getMinX();
         this.imageHeight = getMaxY() - getMinY();
-
-        super.init();
 
         Component title = Component.translatable("ctgui.editing.title", recipe.getCategoryName());
         addRenderableWidget(new StringWidget((this.width / 2) - (font.width(title) / 2), getMinY(), font.width(title), font.lineHeight, title, this.font));
