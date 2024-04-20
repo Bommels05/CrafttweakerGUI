@@ -13,7 +13,8 @@
     "EmiScreenBaseMixin",
     "RecipeScreenMixin",
     "ShapedRecipePatternMixin",
-    "EmiRecipesMixin"
+    "EmiRecipesMixin",
+    "EmiApiMixin"
   ],
   "injectors": {
     "defaultRequire": 1
