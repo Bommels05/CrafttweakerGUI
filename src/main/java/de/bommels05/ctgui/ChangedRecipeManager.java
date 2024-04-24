@@ -9,8 +9,6 @@ import de.bommels05.ctgui.api.RecipeTypeManager;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
-import de.bommels05.ctgui.emi.EmiSupportedRecipe;
-import dev.emi.emi.api.EmiApi;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -44,6 +42,9 @@ public class ChangedRecipeManager {
     private static long lastSave = System.currentTimeMillis();
     static {
         load();
+        if (CraftTweakerGUI.isJeiActive()) {
+            reInjectAll();
+        }
     }
 
     public static void addChangedRecipe(ChangedRecipe<?> recipe, boolean inject) {
@@ -262,7 +263,7 @@ public class ChangedRecipeManager {
 
         public Component getTitle() {
             return Component.translatable("ctgui.list.change_title", type.getName(),
-                    EmiApi.getRecipeManager().getCategories().stream().filter(category -> category.getId().equals(recipeType.getId())).findFirst().orElseThrow().getName());
+                    CraftTweakerGUI.getViewerUtils().getCategoryName(recipeType.getId()));
         }
 
         public String getId() {
@@ -325,17 +326,15 @@ public class ChangedRecipeManager {
             return recipeType;
         }
 
-        public SupportedRecipe<T, ? extends SupportedRecipeType<T>> toSupportedRecipe() {
-            try {
-                return new EmiSupportedRecipe<>(recipeType.getEmiRecipe(recipe));
-            } catch (UnsupportedViewerException e) {
-                //todo handle viewers
-                throw new RuntimeException(e);
-            }
+        public SupportedRecipe<T, ? extends SupportedRecipeType<T>> toSupportedRecipe() throws UnsupportedViewerException {
+            return CraftTweakerGUI.getViewerUtils().toSupportedRecipe(recipeType, recipe);
         }
 
         public void setExported(boolean exported) {
             this.exported = exported;
+            if (exported && CraftTweakerGUI.isJeiActive()) {
+                CraftTweakerGUI.getViewerUtils().unInject(this);
+            }
         }
 
         public boolean wasExported() {

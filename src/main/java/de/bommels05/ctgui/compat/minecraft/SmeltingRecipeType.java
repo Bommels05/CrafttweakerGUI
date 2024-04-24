@@ -14,7 +14,7 @@ public class SmeltingRecipeType extends CookingRecipeType<SmeltingRecipe> {
     }
 
     @Override
-    public EmiRecipe getEmiRecipe(SmeltingRecipe recipe) throws UnsupportedViewerException {
+    public Object getEmiRecipe(SmeltingRecipe recipe) throws UnsupportedViewerException {
         return new EmiCookingRecipe(recipe, VanillaEmiRecipeCategories.SMELTING, 1, false);
     }
 }

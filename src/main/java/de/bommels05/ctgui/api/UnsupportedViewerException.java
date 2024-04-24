@@ -19,7 +19,7 @@ public class UnsupportedViewerException extends Exception {
     }
 
     public void display() {
-        Minecraft.getInstance().setScreen(new DisconnectedScreen(null, Component.translatable("ctgui.editing.title", "Unsupported"), message, CommonComponents.GUI_OK));
+        Minecraft.getInstance().setScreen(new DisconnectedScreen(null, Component.translatable("ctgui.editing.title", Component.translatable("ctgui.unsupported")), message, CommonComponents.GUI_OK));
     }
 
 }

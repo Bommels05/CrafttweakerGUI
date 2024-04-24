@@ -14,7 +14,7 @@ public class BlastingRecipeType extends CookingRecipeType<BlastingRecipe> {
     }
 
     @Override
-    public EmiRecipe getEmiRecipe(BlastingRecipe recipe) throws UnsupportedViewerException {
+    public Object getEmiRecipe(BlastingRecipe recipe) throws UnsupportedViewerException {
         return new EmiCookingRecipe(recipe, VanillaEmiRecipeCategories.BLASTING, 2, false);
     }
 }

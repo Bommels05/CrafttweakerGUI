@@ -1,6 +1,7 @@
 package de.bommels05.ctgui.emi;
 
 import com.mojang.logging.LogUtils;
+import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
 import de.bommels05.ctgui.compat.minecraft.custom.TagRecipe;
 import de.bommels05.ctgui.screen.RecipeEditScreen;
@@ -125,7 +126,7 @@ public class EmiSupportedRecipe<R extends Recipe<?>, T extends SupportedRecipeTy
     @Override
     public void setRecipe(R r) throws UnsupportedViewerException {
         this.mcRecipe = r;
-        this.recipe = getType().getEmiRecipe(r);
+        this.recipe = EmiViewerUtils.INSTANCE.getViewerRecipe(type, r);
         this.widgets = null;
     }
 }

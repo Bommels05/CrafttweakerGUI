@@ -35,10 +35,7 @@ public class RecipeDisplayMixin {
 
     @Inject(method = "<init>(Ldev/emi/emi/api/recipe/EmiRecipe;)V", at = @At(value = "INVOKE", target = "Ldev/emi/emi/api/recipe/EmiRecipe;supportsRecipeTree()Z"))
     protected void addButtons(EmiRecipe recipe, CallbackInfo ci) {
-        if (Config.editMode && RecipeTypeManager.isTypeSupported(recipe.getCategory().getId()) &&
-                ChangedRecipeManager.getAffectingChange(recipe.getId()) == null
-                && !(recipe instanceof EmiTagRecipe r && ChangedRecipeManager.idAlreadyUsed(r.key.location().toString()))
-                && (recipe.getId() != null && !recipe.getId().getNamespace().equals(CraftTweakerConstants.MOD_ID)) && !recipe.getId().getNamespace().equals(CraftTweakerGUI.MOD_ID)) {
+        if (CraftTweakerGUI.shouldShowEditButton(recipe.getCategory().getId(), recipe.getId(), recipe)) {
             try {
                 rightButtons.add(Class.forName("dev.emi.emi.screen.RecipeDisplay$ButtonType").getEnumConstants()[2]);
             } catch (ClassNotFoundException e) {

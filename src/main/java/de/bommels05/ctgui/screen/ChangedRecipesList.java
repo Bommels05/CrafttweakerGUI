@@ -3,6 +3,7 @@ package de.bommels05.ctgui.screen;
 import de.bommels05.ctgui.ChangedRecipeManager;
 import de.bommels05.ctgui.ChangedRecipeManager.ChangedRecipe.Type;
 import de.bommels05.ctgui.SupportedRecipe;
+import de.bommels05.ctgui.api.UnsupportedViewerException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -55,7 +56,18 @@ public class ChangedRecipesList extends ObjectSelectionList<ChangedRecipesList.E
     @Override
     protected void renderDecorations(GuiGraphics graphics, int mouseX, int mouseY) {
         if (getSelected() != null) {
-            SupportedRecipe<?, ?> recipe = getSelected().recipe.toSupportedRecipe();
+            SupportedRecipe<?, ?> recipe;
+            try {
+                //Cache this because it breaks JEIs Cycling otherwise
+                if (getSelected().supportedRecipe == null) {
+                    getSelected().supportedRecipe = getSelected().recipe.toSupportedRecipe();
+                }
+                recipe = getSelected().supportedRecipe;
+            } catch (UnsupportedViewerException e) {
+                //This can only happen when something is uninstalled or removes support for something
+                e.display();
+                return;
+            }
             int width = Math.max(recipe.getWidth(), 100) + 10;
             int left = this.width - width;
             graphics.setColor(0.25F, 0.25F, 0.25F, 1.0F);
@@ -83,6 +95,7 @@ public class ChangedRecipesList extends ObjectSelectionList<ChangedRecipesList.E
     public class Entry extends ObjectSelectionList.Entry<Entry> {
 
         private final ChangedRecipeManager.ChangedRecipe<?> recipe;
+        private SupportedRecipe<?, ?> supportedRecipe;
         private final Font font = Minecraft.getInstance().font;
 
         public Entry(ChangedRecipeManager.ChangedRecipe<?> recipe) {

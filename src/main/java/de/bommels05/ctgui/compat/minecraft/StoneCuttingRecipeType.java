@@ -46,7 +46,7 @@ public class StoneCuttingRecipeType extends SupportedRecipeType<StonecutterRecip
     }
 
     @Override
-    public EmiRecipe getEmiRecipe(StonecutterRecipe recipe) throws UnsupportedViewerException {
+    public Object getEmiRecipe(StonecutterRecipe recipe) throws UnsupportedViewerException {
         return new EmiStonecuttingRecipe(recipe);
     }
 

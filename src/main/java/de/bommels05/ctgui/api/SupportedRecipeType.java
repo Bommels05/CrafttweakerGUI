@@ -60,10 +60,10 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
     /**
      * Returns the Emi representation of the recipe
      * @param recipe The recipe
-     * @return The Emi representation of the recipe
+     * @return The Emi representation of the recipe. This has to be an instance of {@link EmiRecipe}!!! but can not be declared as such, because of class loading issues when Emi is not installed.
      * @throws UnsupportedViewerException If the recipe can not be displayed with Emi
      */
-    public abstract EmiRecipe getEmiRecipe(R recipe) throws UnsupportedViewerException;
+    public abstract Object getEmiRecipe(R recipe) throws UnsupportedViewerException;
 
     /**
      * Returns the CrafTweaker command to add an recipe of this type with the given id

@@ -15,7 +15,7 @@ public class CampfireCookingRecipeType extends CookingRecipeType<CampfireCooking
     }
 
     @Override
-    public EmiRecipe getEmiRecipe(CampfireCookingRecipe recipe) throws UnsupportedViewerException {
+    public Object getEmiRecipe(CampfireCookingRecipe recipe) throws UnsupportedViewerException {
         return new EmiCookingRecipe(recipe, VanillaEmiRecipeCategories.CAMPFIRE_COOKING, 1, true);
     }
 }

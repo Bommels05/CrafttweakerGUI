@@ -19,7 +19,7 @@ public class RecipeEditButtonWidget extends RecipeButtonWidget {
     @Override
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
         this.playButtonSound();
-        Minecraft.getInstance().setScreen(new RecipeEditScreen<>(new EmiSupportedRecipe<>(recipe), recipe.getId()));
+        Minecraft.getInstance().setScreen(new RecipeEditScreen<>(CraftTweakerGUI.getViewerUtils().toSupportedRecipe(recipe), recipe.getId()));
         return true;
     }
 

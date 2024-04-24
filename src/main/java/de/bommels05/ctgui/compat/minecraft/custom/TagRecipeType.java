@@ -141,7 +141,7 @@ public class TagRecipeType extends SupportedRecipeType<TagRecipe> {
     }
 
     @Override
-    public EmiEditingTagRecipe getEmiRecipe(TagRecipe recipe) throws UnsupportedViewerException {
+    public Object getEmiRecipe(TagRecipe recipe) throws UnsupportedViewerException {
         if (recipe.item) {
             return new EmiEditingTagRecipe(this, TagKey.create(Registries.ITEM, recipe.id), recipe.items, recipe.itemTags);
         } else {

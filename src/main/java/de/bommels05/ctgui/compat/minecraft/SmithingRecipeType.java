@@ -66,7 +66,7 @@ public class SmithingRecipeType extends SupportedRecipeType<SmithingRecipe> {
     }
 
     @Override
-    public EmiRecipe getEmiRecipe(SmithingRecipe r) throws UnsupportedViewerException {
+    public Object getEmiRecipe(SmithingRecipe r) throws UnsupportedViewerException {
         SmithingTransformRecipe recipe = ((SmithingTransformRecipe) r);
         return new EmiSmithingRecipe(EmiIngredient.of(recipe.template), EmiIngredient.of(recipe.base), EmiIngredient.of(recipe.addition), EmiStack.of(recipe.getResultItem(regAccess())), EmiPort.getId(recipe));
     }

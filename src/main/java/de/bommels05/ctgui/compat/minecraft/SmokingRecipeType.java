@@ -15,7 +15,7 @@ public class SmokingRecipeType extends CookingRecipeType<SmokingRecipe> {
     }
 
     @Override
-    public EmiRecipe getEmiRecipe(SmokingRecipe recipe) throws UnsupportedViewerException {
+    public Object getEmiRecipe(SmokingRecipe recipe) throws UnsupportedViewerException {
         return new EmiCookingRecipe(recipe, VanillaEmiRecipeCategories.SMOKING, 2, false);
     }
 }

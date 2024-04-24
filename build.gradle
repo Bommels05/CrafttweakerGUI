@@ -65,7 +65,8 @@ dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
 
     implementation "dev.emi:emi-neoforge:${emi_version}"
-    implementation("com.blamejared.crafttweaker:CraftTweaker-neoforge-1.20.4:17.0.13") {
+    implementation "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
+    implementation("com.blamejared.crafttweaker:CraftTweaker-neoforge-${minecraft_version}:${crafttweaker_version}") {
         transitive = false
     }
 }

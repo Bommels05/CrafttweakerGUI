@@ -50,5 +50,6 @@
   "ctgui.changes_saved": "Export them to CraftTweaker so they apply",
   "ctgui.saving_error_title": "Error saving recipe changes",
   "ctgui.export_error_title": "Error exporting recipe changes",
-  "ctgui.error_message": "Check you log for more details"
+  "ctgui.error_message": "Check you log for more details",
+  "ctgui.unsupported": "Unsupported"
 }

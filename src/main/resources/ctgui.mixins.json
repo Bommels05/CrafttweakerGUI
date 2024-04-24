@@ -14,7 +14,9 @@
     "RecipeScreenMixin",
     "ShapedRecipePatternMixin",
     "EmiRecipesMixin",
-    "EmiApiMixin"
+    "EmiApiMixin",
+    "RecipesGuiMixin",
+    "CraftingGridHelperMixin"
   ],
   "injectors": {
     "defaultRequire": 1

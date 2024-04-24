@@ -4,19 +4,13 @@ import com.mojang.blaze3d.platform.InputConstants;
 import de.bommels05.ctgui.ChangedRecipeManager;
 import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.SupportedRecipe;
+import de.bommels05.ctgui.ViewerSlot;
 import de.bommels05.ctgui.api.AmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
 import de.bommels05.ctgui.api.option.RecipeIdFieldRecipeOption;
 import de.bommels05.ctgui.api.option.RecipeOption;
-import dev.emi.emi.EmiPort;
-import dev.emi.emi.EmiRenderHelper;
-import dev.emi.emi.api.stack.EmiIngredient;
-import dev.emi.emi.api.stack.EmiStack;
-import dev.emi.emi.api.widget.SlotWidget;
-import dev.emi.emi.runtime.EmiDrawContext;
-import dev.emi.emi.screen.EmiScreenManager;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -24,6 +18,7 @@ import net.minecraft.client.gui.components.*;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.*;
+import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.CommonComponents;
@@ -45,10 +40,10 @@ import java.util.function.BiFunction;
 public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
 
     private final static ResourceLocation HOT_BAR = new ResourceLocation(CraftTweakerGUI.MOD_ID, "textures/gui/hotbar.png");
-    private final SupportedRecipe<R, ? extends SupportedRecipeType<R>> recipe;
+    private SupportedRecipe<R, ? extends SupportedRecipeType<R>> recipe;
     private AmountedIngredient dragged = null;
-    private List<SlotWidget> hotBarSlots = new ArrayList<>();
-    private SlotWidget tagSlot;
+    private List<ViewerSlot> hotBarSlots = new ArrayList<>();
+    private ViewerSlot tagSlot;
     private Ingredient tag;
     public int imageWidth;
     public int imageHeight;
@@ -61,6 +56,7 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
     private Button saveNew;
     private Button save;
     private EditBox idBox;
+    private UnsupportedViewerException exception;
 
     public RecipeEditScreen(SupportedRecipe<R, ? extends SupportedRecipeType<R>> recipe, ResourceLocation recipeId) {
         super(Component.translatable("ctgui.editing.title", ""));
@@ -80,11 +76,11 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
     public RecipeEditScreen(ChangedRecipeManager.ChangedRecipe<R> change) {
         super(Component.translatable("ctgui.editing.title", ""));
         this.change = change;
-        this.recipe = change.toSupportedRecipe();
         try {
+            this.recipe = change.toSupportedRecipe();
             this.recipe.setRecipe(change.getRecipe());
-        } catch (UnsupportedViewerException ignored) {
-            //This would be thrown again in init and caught there
+        } catch (UnsupportedViewerException e) {
+            this.exception = e;
         }
         action = Action.EDIT_CHANGE;
         recipeIdChanged = true;
@@ -93,6 +89,11 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
 
     @Override
     protected void init() {
+        if (exception != null) {
+            exception.display();
+            return;
+        }
+
         try {
             changeRecipe(recipe.getType().onInitialize(recipe.getRecipe()));
         } catch (UnsupportedRecipeException e) {
@@ -170,17 +171,13 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
         addRenderableWidget(new StringWidget((getTagMaxX() / 2) - (font.width(tagTitle) / 2), getTagMinY() + 1, font.width(tagTitle), font.lineHeight, tagTitle, this.font));
         EditBox tagBox = new EditBox(this.font, getTagMinX() + 1, getTagMinY() + 11, 100, 18, tagTitle);
         tagBox.setResponder(input -> {
-            EmiIngredient ingredient;
             try {
                 TagKey<Item> key = TagKey.create(Registries.ITEM, new ResourceLocation(input));
                 tag = Ingredient.of(key);
-                //Make the EmiIngredient from the ingredient to display empty tags
-                ingredient = EmiIngredient.of(tag);
             } catch (ResourceLocationException e) {
-                ingredient = EmiStack.EMPTY;
                 tag = Ingredient.EMPTY;
             }
-            tagSlot = new SlotWidget(ingredient, 102, getTagMinY() + 11);
+            tagSlot = CraftTweakerGUI.getViewerUtils().newSlot(tag, 102, getTagMinY() + 11);
         });
         tagBox.setValue("forge:ingots/iron");
         addRenderableWidget(tagBox);
@@ -202,11 +199,11 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
         }
 
         for (int i = 0; i < 9; i++) {
-            hotBarSlots.add(new SlotWidget(EmiStack.of(minecraft.player.getInventory().getItem(i)), getHotBarX() + 7 + i * 18, getMaxY() - 1));
+            hotBarSlots.add(CraftTweakerGUI.getViewerUtils().newSlot(minecraft.player.getInventory().getItem(i), getHotBarX() + 7 + i * 18, getMaxY() - 1));
         }
 
         validate(null);
-        EmiScreenManager.addWidgets(this);
+        CraftTweakerGUI.getViewerUtils().init(this);
     }
 
     @Override
@@ -220,31 +217,24 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
         }
         graphics.blit(HOT_BAR, getHotBarX(), getMaxY() - 4, 0, 0, 0, 176, 28, 256, 32);
 
-        EmiDrawContext context = EmiDrawContext.wrap(graphics);
-        EmiScreenManager.drawBackground(context, mouseX, mouseY, partialTick);
+        CraftTweakerGUI.getViewerUtils().renderBackground(graphics, mouseX, mouseY, partialTick);
     }
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         super.render(graphics, mouseX, mouseY, partialTick);
 
-        EmiDrawContext context = EmiDrawContext.wrap(graphics);
-        context.push();
-        EmiPort.setPositionTexShader();
-        EmiScreenManager.render(context, mouseX, mouseY, partialTick);
-        context.pop();
+        CraftTweakerGUI.getViewerUtils().renderStart(graphics, mouseX, mouseY, partialTick);
 
         recipe.render(getRecipeX(), getRecipeY(), graphics, mouseX, mouseY, this);
         hotBarSlots.forEach(slot -> slot.render(graphics, mouseX, mouseY, partialTick));
+        if (CraftTweakerGUI.isJeiActive()) {
+            //Jei does not render slot backgrounds
+            graphics.blit(HOT_BAR, 102, getTagMinY() + 11, 7, 3, 18, 18, 256, 32);
+        }
         tagSlot.render(graphics, mouseX, mouseY, partialTick);
-        if (tagSlot.getBounds().contains(mouseX, mouseY)) {
-            EmiRenderHelper.drawTooltip(this, EmiDrawContext.wrap(graphics), tagSlot.getTooltip(mouseX, mouseY), mouseX, mouseY);
-        }
-        for (SlotWidget slot : hotBarSlots) {
-            if (slot.getBounds().contains(mouseX, mouseY)) {
-                EmiRenderHelper.drawTooltip(this, EmiDrawContext.wrap(graphics), slot.getTooltip(mouseX, mouseY), mouseX, mouseY);
-            }
-        }
+        tagSlot.renderTooltip(this, graphics, mouseX, mouseY);
+        hotBarSlots.forEach(slot -> slot.renderTooltip(this, graphics, mouseX, mouseY));
         if (dragged != null && !dragged.isEmpty()) {
             int x = mouseX - 8;
             int y = mouseY - 8;
@@ -256,7 +246,7 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
             graphics.renderItemDecorations(font == null ? this.font : font, stack, x, y, dragged.isTag() ? "Tag" + (stack.getCount() == 1 ? "" : " " + stack.getCount()) : null);
             graphics.pose().popPose();
         }
-        EmiScreenManager.drawForeground(context, mouseX, mouseY, partialTick);
+        CraftTweakerGUI.getViewerUtils().renderEnd(graphics, mouseX, mouseY, partialTick);
     }
 
     private int getRecipeX() {
@@ -265,6 +255,10 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
 
     private int getRecipeY() {
         return getMinY() + 38;
+    }
+
+    public Rect2i getRecipeRect() {
+        return new Rect2i(getRecipeX(), getRecipeY(), recipe.getWidth(), recipe.getHeight());
     }
 
     public void handleDragAndDrop(int x, int y, AmountedIngredient ingredient) {
@@ -279,18 +273,18 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
         boolean rightClick = InputConstants.Type.MOUSE.getOrCreate(mouseButton).getValue() == InputConstants.MOUSE_BUTTON_RIGHT;
         R newRecipe = recipe.getType().onClick(recipe.getRecipe(), (int) mouseX - getRecipeX(), (int) mouseY - getRecipeY(), rightClick, this);
         if (!rightClick) {
-            if (tagSlot.getBounds().contains((int) mouseX, (int) mouseY) && !tag.isEmpty()) {
+            if (tagSlot.mouseOver((int) mouseX, (int) mouseY) && !tag.isEmpty()) {
                 setDragged(new AmountedIngredient(tag, 1));
             } else {
-                for (SlotWidget slot : hotBarSlots) {
-                    if (slot.getBounds().contains((int) mouseX, (int) mouseY) && !slot.getStack().isEmpty()) {
-                        setDragged(AmountedIngredient.of(slot.getStack().getEmiStacks().get(0).getItemStack()));
+                for (ViewerSlot slot : hotBarSlots) {
+                    if (slot.mouseOver((int) mouseX, (int) mouseY) && !slot.getStack().isEmpty()) {
+                        setDragged(AmountedIngredient.of(slot.getStack()));
                     }
                 }
             }
         }
         if (changeRecipe(newRecipe)) return true;
-        if (EmiScreenManager.mouseClicked(mouseX, mouseY, mouseButton)) {
+        if (CraftTweakerGUI.getViewerUtils().mouseClicked(mouseX, mouseY, mouseButton)) {
             return true;
         }
         return super.mouseClicked(mouseX, mouseY, mouseButton);
@@ -300,7 +294,7 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
     public boolean mouseScrolled(double mouseX, double mouseY, double p_94687_, double amount) {
         R newRecipe = recipe.getType().onScroll(recipe.getRecipe(), (int) mouseX - getRecipeX(), (int) mouseY - getRecipeY(), amount > 0);
         if (changeRecipe(newRecipe)) return true;
-        if (EmiScreenManager.mouseScrolled(mouseX, mouseY, amount)) {
+        if (CraftTweakerGUI.getViewerUtils().mouseScrolled(mouseX, mouseY, amount)) {
             return true;
         }
         return super.mouseScrolled(mouseX, mouseY, p_94687_, amount);
@@ -310,7 +304,7 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
     public boolean mouseReleased(double mouseX, double mouseY, int mouseButton) {
         R newRecipe = recipe.getType().onReleased(recipe.getRecipe(), (int) mouseX - getRecipeX(), (int) mouseY - getRecipeY(), InputConstants.Type.MOUSE.getOrCreate(mouseButton).getValue() == InputConstants.MOUSE_BUTTON_RIGHT, this);
         if (changeRecipe(newRecipe)) return true;
-        if (EmiScreenManager.mouseReleased(mouseX, mouseY, mouseButton)) {
+        if (CraftTweakerGUI.getViewerUtils().mouseReleased(mouseX, mouseY, mouseButton)) {
             return true;
         }
         return super.mouseReleased(mouseX, mouseY, mouseButton);
@@ -318,7 +312,7 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int mouseButton, double deltaX, double deltaY) {
-        if (EmiScreenManager.mouseDragged(mouseX, mouseY, mouseButton, deltaX, deltaY)) {
+        if (CraftTweakerGUI.getViewerUtils().mouseDragged(mouseX, mouseY, mouseButton, deltaX, deltaY)) {
             return true;
         }
         return super.mouseDragged(mouseX, mouseY, mouseButton, deltaX, deltaY);
@@ -326,7 +320,7 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
 
     @Override
     public boolean charTyped(char c, int modifiers) {
-        if (EmiScreenManager.search.charTyped(c, modifiers)) {
+        if (CraftTweakerGUI.getViewerUtils().charTyped(c, modifiers)) {
             return true;
         }
         return super.charTyped(c, modifiers);
@@ -334,7 +328,7 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (EmiScreenManager.keyPressed(keyCode, scanCode, modifiers)) {
+        if (CraftTweakerGUI.getViewerUtils().keyPressed(keyCode, scanCode, modifiers)) {
             return true;
         }
         return super.keyPressed(keyCode, scanCode, modifiers);

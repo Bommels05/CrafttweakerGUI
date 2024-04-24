@@ -2,6 +2,7 @@ package de.bommels05.ctgui;
 
 import dev.emi.emi.config.EmiConfig;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.common.ModConfigSpec;
@@ -36,9 +37,11 @@ public class Config {
             noTagTranslations = NO_TAG_TRANSLATIONS.get();
             noWarning = NO_WARNING.get();
             saveToast = SAVE_TOAST.get();
-            //Disabled by default but required
-            EmiConfig.showRecipeDecorators = true;
-            EmiConfig.writeConfig();
+            if (ModList.get().isLoaded("emi")) {
+                //Disabled by default but required
+                EmiConfig.showRecipeDecorators = true;
+                EmiConfig.writeConfig();
+            }
         }
         listButton = LIST_BUTTON.get();
         customRecipeIndicator = CUSTOM_RECIPE_INDICATOR.get();

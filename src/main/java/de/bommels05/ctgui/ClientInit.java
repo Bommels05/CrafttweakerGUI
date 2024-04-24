@@ -14,14 +14,21 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.fml.*;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.client.ConfigScreenHandler;
 import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.client.loading.ClientModLoader;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.neoforgespi.language.IModInfo;
+import net.neoforged.neoforgespi.language.MavenVersionAdapter;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class ClientInit {
@@ -35,11 +42,17 @@ public class ClientInit {
         ModLoadingContext.get().registerExtensionPoint(ConfigScreenHandler.ConfigScreenFactory.class,
                 () -> new ConfigScreenHandler.ConfigScreenFactory((mc, screen) -> new ChangeListScreen()));
 
-        /*if (!ModList.get().isLoaded("emi") && !ModList.get().isLoaded("jei")) {
-            //ModLoader.get().addWarning(new ModLoadingWarning(ModLoadingContext.get().getActiveContainer().getModInfo(), ModLoadingStage.CONSTRUCT, "Either Emi or Jei is required for Crafttweaker GUI to work"));
+        if (!ModList.get().isLoaded("emi") && !ModList.get().isLoaded("jei")) {
+            try {
+                Field field = ClientModLoader.class.getDeclaredField("error");
+                field.setAccessible(true);
+                field.set(null, new LoadingFailedException(List.of(new ModLoadingException(
+                        ModLoadingContext.get().getActiveContainer().getModInfo(), ModLoadingStage.VALIDATE, "fml.modloading.missingdependency", null, "jei or emi",
+                        CraftTweakerGUI.MOD_ID, MavenVersionAdapter.createFromVersionSpec("[17.3.0.49,)[1.1.2+1.20.4+neoforge,)"),
+                        new DefaultArtifactVersion("null"), Optional.empty()))));
+            } catch (Throwable ignored) {}
             throw new IllegalStateException("Either Emi or Jei is required for Crafttweaker GUI to work");
-            return;
-        }*/
+        }
 
         RecipeTypeManager.addType(new CraftingRecipeType());
         RecipeTypeManager.addType(new SmeltingRecipeType());

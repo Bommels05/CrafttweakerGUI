@@ -1,7 +1,5 @@
 package de.bommels05.ctgui.compat.minecraft;
 
-import com.blamejared.crafttweaker.api.ingredient.IIngredient;
-import com.blamejared.crafttweaker.api.util.ItemStackUtil;
 import de.bommels05.ctgui.api.AmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
@@ -10,9 +8,7 @@ import de.bommels05.ctgui.api.option.BooleanRecipeOption;
 import dev.emi.emi.api.recipe.EmiRecipe;
 import dev.emi.emi.recipe.EmiShapedRecipe;
 import dev.emi.emi.recipe.EmiShapelessRecipe;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -86,8 +82,8 @@ public class CraftingRecipeType extends SupportedRecipeType<CraftingRecipe> {
         }
         if (r instanceof ShapelessRecipe) {
             shapeless.set(true);
-            //Recipe is supported and does not need to be changed
-            return null;
+            //Forces the anti centering mixins to apply in jei
+            return r;
         }
         throw new UnsupportedRecipeException();
     }
@@ -98,7 +94,7 @@ public class CraftingRecipeType extends SupportedRecipeType<CraftingRecipe> {
     }
 
     @Override
-    public EmiRecipe getEmiRecipe(CraftingRecipe r) throws UnsupportedViewerException {
+    public Object getEmiRecipe(CraftingRecipe r) throws UnsupportedViewerException {
         if (r instanceof ShapedRecipe recipe) {
             return new EmiShapedRecipe(recipe);
         }
