@@ -2,6 +2,7 @@ package de.bommels05.ctgui.screen;
 
 import de.bommels05.ctgui.ChangedRecipeManager;
 import de.bommels05.ctgui.ChangedRecipeManager.ChangedRecipe.Type;
+import de.bommels05.ctgui.Config;
 import de.bommels05.ctgui.SupportedRecipe;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
 import net.minecraft.client.Minecraft;
@@ -74,11 +75,13 @@ public class ChangedRecipesList extends ObjectSelectionList<ChangedRecipesList.E
             graphics.blit(Screen.BACKGROUND_LOCATION, left, this.getY(), 0, 0, width, minecraft.screen.height - this.getY(), 32, 32);
             graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
             int buttonX = left + ((width / 2) - 50);
-            delete.setPosition(buttonX, this.getBottom() - 50);
-            delete.render(graphics, mouseX, mouseY, minecraft.getPartialTick());
-            if (getSelected().recipe.getType() != Type.REMOVED) {
-                edit.setPosition(buttonX, this.getBottom() - 25);
-                edit.render(graphics, mouseX, mouseY, minecraft.getPartialTick());
+            if (Config.editMode) {
+                delete.setPosition(buttonX, this.getBottom() - 50);
+                delete.render(graphics, mouseX, mouseY, minecraft.getPartialTick());
+                if (getSelected().recipe.getType() != Type.REMOVED) {
+                    edit.setPosition(buttonX, this.getBottom() - 25);
+                    edit.render(graphics, mouseX, mouseY, minecraft.getPartialTick());
+                }
             }
             recipe.render(left + 5, this.getY() + 5, graphics, mouseX, mouseY, minecraft.screen);
         }
@@ -87,7 +90,7 @@ public class ChangedRecipesList extends ObjectSelectionList<ChangedRecipesList.E
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (!super.mouseClicked(mouseX, mouseY, button)) {
-            return getSelected() != null && (delete.mouseClicked(mouseX, mouseY, button) || (getSelected().recipe.getType() != Type.REMOVED && edit.mouseClicked(mouseX, mouseY, button)));
+            return Config.editMode && getSelected() != null && (delete.mouseClicked(mouseX, mouseY, button) || (getSelected().recipe.getType() != Type.REMOVED && edit.mouseClicked(mouseX, mouseY, button)));
         }
         return true;
     }

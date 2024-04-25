@@ -316,6 +316,10 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
         areas.clear();
     }
 
+    public List<Area<R>> getAreas() {
+        return areas;
+    }
+
     /**
      * Quickly get the registry access mostly used to get a recipes result item
      * @return The registry access of the current level

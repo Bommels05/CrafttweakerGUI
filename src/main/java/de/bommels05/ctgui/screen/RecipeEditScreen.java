@@ -249,16 +249,16 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
         CraftTweakerGUI.getViewerUtils().renderEnd(graphics, mouseX, mouseY, partialTick);
     }
 
-    private int getRecipeX() {
+    public int getRecipeX() {
         return (this.width / 2) - recipe.getWidth() / 2;
     }
 
-    private int getRecipeY() {
+    public int getRecipeY() {
         return getMinY() + 38;
     }
 
-    public Rect2i getRecipeRect() {
-        return new Rect2i(getRecipeX(), getRecipeY(), recipe.getWidth(), recipe.getHeight());
+    public SupportedRecipeType<R> getRecipeType() {
+        return recipe.getType();
     }
 
     public void handleDragAndDrop(int x, int y, AmountedIngredient ingredient) {
