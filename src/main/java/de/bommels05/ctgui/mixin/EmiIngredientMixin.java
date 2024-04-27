@@ -37,7 +37,7 @@ public interface EmiIngredientMixin {
 
     @Redirect(method = "of(Lnet/minecraft/world/item/crafting/Ingredient;J)Ldev/emi/emi/api/stack/EmiIngredient;", at = @At(value = "INVOKE", target = "Ljava/util/stream/Stream;toList()Ljava/util/List;"))
     private static List<?> alwaysDisplayTag(Stream<?> instance, Ingredient ingredient) {
-        if (Config.noTagCollapsing && Minecraft.getInstance().screen instanceof RecipeEditScreen<?> &&
+        if (Config.noTagCollapsing && (Minecraft.getInstance().screen instanceof RecipeEditScreen<?> || Config.showTagsEverywhere) &&
                 Arrays.stream(ingredient.getValues()).anyMatch(value -> value instanceof Ingredient.TagValue &&
                         //Empty Tags shouldn't display as a list ingredient
                         BuiltInRegistries.ITEM.getTagOrEmpty(((Ingredient.TagValue) value).tag()).iterator().hasNext())) {

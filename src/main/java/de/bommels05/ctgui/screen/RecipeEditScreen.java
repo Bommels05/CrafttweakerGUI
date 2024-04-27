@@ -157,10 +157,13 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
             idBox.setMaxLength(256);
             idBox.setValue(recipeId);
             idBox.setFilter(input -> {
-                return input.startsWith(CraftTweakerGUI.MOD_ID + "/new/") && ResourceLocation.isValidPath(input);
+                return input.startsWith(CraftTweakerGUI.MOD_ID + "/new/") && ResourceLocation.isValidPath(input.replaceAll(" ", "_"));
             });
             idBox.setResponder(input -> {
-                recipeId = input;
+                recipeId = input.replaceAll(" ", "_");
+                if (!input.equals(recipeId)) {
+                    idBox.setValue(recipeId);
+                }
                 recipeIdChanged = true;
                 validate(null);
             });

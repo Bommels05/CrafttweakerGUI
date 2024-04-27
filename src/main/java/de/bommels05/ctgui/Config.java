@@ -14,6 +14,7 @@ public class Config {
     private static final ModConfigSpec.BooleanValue EDIT_MODE = BUILDER.comment("Enables editing of recipes. When disabled CTGUI can still be used to display changed recipes").define("editMode", true);
     private static final ModConfigSpec.BooleanValue NO_TAG_COLLAPSING = BUILDER.push("editing").comment("Disables collapsing tags with one item into the item itself while editing recipes (In Emi)").define("noTagCollapsing", true);
     private static final ModConfigSpec.BooleanValue NO_TAG_TRANSLATIONS = BUILDER.comment("Disables tag name translation while editing recipes (In Emi)").define("noTagTranslations", true);
+    private static final ModConfigSpec.BooleanValue SHOW_TAGS_EVERYWHERE = BUILDER.comment("Also disables tag collapsing and translations outside the recipe editing screen if their options are enabled").define("showTagsEverywhere", false);
     private static final ModConfigSpec.BooleanValue NO_WARNING = BUILDER.comment("Disables the edit mode warning message").define("noWarning", false);
     private static final ModConfigSpec.BooleanValue SAVE_TOAST = BUILDER.comment("Shows a toast when saving recipe changes").define("saveToast", false);
     private static final ModConfigSpec.BooleanValue LIST_BUTTON = BUILDER.pop().comment("Enables a shortcut button in the pause menu to the list of changed recipes").define("listButton", true);
@@ -28,6 +29,7 @@ public class Config {
     public static boolean listButton;
     public static boolean saveToast;
     public static boolean customRecipeIndicator;
+    public static boolean showTagsEverywhere;
 
     @SubscribeEvent
     public static void onLoad(ModConfigEvent event) {
@@ -37,6 +39,7 @@ public class Config {
             noTagTranslations = NO_TAG_TRANSLATIONS.get();
             noWarning = NO_WARNING.get();
             saveToast = SAVE_TOAST.get();
+            showTagsEverywhere = SHOW_TAGS_EVERYWHERE.get();
             if (ModList.get().isLoaded("emi")) {
                 //Disabled by default but required
                 EmiConfig.showRecipeDecorators = true;

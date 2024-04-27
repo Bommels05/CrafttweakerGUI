@@ -24,7 +24,7 @@ public class EmiTagsMixin {
 
     @Redirect(method = "tagIngredient", at = @At(value = "INVOKE", target = "Ljava/util/List;size()I"))
     private static int alwaysDisplayTag(List<?> instance) {
-        if (Config.noTagCollapsing && Minecraft.getInstance().screen instanceof RecipeEditScreen<?> && instance.size() == 1) {
+        if (Config.noTagCollapsing && (Minecraft.getInstance().screen instanceof RecipeEditScreen<?> || Config.showTagsEverywhere) && instance.size() == 1) {
             return 2;
         }
         return instance.size();
@@ -49,7 +49,7 @@ public class EmiTagsMixin {
     @ModifyReturnValue(method = "getRawValues", at = @At(value = "RETURN"))
     private static List<EmiStack> modifyRawValues(List<EmiStack> original) {
         //Indicate that this is a tag to mixins further down the line
-        if (Config.noTagCollapsing && Minecraft.getInstance().screen instanceof RecipeEditScreen<?>) {
+        if (Config.noTagCollapsing && (Minecraft.getInstance().screen instanceof RecipeEditScreen<?> || Config.showTagsEverywhere)) {
             return new TagCollapsingBypassingList<>(original);
         }
         return original;
@@ -57,7 +57,7 @@ public class EmiTagsMixin {
 
     @Inject(method = "getTagName", at = @At(value = "HEAD"), cancellable = true)
     private static void disableTagTranslation(TagKey<?> key, CallbackInfoReturnable<Component> cir) {
-        if (Config.noTagTranslations && Minecraft.getInstance().screen instanceof RecipeEditScreen<?>) {
+        if (Config.noTagTranslations && (Minecraft.getInstance().screen instanceof RecipeEditScreen<?> || Config.showTagsEverywhere)) {
             cir.setReturnValue(EmiPort.literal("#" + key.location()));
         }
     }
