@@ -159,7 +159,7 @@ public class CraftingRecipeType extends SupportedRecipeType<CraftingRecipe> {
         } else {
             if (index < ingredients.size()) {
                 ingredients.set(index, ingredient);
-            } else {
+            } else if (!ingredient.isEmpty()) {
                 ingredients.add(ingredient);
             }
         }

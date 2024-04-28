@@ -61,7 +61,7 @@ public class ChangedRecipeManager {
 
     public static void removeChangedRecipe(ChangedRecipe<?> recipe) {
         changedRecipes.remove(recipe);
-        if (!recipe.wasExported()) {
+        if (!recipe.wasExported() && recipe.getType() != ChangedRecipe.Type.REMOVED) {
             CraftTweakerGUI.getViewerUtils().unInject(recipe);
         }
         lastSave = 0;
@@ -332,7 +332,7 @@ public class ChangedRecipeManager {
 
         public void setExported(boolean exported) {
             this.exported = exported;
-            if (exported && CraftTweakerGUI.isJeiActive()) {
+            if (exported && type != Type.REMOVED && CraftTweakerGUI.isJeiActive()) {
                 CraftTweakerGUI.getViewerUtils().unInject(this);
             }
         }

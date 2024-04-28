@@ -1,21 +1,17 @@
 package de.bommels05.ctgui.compat.minecraft;
 
+import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.api.AmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
-import de.bommels05.ctgui.api.UnsupportedViewerException;
 import de.bommels05.ctgui.api.option.FloatRecipeOption;
 import de.bommels05.ctgui.api.option.IntegerRecipeOption;
-import dev.emi.emi.api.recipe.EmiRecipe;
-import dev.emi.emi.api.recipe.VanillaEmiRecipeCategories;
-import dev.emi.emi.recipe.EmiCookingRecipe;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.CookingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.SmeltingRecipe;
 
 public abstract class CookingRecipeType<R extends AbstractCookingRecipe> extends SupportedRecipeType<R> {
 
@@ -36,7 +32,7 @@ public abstract class CookingRecipeType<R extends AbstractCookingRecipe> extends
         }, r -> {
             return new AmountedIngredient(r.getIngredients().get(0), 1);
         });
-        addAreaScrollAmountEmptyRightClick(56, 0, 25, 25, (r, am) -> {
+        addAreaScrollAmountEmptyRightClick(CraftTweakerGUI.isJeiActive() ? 61 : 56, CraftTweakerGUI.isJeiActive() ? 19 : 0, 25, 25, (r, am) -> {
             return constructor.construct(r.getGroup(), r.category(), r.getIngredients().get(0), am.asStack(), r.getExperience(), r.getCookingTime());
         }, r -> {
             return AmountedIngredient.of(r.getResultItem(regAccess()));
