@@ -1,16 +1,23 @@
 package de.bommels05.ctgui.api;
 
 import com.blamejared.crafttweaker.api.ingredient.IIngredient;
+import com.blamejared.crafttweaker.api.ingredient.IIngredientWithAmount;
+import com.blamejared.crafttweaker.api.ingredient.type.IngredientWithAmount;
 import com.blamejared.crafttweaker.api.util.ItemStackUtil;
+import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.screen.RecipeEditScreen;
 import de.bommels05.ctgui.api.option.RecipeOption;
+import dev.emi.emi.api.EmiApi;
 import dev.emi.emi.api.recipe.EmiRecipe;
+import dev.emi.emi.api.recipe.EmiRecipeCategory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import org.jetbrains.annotations.Nullable;
@@ -27,6 +34,12 @@ import java.util.function.Function;
  */
 public abstract class SupportedRecipeType<R extends Recipe<?>> {
 
+    public static final ItemStack UNSET = new ItemStack(Items.BARRIER);
+    static {
+        CompoundTag display = new CompoundTag();
+        display.putString("Name", "Unset");
+        UNSET.getOrCreateTag().put("display", display);
+    }
     private final ResourceLocation id;
     private final List<Area<R>> areas = new ArrayList<>();
     private final List<RecipeOption<?, R>> options = new ArrayList<>();
@@ -90,7 +103,7 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
      * @return The main output of the recipe or ItemStack.EMPTY
      */
     public ItemStack getMainOutput(R recipe) {
-        return recipe.getResultItem(regAccess());
+        return convertUnset(recipe.getResultItem(regAccess()));
     }
 
     /**
@@ -136,6 +149,15 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
      */
     protected String getCTString(Ingredient ingredient) {
         return IIngredient.fromIngredient(ingredient).getCommandString();
+    }
+
+    /**
+     * Returns the CraftTweaker representation of the ingredient with amount
+     * @param ingredient The ingredient with amount
+     * @return The CraftTweaker representation of the ingredient with amount
+     */
+    protected String getCTString(AmountedIngredient ingredient) {
+        return new IngredientWithAmount(IIngredient.fromIngredient(ingredient.ingredient()), ingredient.amount()).getCommandString();
     }
 
     public R onDragAndDrop(R recipe, int x, int y, AmountedIngredient ingredient) {
@@ -326,6 +348,42 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
      */
     protected RegistryAccess regAccess() {
         return Minecraft.getInstance().level.registryAccess();
+    }
+
+    protected ResourceLocation nullRl() {
+        return new ResourceLocation(CraftTweakerGUI.MOD_ID, "null");
+    }
+
+    protected EmiRecipeCategory getEmiCategory(ResourceLocation id) {
+        return EmiApi.getRecipeManager().getCategories().stream().filter(category -> category.getId().equals(id)).findFirst().orElse(null);
+    }
+
+    protected ItemStack convertUnset(ItemStack stack) {
+        if (ItemStack.isSameItemSameTags(stack, UNSET)) {
+            return ItemStack.EMPTY;
+        }
+        return stack;
+    }
+
+    protected ItemStack convertToUnset(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return UNSET;
+        }
+        return stack;
+    }
+
+    protected AmountedIngredient convertUnset(AmountedIngredient ingredient) {
+        if (ItemStack.isSameItemSameTags(ingredient.asStack(), UNSET)) {
+            return AmountedIngredient.empty();
+        }
+        return ingredient;
+    }
+
+    protected AmountedIngredient convertToUnset(AmountedIngredient ingredient) {
+        if (ingredient.isEmpty()) {
+            return AmountedIngredient.of(UNSET);
+        }
+        return ingredient;
     }
 
     protected void error(Component message) {

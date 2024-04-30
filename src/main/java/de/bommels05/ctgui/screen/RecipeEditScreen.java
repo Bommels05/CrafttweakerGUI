@@ -461,6 +461,10 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
         this.dragged = dragged;
     }
 
+    public ResourceLocation getOriginalRecipeId() {
+        return originalRecipeId;
+    }
+
     @Override
     public boolean isPauseScreen() {
         return false;

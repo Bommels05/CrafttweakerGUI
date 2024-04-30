@@ -1,6 +1,7 @@
 package de.bommels05.ctgui;
 
 import de.bommels05.ctgui.api.RecipeTypeManager;
+import de.bommels05.ctgui.compat.mekanism.*;
 import de.bommels05.ctgui.compat.minecraft.*;
 import de.bommels05.ctgui.compat.minecraft.custom.TagRecipeType;
 import de.bommels05.ctgui.registry.RecipeSerializers;
@@ -62,6 +63,13 @@ public class ClientInit {
         RecipeTypeManager.addType(new StoneCuttingRecipeType());
         RecipeTypeManager.addType(new SmithingRecipeType());
         RecipeTypeManager.addType(new TagRecipeType());
+        if (ModList.get().isLoaded("mekanism")) {
+            RecipeTypeManager.addType(new CrushingRecipeType());
+            RecipeTypeManager.addType(new EnrichingRecipeType());
+            RecipeTypeManager.addType(new EnergizedSmeltingRecipeType());
+            RecipeTypeManager.addType(new SawingRecipeType());
+            RecipeTypeManager.addType(new CombiningRecipeType());
+        }
     }
 
     @SubscribeEvent

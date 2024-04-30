@@ -3,7 +3,7 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0+'
+    id 'net.neoforged.gradle.userdev' version '7.0.109'
 }
 
 version = mod_version
@@ -59,6 +59,9 @@ repositories {
         url = 'https://maven.blamejared.com'
         name = 'BlameJared Maven'
     }
+    maven {
+        url = 'https://modmaven.dev/'
+    }
 }
 
 dependencies {
@@ -69,6 +72,11 @@ dependencies {
     implementation("com.blamejared.crafttweaker:CraftTweaker-neoforge-${minecraft_version}:${crafttweaker_version}") {
         transitive = false
     }
+
+    implementation "mekanism:Mekanism:${mekanism_version}"
+    runtimeOnly "mekanism:Mekanism:${mekanism_version}:additions"
+    runtimeOnly "mekanism:Mekanism:${mekanism_version}:generators"
+    runtimeOnly "mekanism:Mekanism:${mekanism_version}:tools"
 }
 
 tasks.withType(ProcessResources).configureEach {

@@ -2,7 +2,7 @@
   "required": true,
   "minVersion": "0.8",
   "package": "de.bommels05.ctgui.mixin",
-  "compatibilityLevel": "JAVA_8",
+  "compatibilityLevel": "JAVA_17",
   "refmap": "CrafttweakerGUI.refmap.json",
   "client": [
     "EmiCraftingRecipeMixin",
@@ -16,7 +16,8 @@
     "EmiRecipesMixin",
     "EmiApiMixin",
     "RecipesGuiMixin",
-    "CraftingGridHelperMixin"
+    "CraftingGridHelperMixin",
+    "MekanismEmiRecipeMixin"
   ],
   "injectors": {
     "defaultRequire": 1
