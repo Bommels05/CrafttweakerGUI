@@ -23,12 +23,10 @@ import net.neoforged.neoforge.client.loading.ClientModLoader;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
-import net.neoforged.neoforgespi.language.IModInfo;
 import net.neoforged.neoforgespi.language.MavenVersionAdapter;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -69,6 +67,29 @@ public class ClientInit {
             RecipeTypeManager.addType(new EnergizedSmeltingRecipeType());
             RecipeTypeManager.addType(new SawingRecipeType());
             RecipeTypeManager.addType(new CombiningRecipeType());
+            RecipeTypeManager.addType(new InfusingRecipeType());
+            RecipeTypeManager.addType(new ReactingRecipeType());
+            RecipeTypeManager.addType(new SeperatingRecipeType());
+            RecipeTypeManager.addType(new InjectingRecipeType());
+            RecipeTypeManager.addType(new PurifyingRecipeType());
+            RecipeTypeManager.addType(new OsmiumCompressingRecipeType());
+            RecipeTypeManager.addType(new ChemicalInfusingRecipeType());
+            RecipeTypeManager.addType(new DissolutingRecipeType());
+            RecipeTypeManager.addType(new CrystallizingRecipeType());
+            RecipeTypeManager.addType(new ChemicalWashingRecipeType());
+            RecipeTypeManager.addType(new CentrifugingRecipeType());
+            RecipeTypeManager.addType(new NeutronActivatingRecipeType());
+            RecipeTypeManager.addType(new OxidizingRecipeType());
+            RecipeTypeManager.addType(new GasConvertingRecipeType());
+            RecipeTypeManager.addType(new InfuseTypeConvertingRecipeType());
+            RecipeTypeManager.addType(new EnergyConvertingRecipeType());
+            RecipeTypeManager.addType(new PigmentExtractingRecipeType());
+            RecipeTypeManager.addType(new PigmentMixingRecipeType());
+            RecipeTypeManager.addType(new PaintingRecipeType());
+            RecipeTypeManager.addType(new EvaporatingRecipeType());
+            RecipeTypeManager.addType(new NucleosynthesizingRecipeType());
+            RecipeTypeManager.addType(new CondensentratingRecipeType());
+            RecipeTypeManager.addType(new DecondensentratingRecipeType());
         }
     }
 

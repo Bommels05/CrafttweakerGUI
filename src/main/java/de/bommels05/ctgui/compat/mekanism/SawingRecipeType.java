@@ -6,11 +6,9 @@ import de.bommels05.ctgui.api.UnsupportedRecipeException;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
 import de.bommels05.ctgui.api.option.DoubleRecipeOption;
 import mekanism.api.MekanismAPI;
-import mekanism.api.recipes.basic.BasicCrushingRecipe;
 import mekanism.api.recipes.basic.BasicSawmillRecipe;
 import mekanism.api.recipes.ingredients.creator.IngredientCreatorAccess;
 import mekanism.client.recipe_viewer.emi.MekanismEmiRecipeCategory;
-import mekanism.client.recipe_viewer.emi.recipe.ItemStackToItemStackEmiRecipe;
 import mekanism.client.recipe_viewer.emi.recipe.SawmillEmiRecipe;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -80,7 +78,7 @@ public class SawingRecipeType extends SupportedRecipeType<BasicSawmillRecipe> {
 
     @Override
     public ItemStack getMainOutput(BasicSawmillRecipe recipe) {
-        return recipe.getMainOutputRaw().or(recipe::getSecondaryOutputRaw).orElse(ItemStack.EMPTY);
+        return convertUnset(recipe.getMainOutputRaw().or(recipe::getSecondaryOutputRaw).orElse(ItemStack.EMPTY));
     }
 
     private double verifyChance(double chance, BasicSawmillRecipe recipe) {

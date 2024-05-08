@@ -5,7 +5,6 @@ import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
 import mekanism.api.MekanismAPI;
-import mekanism.api.recipes.basic.BasicCrushingRecipe;
 import mekanism.api.recipes.basic.BasicEnrichingRecipe;
 import mekanism.api.recipes.ingredients.creator.IngredientCreatorAccess;
 import mekanism.client.recipe_viewer.emi.MekanismEmiRecipeCategory;

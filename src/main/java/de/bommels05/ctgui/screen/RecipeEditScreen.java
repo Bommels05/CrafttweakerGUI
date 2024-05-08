@@ -269,6 +269,11 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
         changeRecipe(newRecipe);
     }
 
+    public <T> void handleDragAndDropSpecial(int x, int y, T ingredient) {
+        R newRecipe = recipe.getType().onDragAndDropSpecial(recipe.getRecipe(), x - getRecipeX(), y - getRecipeY(), ingredient);
+        changeRecipe(newRecipe);
+    }
+
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
         recipe.mouseClicked(getRecipeX(), getRecipeY(), (int) mouseX, (int) mouseY, mouseButton);

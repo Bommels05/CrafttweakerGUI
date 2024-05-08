@@ -1,7 +1,7 @@
 package de.bommels05.ctgui.api;
 
+import com.blamejared.crafttweaker.api.fluid.IFluidStack;
 import com.blamejared.crafttweaker.api.ingredient.IIngredient;
-import com.blamejared.crafttweaker.api.ingredient.IIngredientWithAmount;
 import com.blamejared.crafttweaker.api.ingredient.type.IngredientWithAmount;
 import com.blamejared.crafttweaker.api.util.ItemStackUtil;
 import de.bommels05.ctgui.CraftTweakerGUI;
@@ -20,13 +20,14 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * A recipe type that can be edited
@@ -41,7 +42,7 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
         UNSET.getOrCreateTag().put("display", display);
     }
     private final ResourceLocation id;
-    private final List<Area<R>> areas = new ArrayList<>();
+    private final List<Area<R, ?>> areas = new ArrayList<>();
     private final List<RecipeOption<?, R>> options = new ArrayList<>();
 
     /**
@@ -160,21 +161,42 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
         return new IngredientWithAmount(IIngredient.fromIngredient(ingredient.ingredient()), ingredient.amount()).getCommandString();
     }
 
+    /**
+     * Returns the CraftTweaker representation of the fluid stack
+     * @param stack The fluid stack
+     * @return The CraftTweaker representation of the fluid stack
+     */
+    protected String getCTString(FluidStack stack) {
+        return IFluidStack.of(stack).getCommandString();
+    }
+
+    @SuppressWarnings("unchecked")
     public R onDragAndDrop(R recipe, int x, int y, AmountedIngredient ingredient) {
-        for (Area<R> area : areas) {
+        for (Area<R, ?> area : areas) {
+            if (area.inside(x, y) && area.stackSupplier.apply(recipe) instanceof AmountedIngredient) {
+                return ((Area<R, AmountedIngredient>) area).dragAndDropHandler.apply(recipe, ingredient);
+            }
+        }
+        return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> R onDragAndDropSpecial(R recipe, int x, int y, T ingredient) {
+        for (Area<R, ?> area : areas) {
             if (area.inside(x, y)) {
-                return area.dragAndDropHandler.apply(recipe, ingredient);
+                try {
+                    return ((Area<R, T>) area).dragAndDropHandler.apply(recipe, ingredient);
+                } catch (ClassCastException ignored) {}
             }
         }
         return null;
     }
 
     public R onClick(R recipe, int x, int y, boolean rightClick, RecipeEditScreen<R> screen) {
-        for (Area<R> area : areas) {
+        for (Area<R, ?> area : areas) {
             if (area.inside(x, y)) {
                 R result = area.clickHandler.apply(recipe, rightClick);
-                if (result == null) {
-                    AmountedIngredient ingredient = area.stackSupplier.apply(recipe);
+                if (result == null && area.stackSupplier.apply(recipe) instanceof AmountedIngredient ingredient) {
                     if (!ingredient.isEmpty()) {
                         screen.setDragged(ingredient);
                     }
@@ -205,7 +227,7 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
     }
 
     public R onScroll(R recipe, int x, int y, boolean up) {
-        for (Area<R> area : areas) {
+        for (Area<R, ?> area : areas) {
             if (area.inside(x, y)) {
                 return area.scrollHandler.apply(recipe, up);
             }
@@ -229,10 +251,10 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
      * @param y The y coordinate of the area
      * @param width The width of the area
      * @param height The height of the area
-     * @param dragAndDropHandler The handler that handles {@link AmountedIngredient}s being dropped into the area and returns a modified recipe if needed
-     * @param stackSupplier The supplier that returns the {@link AmountedIngredient} thas is currently in the area
+     * @param dragAndDropHandler The handler that handles Ingredients being dropped into the area and returns a modified recipe if needed
+     * @param stackSupplier The supplier that returns the Ingredient that is currently in the area
      */
-    protected void addArea(int x, int y, int width, int height, BiFunction<R, AmountedIngredient, R> dragAndDropHandler, Function<R, AmountedIngredient> stackSupplier) {
+    protected <T> void addArea(int x, int y, int width, int height, BiFunction<R, T, R> dragAndDropHandler, Function<R, T> stackSupplier) {
         addArea(x, y, width, height, dragAndDropHandler, stackSupplier, (r, rightClick) -> null);
     }
 
@@ -242,11 +264,11 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
      * @param y The y coordinate of the area
      * @param width The width of the area
      * @param height The height of the area
-     * @param dragAndDropHandler The handler that handles {@link AmountedIngredient}s being dropped into the area and returns a modified recipe if needed
-     * @param stackSupplier The supplier that returns the {@link AmountedIngredient} thas is currently in the area
+     * @param dragAndDropHandler The handler that handles Ingredients being dropped into the area and returns a modified recipe if needed
+     * @param stackSupplier The supplier that returns the Ingredient that is currently in the area
      * @param clickHandler The handler that handles left or right mouse clicks on the area and returns a modified recipe if needed
      */
-    protected void addArea(int x, int y, int width, int height, BiFunction<R, AmountedIngredient, R> dragAndDropHandler, Function<R, AmountedIngredient> stackSupplier,
+    protected <T> void addArea(int x, int y, int width, int height, BiFunction<R, T, R> dragAndDropHandler, Function<R, T> stackSupplier,
                            BiFunction<R, Boolean, R> clickHandler) {
         addArea(x, y, width, height, dragAndDropHandler, stackSupplier, clickHandler, (r, up) -> null);
     }
@@ -257,12 +279,12 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
      * @param y The y coordinate of the area
      * @param width The width of the area
      * @param height The height of the area
-     * @param dragAndDropHandler The handler that handles {@link AmountedIngredient}s being dropped into the area and returns a modified recipe if needed
-     * @param stackSupplier The supplier that returns the {@link AmountedIngredient} thas is currently in the area
+     * @param dragAndDropHandler The handler that handles Ingredients being dropped into the area and returns a modified recipe if needed
+     * @param stackSupplier The supplier that returns the Ingredient that is currently in the area
      * @param clickHandler The handler that handles left or right mouse clicks on the area and returns a modified recipe if needed
      * @param scrollHandler The handler that handles mouse scrolls on the area and returns a modified recipe if needed
      */
-    protected void addArea(int x, int y, int width, int height, BiFunction<R, AmountedIngredient, R> dragAndDropHandler, Function<R, AmountedIngredient> stackSupplier,
+    protected <T> void addArea(int x, int y, int width, int height, BiFunction<R, T, R> dragAndDropHandler, Function<R, T> stackSupplier,
                            BiFunction<R, Boolean, R> clickHandler, BiFunction<R, Boolean, R> scrollHandler) {
         areas.add(new Area<>(x, y, width, height, dragAndDropHandler, stackSupplier, clickHandler, scrollHandler));
     }
@@ -273,8 +295,8 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
      * @param y The y coordinate of the area
      * @param width The width of the area
      * @param height The height of the area
-     * @param dragAndDropHandler The handler that handles {@link AmountedIngredient}s being dropped into the area and returns a modified recipe if needed
-     * @param stackSupplier The supplier that returns the {@link AmountedIngredient} thas is currently in the area
+     * @param dragAndDropHandler The handler that handles Ingredients being dropped into the area and returns a modified recipe if needed
+     * @param stackSupplier The supplier that returns the Ingredient that is currently in the area
      */
     protected void addAreaEmptyRightClick(int x, int y, int width, int height, BiFunction<R, AmountedIngredient, R> dragAndDropHandler, Function<R, AmountedIngredient> stackSupplier) {
         addAreaEmptyRightClick(x, y, width, height, dragAndDropHandler, stackSupplier, (r, up) -> null);
@@ -287,12 +309,28 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
      * @param width The width of the area
      * @param height The height of the area
      * @param dragAndDropHandler The handler that handles {@link AmountedIngredient}s being dropped into the area and returns a modified recipe if needed
-     * @param stackSupplier The supplier that returns the {@link AmountedIngredient} thas is currently in the area
+     * @param stackSupplier The supplier that returns the {@link AmountedIngredient} that is currently in the area
      * @param scrollHandler The handler that handles mouse scrolls on the area and returns a modified recipe if needed
      */
     protected void addAreaEmptyRightClick(int x, int y, int width, int height, BiFunction<R, AmountedIngredient, R> dragAndDropHandler, Function<R, AmountedIngredient> stackSupplier,
                                           BiFunction<R, Boolean, R> scrollHandler) {
-        addArea(x, y, width, height, dragAndDropHandler, stackSupplier, (recipe, rightClick) -> rightClick ? dragAndDropHandler.apply(recipe, AmountedIngredient.empty()) : null, scrollHandler);
+        addAreaEmptyRightClick(x, y, width, height, dragAndDropHandler, stackSupplier, AmountedIngredient::empty, scrollHandler);
+    }
+
+    /**
+     * Adds a new area to interact with the recipe in the editing screen that calls the drag and drop handler with the empty Ingredient when right-clicked
+     * @param x The x coordinate of the area
+     * @param y The y coordinate of the area
+     * @param width The width of the area
+     * @param height The height of the area
+     * @param dragAndDropHandler The handler that handles Ingredients being dropped into the area and returns a modified recipe if needed
+     * @param stackSupplier The supplier that returns the Ingredient that is currently in the area
+     * @param emptyIngredient The supplier that returns the empty ingredient to pass into the drag and drop handler when right-clicked
+     * @param scrollHandler The handler that handles mouse scrolls on the area and returns a modified recipe if needed
+     */
+    protected <T> void addAreaEmptyRightClick(int x, int y, int width, int height, BiFunction<R, T, R> dragAndDropHandler, Function<R, T> stackSupplier,
+                                          Supplier<T> emptyIngredient, BiFunction<R, Boolean, R> scrollHandler) {
+        addArea(x, y, width, height, dragAndDropHandler, stackSupplier, (recipe, rightClick) -> rightClick ? dragAndDropHandler.apply(recipe, emptyIngredient.get()) : null, scrollHandler);
     }
 
     /**
@@ -303,12 +341,32 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
      * @param width The width of the area
      * @param height The height of the area
      * @param dragAndDropHandler The handler that handles {@link AmountedIngredient}s being dropped into the area and returns a modified recipe if needed
-     * @param stackSupplier The supplier that returns the {@link AmountedIngredient} thas is currently in the area
+     * @param stackSupplier The supplier that returns the {@link AmountedIngredient} that is currently in the area
      */
     protected void addAreaScrollAmountEmptyRightClick(int x, int y, int width, int height, BiFunction<R, AmountedIngredient, R> dragAndDropHandler, Function<R, AmountedIngredient> stackSupplier) {
         addAreaEmptyRightClick(x, y, width, height, dragAndDropHandler, stackSupplier, (recipe, up) -> {
             AmountedIngredient ingredient = stackSupplier.apply(recipe);
             return dragAndDropHandler.apply(recipe, ingredient.withAmount(getScrollStackSize(ingredient.amount(), up)));
+        });
+    }
+
+    /**
+     * Adds a new area to interact with the recipe in the editing screen that calls the drag and drop handler with the empty Ingredient when right-clicked
+     * and the Ingredient returned by the amount setter
+     * @param x The x coordinate of the area
+     * @param y The y coordinate of the area
+     * @param width The width of the area
+     * @param height The height of the area
+     * @param dragAndDropHandler The handler that handles {@link AmountedIngredient}s being dropped into the area and returns a modified recipe if needed
+     * @param stackSupplier The supplier that returns the {@link AmountedIngredient} that is currently in the area
+     * @param emptyIngredient The supplier that returns the empty ingredient to pass into the drag and drop handler when right-clicked
+     * @param amountSetter The function that sets the amount of the ingredient dependent on the scroll direction and possibly on the shift (Larger change) and control (Smaller change) keys
+     */
+    protected <T> void addAreaScrollAmountEmptyRightClick(int x, int y, int width, int height, BiFunction<R, T, R> dragAndDropHandler, Function<R, T> stackSupplier,
+                                                          Supplier<T> emptyIngredient, BiFunction<T, Boolean, T> amountSetter) {
+        addAreaEmptyRightClick(x, y, width, height, dragAndDropHandler, stackSupplier, emptyIngredient, (recipe, up) -> {
+            T ingredient = stackSupplier.apply(recipe);
+            return dragAndDropHandler.apply(recipe, amountSetter.apply(ingredient, up));
         });
     }
 
@@ -323,10 +381,40 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
     }
 
     /**
+     * Returns the amount to add to the amount of a fluid when scrolling respecting the shift (Larger value) and control (Smaller value) keys
+     * @param up Whether to increase or decrease the amount
+     * @return The amount to add to the amount of a fluid
+     */
+    public static int getFluidScrollAmount(boolean up) {
+        int value = Screen.hasShiftDown() ? 1000 : (Screen.hasControlDown() ? 1 : 50);
+        return up ? value : -value;
+    }
+
+    /**
+     * Function to use in a scroll amount area with fluid stacks
+     * @param stack The original fluid stack
+     * @param up Whether to increase or decrease the amount
+     * @return A new fluid stack with the amount changed
+     */
+    public static FluidStack fluidAmountSetter(FluidStack stack, boolean up) {
+        return new FluidStack(stack, Math.max(1, (stack.getAmount() == 1 ? (Screen.hasControlDown() ? 1 : 0) : stack.getAmount()) + getFluidScrollAmount(up)));
+    }
+
+    /**
+     * Function to use in a scroll amount area with fluid stacks that only changes the amount by 1
+     * @param stack The original fluid stack
+     * @param up Whether to increase or decrease the amount
+     * @return A new fluid stack with the amount changed by 1
+     */
+    public static FluidStack limitedFluidAmountSetter(FluidStack stack, boolean up) {
+        return new FluidStack(stack, Math.max(1, stack.getAmount() + (up ? 1 : -1)));
+    }
+
+    /**
      * Adds a new area to interact with the recipe in the editing screen
      * @param area The area to add
      */
-    protected void addArea(Area<R> area) {
+    protected void addArea(Area<R, ?> area) {
         areas.add(area);
     }
 
@@ -338,7 +426,7 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
         areas.clear();
     }
 
-    public List<Area<R>> getAreas() {
+    public List<Area<R, ?>> getAreas() {
         return areas;
     }
 
@@ -398,8 +486,8 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
         return options;
     }
 
-    public record Area<R extends Recipe<?>>(int x, int y, int width, int height, BiFunction<R, AmountedIngredient, R> dragAndDropHandler,
-                                            Function<R, AmountedIngredient> stackSupplier,
+    public record Area<R extends Recipe<?>, T>(int x, int y, int width, int height, BiFunction<R, T, R> dragAndDropHandler,
+                                            Function<R, T> stackSupplier,
                                             BiFunction<R, Boolean, R> clickHandler, BiFunction<R, Boolean, R> scrollHandler) {
 
         public boolean inside(int x, int y) {

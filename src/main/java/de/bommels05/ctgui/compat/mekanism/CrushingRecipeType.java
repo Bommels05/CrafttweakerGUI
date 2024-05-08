@@ -1,20 +1,16 @@
 package de.bommels05.ctgui.compat.mekanism;
 
-import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.api.AmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
-import dev.emi.emi.api.EmiApi;
 import mekanism.api.MekanismAPI;
 import mekanism.api.recipes.basic.BasicCrushingRecipe;
-import mekanism.api.recipes.ingredients.ItemStackIngredient;
 import mekanism.api.recipes.ingredients.creator.IngredientCreatorAccess;
 import mekanism.client.recipe_viewer.emi.MekanismEmiRecipeCategory;
 import mekanism.client.recipe_viewer.emi.recipe.ItemStackToItemStackEmiRecipe;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import org.jetbrains.annotations.Nullable;
 

@@ -11,8 +11,15 @@ import dev.emi.emi.api.EmiEntrypoint;
 import dev.emi.emi.api.EmiPlugin;
 import dev.emi.emi.api.EmiRegistry;
 import dev.emi.emi.api.stack.EmiStack;
+import dev.emi.emi.api.stack.FluidEmiStack;
 import dev.emi.emi.api.stack.TagEmiIngredient;
 import dev.emi.emi.api.widget.Bounds;
+import mekanism.api.chemical.ChemicalStack;
+import mekanism.api.chemical.gas.GasStack;
+import mekanism.api.chemical.infuse.InfusionStack;
+import mekanism.api.chemical.pigment.PigmentStack;
+import mekanism.api.chemical.slurry.SlurryStack;
+import mekanism.client.recipe_viewer.emi.ChemicalEmiStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -20,6 +27,9 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.util.FastColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.material.Fluid;
+import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.List;
 
@@ -37,11 +47,30 @@ public class CTGUIEmiPlugin implements EmiPlugin {
                 new Bounds(screen.getTagMinX(), screen.getTagMinY(), screen.getTagMaxX() - screen.getTagMinX(), screen.getTagMaxY() - screen.getTagMinY())));
         registry.addDragDropHandler(RecipeEditScreen.class, (screen, stack, x, y) -> {
             AmountedIngredient ingredient;
-            if (stack instanceof TagEmiIngredient tag && tag.key.isFor(Registries.ITEM)) {
-                ingredient = new AmountedIngredient(Ingredient.of((TagKey<Item>) tag.key), (int) stack.getAmount());
-            } else {
-                ingredient = new AmountedIngredient(Ingredient.of(stack.getEmiStacks().stream().map(EmiStack::getItemStack)), (int) stack.getAmount());
+            if (stack instanceof FluidEmiStack fluidStack) {
+                screen.handleDragAndDropSpecial(x, y, new FluidStack((Fluid) fluidStack.getKey(), fluidStack.getAmount() == 0 ? 1 : (int) fluidStack.getAmount()));
+                return true;
             }
+            if (ModList.get().isLoaded("mekanism") && stack instanceof ChemicalEmiStack<?> emiStack) {
+                ChemicalStack<?> chemicalStack = null;
+                if (emiStack instanceof ChemicalEmiStack.GasEmiStack gasStack) {
+                    chemicalStack = new GasStack(gasStack.getKey(), gasStack.getAmount());
+                }
+                if (emiStack instanceof ChemicalEmiStack.InfusionEmiStack infusionStack) {
+                    chemicalStack = new InfusionStack(infusionStack.getKey(), infusionStack.getAmount());
+                }
+                if (emiStack instanceof ChemicalEmiStack.PigmentEmiStack pigmentStack) {
+                    chemicalStack = new PigmentStack(pigmentStack.getKey(), pigmentStack.getAmount());
+                }
+                if (emiStack instanceof ChemicalEmiStack.SlurryEmiStack slurryStack) {
+                    chemicalStack = new SlurryStack(slurryStack.getKey(), slurryStack.getAmount());
+                }
+                if (chemicalStack != null) {
+                    screen.handleDragAndDropSpecial(x, y, chemicalStack);
+                    return true;
+                }
+            }
+            ingredient = new AmountedIngredient(Ingredient.of(stack.getEmiStacks().stream().map(EmiStack::getItemStack)), (int) stack.getAmount());
             screen.handleDragAndDrop(x, y, ingredient);
             return true;
         });

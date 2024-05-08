@@ -18,7 +18,7 @@ public class JeiDragAndDropHandler implements IGhostIngredientHandler<RecipeEdit
     @SuppressWarnings("unchecked")
     public <I> List<Target<I>> getTargetsTyped(RecipeEditScreen screen, ITypedIngredient<I> ingredient, boolean doStart) {
         List<Target<I>> targets = new ArrayList<>();
-        for (SupportedRecipeType.Area<?> area : ((RecipeEditScreen<Recipe<?>>) screen).getRecipeType().getAreas()) {
+        for (SupportedRecipeType.Area<?, ?> area : ((RecipeEditScreen<Recipe<?>>) screen).getRecipeType().getAreas()) {
             targets.add(new Target<I>() {
                 @Override
                 public Rect2i getArea() {

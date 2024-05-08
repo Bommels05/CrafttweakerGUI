@@ -19,6 +19,8 @@
   "ctgui.editing.options.tag_item": "Item-Tag (Else Fluid-Tag)",
   "ctgui.editing.options.tag_name": "Name of the tag",
   "ctgui.editing.options.secondary_output_chance": "Secondary output chance (If the main output is empty this is capped between 0.01 and 0.99)",
+  "ctgui.editing.options.additional_required_energy": "Energy required additional to the base energy",
+  "ctgui.editing.options.duration": "Processing duration (in ticks)",
   "ctgui.editing.vanilla_smelting_recipe": "This recipe is actually a vanilla smelting recipe and the original smelting recipe has to be edited",
   "ctgui.editing.unavailable": "Only available when editing an existing recipe",
   "ctgui.editing.recipe_id": "The id of the Recipe",
