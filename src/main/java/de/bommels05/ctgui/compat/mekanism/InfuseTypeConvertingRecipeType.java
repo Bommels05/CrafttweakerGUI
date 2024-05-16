@@ -25,9 +25,12 @@ public class InfuseTypeConvertingRecipeType extends SupportedRecipeType<BasicIte
         }, r -> {
             return convertUnset(MekanismRecipeUtils.of(r.getInput()));
         });
-        addAreaScrollAmountEmptyRightClick(113, 1, 18, 60, (r, stack) -> {
+        addAreaScrollAmountEmptyRightClick(113, 1, 18, 60, (r, input) -> {
+            InfusionStack stack = input.toStack();
             return new BasicItemStackToInfuseTypeRecipe(r.getInput(), stack.getType() == r.getOutputRaw().getType() ? stack : new InfusionStack(stack, r.getOutputRaw().getAmount()));
-        }, BasicItemStackToInfuseTypeRecipe::getOutputRaw, () -> new InfusionStack(MekanismInfuseTypes.REDSTONE.get(), 10), (stack, up) ->
+        }, r -> {
+            return new ChemicalAmountedIngredient<>(r.getOutputRaw());
+        }, () -> new ChemicalAmountedIngredient<>(new InfusionStack(MekanismInfuseTypes.REDSTONE.get(), 10)), (stack, up) ->
                 MekanismRecipeUtils.chemicalAmountSetter(stack, up, 1, 10, 100));
     }
 

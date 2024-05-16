@@ -4,6 +4,7 @@ import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
 import mekanism.api.MekanismAPI;
+import mekanism.api.chemical.Chemical;
 import mekanism.api.chemical.ChemicalStack;
 import mekanism.api.chemical.gas.GasStack;
 import mekanism.api.recipes.basic.BasicChemicalDissolutionRecipe;
@@ -19,7 +20,8 @@ import org.jetbrains.annotations.Nullable;
 
 public class DissolutingRecipeType extends SupportedRecipeType<BasicChemicalDissolutionRecipe> {
 
-    public DissolutingRecipeType() {
+    @SuppressWarnings("unchecked")
+    public <S extends ChemicalStack<T>, T extends Chemical<T>> DissolutingRecipeType() {
         super(new ResourceLocation(MekanismAPI.MEKANISM_MODID, "dissolution"));
 
         addAreaScrollAmountEmptyRightClick(25, 33, 17, 17, (r, am) -> {
@@ -28,19 +30,20 @@ public class DissolutingRecipeType extends SupportedRecipeType<BasicChemicalDiss
             return convertUnset(MekanismRecipeUtils.of(r.getItemInput()));
         });
         addAreaScrollAmountEmptyRightClick(4, 1, 18, 60, (r, stack) -> {
-            return new BasicChemicalDissolutionRecipe(r.getItemInput(), IngredientCreatorAccess.gas().from(stack.getType() == MekanismRecipeUtils.of(r.getGasInput()).getType() ? stack : new GasStack(stack, MekanismRecipeUtils.getAmount(r.getGasInput()))), r.getOutputRaw().getChemicalStack());
+            return new BasicChemicalDissolutionRecipe(r.getItemInput(), MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getGasInput()), r.getOutputRaw().getChemicalStack());
         }, r -> {
             return MekanismRecipeUtils.of(r.getGasInput());
-        }, () -> new GasStack(MekanismGases.OXYGEN.get(), 1), (stack, up) -> MekanismRecipeUtils.chemicalAmountSetter(stack, up, 1, 10));
-        addAreaScrollAmountEmptyRightClick(128, 10, 18, 60, (r, stack) -> {
+        }, () -> new ChemicalAmountedIngredient<>(new GasStack(MekanismGases.OXYGEN.get(), 1)), (stack, up) -> MekanismRecipeUtils.chemicalAmountSetter(stack, up, 1, 10));
+        addAreaScrollAmountEmptyRightClick(128, 10, 18, 60, (r, input) -> {
+            ChemicalStack<?> stack = input.toStack();
             ChemicalStack<?> stack2 = stack.copy();
             if (stack.getType() != r.getOutputRaw().getChemicalStack().getType()) {
                 stack2.setAmount(r.getOutputRaw().getChemicalStack().getAmount());
             }
             return new BasicChemicalDissolutionRecipe(r.getItemInput(), r.getGasInput(), stack2);
         }, r -> {
-            return r.getOutputRaw().getChemicalStack();
-        }, () -> new GasStack(MekanismGases.OXYGEN.get(), 1000), MekanismRecipeUtils::chemicalAmountSetter);
+            return new ChemicalAmountedIngredient<>((S) r.getOutputRaw().getChemicalStack());
+        }, () -> new ChemicalAmountedIngredient<>((S) new GasStack(MekanismGases.OXYGEN.get(), 1000)), MekanismRecipeUtils::chemicalAmountSetter);
     }
 
     @Override

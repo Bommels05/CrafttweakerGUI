@@ -37,10 +37,10 @@ public class NucleosynthesizingRecipeType extends SupportedRecipeType<BasicNucle
             return AmountedIngredient.of(convertUnset(r.getOutputRaw()));
         });
         addAreaScrollAmountEmptyRightClick(-1, 0, 18, 60, (r, stack) -> {
-            return new BasicNucleosynthesizingRecipe(r.getItemInput(), IngredientCreatorAccess.gas().from(stack.getType() == MekanismRecipeUtils.of(r.getChemicalInput()).getType() ? stack : new GasStack(stack, MekanismRecipeUtils.getAmount(r.getChemicalInput()))), r.getOutputRaw(), r.getDuration());
+            return new BasicNucleosynthesizingRecipe(r.getItemInput(), MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getChemicalInput()), r.getOutputRaw(), r.getDuration());
         }, r -> {
             return MekanismRecipeUtils.of(r.getChemicalInput());
-        }, () -> new GasStack(MekanismGases.ANTIMATTER.get(), 2), (stack, up) -> MekanismRecipeUtils.chemicalAmountSetter(stack, up, 1, 10));
+        }, () -> new ChemicalAmountedIngredient<>(new GasStack(MekanismGases.ANTIMATTER.get(), 2)), (stack, up) -> MekanismRecipeUtils.chemicalAmountSetter(stack, up, 1, 10));
 
         addOption(duration, (r, duration) -> {
             return new BasicNucleosynthesizingRecipe(r.getItemInput(), r.getChemicalInput(), r.getOutputRaw(), duration);

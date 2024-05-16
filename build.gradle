@@ -74,9 +74,7 @@ dependencies {
     }
 
     implementation "mekanism:Mekanism:${mekanism_version}"
-    runtimeOnly "mekanism:Mekanism:${mekanism_version}:additions"
     runtimeOnly "mekanism:Mekanism:${mekanism_version}:generators"
-    runtimeOnly "mekanism:Mekanism:${mekanism_version}:tools"
 }
 
 tasks.withType(ProcessResources).configureEach {

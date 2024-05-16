@@ -4,28 +4,32 @@ import com.blamejared.crafttweaker.api.CraftTweakerConstants;
 import de.bommels05.ctgui.ChangedRecipeManager;
 import de.bommels05.ctgui.Config;
 import de.bommels05.ctgui.CraftTweakerGUI;
+import de.bommels05.ctgui.ViewerUtils;
 import de.bommels05.ctgui.compat.minecraft.custom.TagRecipe;
 import de.bommels05.ctgui.screen.RecipeEditScreen;
 import de.bommels05.ctgui.api.AmountedIngredient;
 import dev.emi.emi.api.EmiEntrypoint;
+import dev.emi.emi.api.EmiInitRegistry;
 import dev.emi.emi.api.EmiPlugin;
 import dev.emi.emi.api.EmiRegistry;
+import dev.emi.emi.api.stack.EmiRegistryAdapter;
 import dev.emi.emi.api.stack.EmiStack;
 import dev.emi.emi.api.stack.FluidEmiStack;
-import dev.emi.emi.api.stack.TagEmiIngredient;
 import dev.emi.emi.api.widget.Bounds;
+import mekanism.api.MekanismAPI;
 import mekanism.api.chemical.ChemicalStack;
+import mekanism.api.chemical.gas.Gas;
 import mekanism.api.chemical.gas.GasStack;
+import mekanism.api.chemical.infuse.InfuseType;
 import mekanism.api.chemical.infuse.InfusionStack;
+import mekanism.api.chemical.pigment.Pigment;
 import mekanism.api.chemical.pigment.PigmentStack;
+import mekanism.api.chemical.slurry.Slurry;
 import mekanism.api.chemical.slurry.SlurryStack;
 import mekanism.client.recipe_viewer.emi.ChemicalEmiStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.tags.TagKey;
 import net.minecraft.util.FastColor;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.fml.ModList;
@@ -52,23 +56,9 @@ public class CTGUIEmiPlugin implements EmiPlugin {
                 return true;
             }
             if (ModList.get().isLoaded("mekanism") && stack instanceof ChemicalEmiStack<?> emiStack) {
-                ChemicalStack<?> chemicalStack = null;
-                if (emiStack instanceof ChemicalEmiStack.GasEmiStack gasStack) {
-                    chemicalStack = new GasStack(gasStack.getKey(), gasStack.getAmount());
-                }
-                if (emiStack instanceof ChemicalEmiStack.InfusionEmiStack infusionStack) {
-                    chemicalStack = new InfusionStack(infusionStack.getKey(), infusionStack.getAmount());
-                }
-                if (emiStack instanceof ChemicalEmiStack.PigmentEmiStack pigmentStack) {
-                    chemicalStack = new PigmentStack(pigmentStack.getKey(), pigmentStack.getAmount());
-                }
-                if (emiStack instanceof ChemicalEmiStack.SlurryEmiStack slurryStack) {
-                    chemicalStack = new SlurryStack(slurryStack.getKey(), slurryStack.getAmount());
-                }
-                if (chemicalStack != null) {
-                    screen.handleDragAndDropSpecial(x, y, chemicalStack);
-                    return true;
-                }
+                ChemicalStack<?> chemicalStack = ViewerUtils.from(emiStack.getKey(), emiStack.getAmount());
+                screen.handleDragAndDropSpecial(x, y, chemicalStack);
+                return true;
             }
             ingredient = new AmountedIngredient(Ingredient.of(stack.getEmiStacks().stream().map(EmiStack::getItemStack)), (int) stack.getAmount());
             screen.handleDragAndDrop(x, y, ingredient);
@@ -97,5 +87,17 @@ public class CTGUIEmiPlugin implements EmiPlugin {
                 }
             }
         });
+    }
+
+    @Override
+    public void initialize(EmiInitRegistry registry) {
+        //Mekanism currently doesn't support add them in 1.20.4
+        //This hopefully won't cause problems when they add support
+        if (ModList.get().isLoaded("mekanism")) {
+            registry.addRegistryAdapter(EmiRegistryAdapter.simple(Gas.class, MekanismAPI.GAS_REGISTRY, (chemical, nbt, amount) -> new ChemicalEmiStack.GasEmiStack(chemical, amount)));
+            registry.addRegistryAdapter(EmiRegistryAdapter.simple(InfuseType.class, MekanismAPI.INFUSE_TYPE_REGISTRY, (chemical, nbt, amount) -> new ChemicalEmiStack.InfusionEmiStack(chemical, amount)));
+            registry.addRegistryAdapter(EmiRegistryAdapter.simple(Slurry.class, MekanismAPI.SLURRY_REGISTRY, (chemical, nbt, amount) -> new ChemicalEmiStack.SlurryEmiStack(chemical, amount)));
+            registry.addRegistryAdapter(EmiRegistryAdapter.simple(Pigment.class, MekanismAPI.PIGMENT_REGISTRY, (chemical, nbt, amount) -> new ChemicalEmiStack.PigmentEmiStack(chemical, amount)));
+        }
     }
 }

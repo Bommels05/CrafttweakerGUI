@@ -1,6 +1,7 @@
 package de.bommels05.ctgui.emi;
 
 import de.bommels05.ctgui.ViewerSlot;
+import de.bommels05.ctgui.api.SpecialAmountedIngredient;
 import dev.emi.emi.EmiRenderHelper;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
@@ -8,6 +9,7 @@ import dev.emi.emi.api.widget.SlotWidget;
 import dev.emi.emi.runtime.EmiDrawContext;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 
@@ -21,6 +23,10 @@ public class EmiViewerSlot implements ViewerSlot {
 
     public EmiViewerSlot(ItemStack stack, int x, int y) {
         slot = new SlotWidget(EmiStack.of(stack), x, y);
+    }
+
+    public <S, T> EmiViewerSlot(SpecialAmountedIngredient<S, T> ingredient, int x, int y) {
+        slot = new SlotWidget(EmiViewerUtils.of(ingredient), x, y);
     }
 
     @Override

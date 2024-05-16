@@ -32,10 +32,10 @@ public class InjectingRecipeType extends SupportedRecipeType<BasicInjectingRecip
             return AmountedIngredient.of(convertUnset(r.getOutputRaw()));
         });
         addAreaScrollAmountEmptyRightClick(40, 20, 6, 12, (r, stack) -> {
-            return new BasicInjectingRecipe(r.getItemInput(), IngredientCreatorAccess.gas().from(stack.getType() == MekanismRecipeUtils.of(r.getChemicalInput()).getType() ? stack : new GasStack(stack, MekanismRecipeUtils.getAmount(r.getChemicalInput()))), r.getOutputRaw());
+            return new BasicInjectingRecipe(r.getItemInput(), MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getChemicalInput()), r.getOutputRaw());
         }, r -> {
             return MekanismRecipeUtils.of(r.getChemicalInput());
-        }, () -> new GasStack(MekanismGases.OXYGEN.get(), 1), MekanismRecipeUtils::limitedChemicalAmountSetter);
+        }, () -> new ChemicalAmountedIngredient<>(new GasStack(MekanismGases.OXYGEN.get(), 1)), MekanismRecipeUtils::limitedChemicalAmountSetter);
     }
 
     @Override

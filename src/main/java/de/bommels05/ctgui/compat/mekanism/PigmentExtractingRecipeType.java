@@ -26,9 +26,12 @@ public class PigmentExtractingRecipeType extends SupportedRecipeType<BasicItemSt
         }, r -> {
             return convertUnset(MekanismRecipeUtils.of(r.getInput()));
         });
-        addAreaScrollAmountEmptyRightClick(113, 1, 18, 60, (r, stack) -> {
+        addAreaScrollAmountEmptyRightClick(113, 1, 18, 60, (r, input) -> {
+            PigmentStack stack = input.toStack();
             return new BasicItemStackToPigmentRecipe(r.getInput(), stack.getType() == r.getOutputRaw().getType() ? stack : new PigmentStack(stack, r.getOutputRaw().getAmount()));
-        }, BasicItemStackToPigmentRecipe::getOutputRaw, () -> new PigmentStack(MekanismPigments.PIGMENT_COLOR_LOOKUP.get(EnumColor.RED), 100), MekanismRecipeUtils::chemicalAmountSetter);
+        }, r -> {
+            return new ChemicalAmountedIngredient<>(r.getOutputRaw());
+        }, () -> new ChemicalAmountedIngredient<>(new PigmentStack(MekanismPigments.PIGMENT_COLOR_LOOKUP.get(EnumColor.RED), 100)), MekanismRecipeUtils::chemicalAmountSetter);
     }
 
     @Override

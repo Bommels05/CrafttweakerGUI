@@ -22,18 +22,21 @@ public class ChemicalInfusingRecipeType extends SupportedRecipeType<BasicChemica
         super(new ResourceLocation(MekanismAPI.MEKANISM_MODID, "chemical_infusing"));
 
         addAreaScrollAmountEmptyRightClick(22, 10, 18, 60, (r, stack) -> {
-            return new BasicChemicalInfuserRecipe(IngredientCreatorAccess.gas().from(stack.getType() == MekanismRecipeUtils.of(r.getLeftInput()).getType() ? stack : new GasStack(stack, MekanismRecipeUtils.getAmount(r.getLeftInput()))), r.getRightInput(), r.getOutputRaw());
+            return new BasicChemicalInfuserRecipe(MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getLeftInput()), r.getRightInput(), r.getOutputRaw());
         }, r -> {
             return MekanismRecipeUtils.of(r.getLeftInput());
-        }, () -> new GasStack(MekanismGases.OXYGEN.get(), 1), MekanismRecipeUtils::limitedChemicalAmountSetter);
+        }, () -> new ChemicalAmountedIngredient<>(new GasStack(MekanismGases.OXYGEN.get(), 1)), MekanismRecipeUtils::limitedChemicalAmountSetter);
         addAreaScrollAmountEmptyRightClick(130, 10, 18, 60, (r, stack) -> {
-            return new BasicChemicalInfuserRecipe(r.getLeftInput(), IngredientCreatorAccess.gas().from(stack.getType() == MekanismRecipeUtils.of(r.getRightInput()).getType() ? stack : new GasStack(stack, MekanismRecipeUtils.getAmount(r.getRightInput()))), r.getOutputRaw());
+            return new BasicChemicalInfuserRecipe(r.getLeftInput(), MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getRightInput()), r.getOutputRaw());
         }, r -> {
             return MekanismRecipeUtils.of(r.getRightInput());
-        }, () -> new GasStack(MekanismGases.OXYGEN.get(), 1), MekanismRecipeUtils::limitedChemicalAmountSetter);
-        addAreaScrollAmountEmptyRightClick(76, 1, 18, 60, (r, stack) -> {
+        }, () -> new ChemicalAmountedIngredient<>(new GasStack(MekanismGases.OXYGEN.get(), 1)), MekanismRecipeUtils::limitedChemicalAmountSetter);
+        addAreaScrollAmountEmptyRightClick(76, 1, 18, 60, (r, input) -> {
+            GasStack stack = input.toStack();
             return new BasicChemicalInfuserRecipe(r.getLeftInput(), r.getRightInput(), stack.getType() == r.getOutputRaw().getType() ? stack : new GasStack(stack, r.getOutputRaw().getAmount()));
-        }, BasicChemicalInfuserRecipe::getOutputRaw, () -> new GasStack(MekanismGases.OXYGEN.get(), 2), MekanismRecipeUtils::limitedChemicalAmountSetter);
+        }, r -> {
+            return new ChemicalAmountedIngredient<>(r.getOutputRaw());
+        }, () -> new ChemicalAmountedIngredient<>(new GasStack(MekanismGases.OXYGEN.get(), 2)), MekanismRecipeUtils::limitedChemicalAmountSetter);
     }
 
     @Override

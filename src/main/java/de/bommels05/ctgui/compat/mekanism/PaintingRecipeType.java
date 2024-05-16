@@ -33,10 +33,10 @@ public class PaintingRecipeType extends SupportedRecipeType<BasicPaintingRecipe>
             return AmountedIngredient.of(convertUnset(r.getOutputRaw()));
         });
         addAreaScrollAmountEmptyRightClick(0, 0, 18, 60, (r, stack) -> {
-            return new BasicPaintingRecipe(r.getItemInput(), IngredientCreatorAccess.pigment().from(stack.getType() == MekanismRecipeUtils.of(r.getChemicalInput()).getType() ? stack : new PigmentStack(stack, MekanismRecipeUtils.getAmount(r.getChemicalInput()))), r.getOutputRaw());
+            return new BasicPaintingRecipe(r.getItemInput(), MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getChemicalInput()), r.getOutputRaw());
         }, r -> {
             return MekanismRecipeUtils.of(r.getChemicalInput());
-        }, () -> new PigmentStack(MekanismPigments.PIGMENT_COLOR_LOOKUP.get(EnumColor.RED), 50), MekanismRecipeUtils::chemicalAmountSetter);
+        }, () -> new ChemicalAmountedIngredient<>(new PigmentStack(MekanismPigments.PIGMENT_COLOR_LOOKUP.get(EnumColor.RED), 50)), MekanismRecipeUtils::chemicalAmountSetter);
     }
 
     @Override

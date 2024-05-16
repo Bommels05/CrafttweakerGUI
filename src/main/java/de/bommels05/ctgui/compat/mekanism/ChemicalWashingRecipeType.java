@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.mekanism;
 
+import de.bommels05.ctgui.api.FluidAmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
@@ -25,19 +26,23 @@ public class ChemicalWashingRecipeType extends SupportedRecipeType<BasicFluidSlu
         super(new ResourceLocation(MekanismAPI.MEKANISM_MODID, "washing"));
 
         addAreaScrollAmountEmptyRightClick(0, 0, 18, 60, (r, stack) -> {
-            return new BasicFluidSlurryToSlurryRecipe(IngredientCreatorAccess.fluid().from(stack.getFluid() == MekanismRecipeUtils.of(r.getFluidInput()).getFluid() ? stack : new FluidStack(stack, MekanismRecipeUtils.getAmount(r.getFluidInput()))), r.getChemicalInput(), r.getOutputRaw());
+            return new BasicFluidSlurryToSlurryRecipe(MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getFluidInput()), r.getChemicalInput(), r.getOutputRaw());
         }, r -> {
             return MekanismRecipeUtils.of(r.getFluidInput());
-        }, () -> new FluidStack(Fluids.WATER, 5), SupportedRecipeType::limitedFluidAmountSetter);
+        }, () -> new FluidAmountedIngredient(new FluidStack(Fluids.WATER, 5)), SupportedRecipeType::limitedFluidAmountSetter);
         addAreaScrollAmountEmptyRightClick(21, 0, 18, 60, (r, stack) -> {
-            return new BasicFluidSlurryToSlurryRecipe(r.getFluidInput(), IngredientCreatorAccess.slurry().from(stack.getType() == MekanismRecipeUtils.of(r.getChemicalInput()).getType() ? stack : new SlurryStack(stack, MekanismRecipeUtils.getAmount(r.getChemicalInput()))), r.getOutputRaw());
+            return new BasicFluidSlurryToSlurryRecipe(r.getFluidInput(), MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getChemicalInput()), r.getOutputRaw());
         }, r -> {
             return MekanismRecipeUtils.of(r.getChemicalInput());
-        }, () -> new SlurryStack(MekanismSlurries.PROCESSED_RESOURCES.get(PrimaryResource.IRON).getDirtySlurry(), 1), MekanismRecipeUtils::limitedChemicalAmountSetter);
-        addAreaScrollAmountEmptyRightClick(124, 0, 18, 60, (r, stack) -> {
+        }, () -> new ChemicalAmountedIngredient<>(new SlurryStack(MekanismSlurries.PROCESSED_RESOURCES.get(PrimaryResource.IRON).getDirtySlurry(), 1)),
+                MekanismRecipeUtils::limitedChemicalAmountSetter);
+        addAreaScrollAmountEmptyRightClick(124, 0, 18, 60, (r, input) -> {
+            SlurryStack stack = input.toStack();
             return new BasicFluidSlurryToSlurryRecipe(r.getFluidInput(), r.getChemicalInput(), stack.getType() == r.getOutputRaw().getType() ? stack : new SlurryStack(stack, r.getOutputRaw().getAmount()));
-        }, BasicFluidSlurryToSlurryRecipe::getOutputRaw,
-                () -> new SlurryStack(MekanismSlurries.PROCESSED_RESOURCES.get(PrimaryResource.IRON).getCleanSlurry(), 1), MekanismRecipeUtils::limitedChemicalAmountSetter);
+        }, r -> {
+            return new ChemicalAmountedIngredient<>(r.getOutputRaw());
+        }, () -> new ChemicalAmountedIngredient<>(new SlurryStack(MekanismSlurries.PROCESSED_RESOURCES.get(PrimaryResource.IRON).getCleanSlurry(), 1)),
+                MekanismRecipeUtils::limitedChemicalAmountSetter);
     }
 
     @Override

@@ -6,7 +6,6 @@ import de.bommels05.ctgui.api.UnsupportedViewerException;
 import mekanism.api.MekanismAPI;
 import mekanism.api.chemical.gas.GasStack;
 import mekanism.api.recipes.basic.BasicGasConversionRecipe;
-import mekanism.api.recipes.basic.BasicItemStackToGasRecipe;
 import mekanism.api.recipes.ingredients.creator.IngredientCreatorAccess;
 import mekanism.client.recipe_viewer.emi.MekanismEmiRecipeCategory;
 import mekanism.client.recipe_viewer.emi.recipe.ItemStackToGasEmiRecipe;
@@ -27,9 +26,12 @@ public class GasConvertingRecipeType extends SupportedRecipeType<BasicGasConvers
         }, r -> {
             return convertUnset(MekanismRecipeUtils.of(r.getInput()));
         });
-        addAreaScrollAmountEmptyRightClick(111, 1, 18, 60, (r, stack) -> {
+        addAreaScrollAmountEmptyRightClick(111, 1, 18, 60, (r, input) -> {
+            GasStack stack = input.toStack();
             return new BasicGasConversionRecipe(r.getInput(), stack.getType() == r.getOutputRaw().getType() ? stack : new GasStack(stack, r.getOutputRaw().getAmount()));
-        }, BasicItemStackToGasRecipe::getOutputRaw, () -> new GasStack(MekanismGases.OXYGEN.get(), 100), MekanismRecipeUtils::chemicalAmountSetter);
+        }, r -> {
+            return new ChemicalAmountedIngredient<>(r.getOutputRaw());
+        }, () -> new ChemicalAmountedIngredient<>(new GasStack(MekanismGases.OXYGEN.get(), 100)), MekanismRecipeUtils::chemicalAmountSetter);
     }
 
     @Override

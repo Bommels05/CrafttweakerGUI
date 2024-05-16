@@ -1,9 +1,6 @@
 package de.bommels05.ctgui.compat.mekanism;
 
-import de.bommels05.ctgui.api.AmountedIngredient;
-import de.bommels05.ctgui.api.SupportedRecipeType;
-import de.bommels05.ctgui.api.UnsupportedRecipeException;
-import de.bommels05.ctgui.api.UnsupportedViewerException;
+import de.bommels05.ctgui.api.*;
 import de.bommels05.ctgui.api.option.DoubleRecipeOption;
 import de.bommels05.ctgui.api.option.IntegerRecipeOption;
 import mekanism.api.MekanismAPI;
@@ -42,18 +39,21 @@ public class ReactingRecipeType extends SupportedRecipeType<BasicPressurizedReac
             return AmountedIngredient.of(convertUnset(r.getOutputItem()));
         });
         addAreaScrollAmountEmptyRightClick(1, -1, 18, 60, (r, stack) -> {
-            return new BasicPressurizedReactionRecipe(r.getInputSolid(), IngredientCreatorAccess.fluid().from(stack.getFluid() == MekanismRecipeUtils.of(r.getInputFluid()).getFluid() ? stack : new FluidStack(stack, MekanismRecipeUtils.getAmount(r.getInputFluid()))), r.getInputGas(), r.getEnergyRequired(), r.getDuration(), r.getOutputItem(), r.getOutputGas());
+            return new BasicPressurizedReactionRecipe(r.getInputSolid(), MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getInputFluid()), r.getInputGas(), r.getEnergyRequired(), r.getDuration(), r.getOutputItem(), r.getOutputGas());
         }, r -> {
             return MekanismRecipeUtils.of(r.getInputFluid());
-        }, () -> new FluidStack(Fluids.WATER, 1000), SupportedRecipeType::fluidAmountSetter);
+        }, () -> new FluidAmountedIngredient(new FluidStack(Fluids.WATER, 1000)), SupportedRecipeType::fluidAmountSetter);
         addAreaScrollAmountEmptyRightClick(24, -1, 18, 60, (r, stack) -> {
-            return new BasicPressurizedReactionRecipe(r.getInputSolid(), r.getInputFluid(), IngredientCreatorAccess.gas().from(stack.getType() == MekanismRecipeUtils.of(r.getInputGas()).getType() ? stack : new GasStack(stack, MekanismRecipeUtils.getAmount(r.getInputGas()))), r.getEnergyRequired(), r.getDuration(), r.getOutputItem(), r.getOutputGas());
+            return new BasicPressurizedReactionRecipe(r.getInputSolid(), r.getInputFluid(), MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getInputGas()), r.getEnergyRequired(), r.getDuration(), r.getOutputItem(), r.getOutputGas());
         }, r -> {
             return MekanismRecipeUtils.of(r.getInputGas());
-        }, () -> new GasStack(MekanismGases.OXYGEN.get(), 100), MekanismRecipeUtils::chemicalAmountSetter);
-        addAreaScrollAmountEmptyRightClick(136, 29, 18, 30, (r, stack) -> {
+        }, () -> new ChemicalAmountedIngredient<>(new GasStack(MekanismGases.OXYGEN.get(), 100)), MekanismRecipeUtils::chemicalAmountSetter);
+        addAreaScrollAmountEmptyRightClick(136, 29, 18, 30, (r, input) -> {
+            GasStack stack = input.toStack();
             return new BasicPressurizedReactionRecipe(r.getInputSolid(), r.getInputFluid(), r.getInputGas(), r.getEnergyRequired(), r.getDuration(), stack.isEmpty() ? convertToUnset(r.getOutputItem()) : convertUnset(r.getOutputItem()), stack.getType() == r.getOutputGas().getType() ? stack : new GasStack(stack, r.getOutputGas().getAmount() == 0 ? 100 : r.getOutputGas().getAmount()));
-        }, BasicPressurizedReactionRecipe::getOutputGas, () -> GasStack.EMPTY, MekanismRecipeUtils::chemicalAmountSetter);
+        }, r -> {
+            return new ChemicalAmountedIngredient<>(r.getOutputGas());
+        }, () -> new ChemicalAmountedIngredient<>(GasStack.EMPTY), MekanismRecipeUtils::chemicalAmountSetter);
 
         addOption(energyRequired, (r, energyRequired) -> {
             return new BasicPressurizedReactionRecipe(r.getInputSolid(), r.getInputFluid(), r.getInputGas(), FloatingLong.create(energyRequired), r.getDuration(), r.getOutputItem(), r.getOutputGas());

@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.mekanism;
 
+import de.bommels05.ctgui.api.FluidAmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
@@ -24,13 +25,16 @@ public class CondensentratingRecipeType extends SupportedRecipeType<BasicRotaryR
         super(new ResourceLocation(MekanismAPI.MEKANISM_MODID, "condensentrating"));
 
         addAreaScrollAmountEmptyRightClick(22, 1, 18, 60, (r, stack) -> {
-            return new BasicRotaryRecipe(IngredientCreatorAccess.gas().from(stack.getType() == MekanismRecipeUtils.of(r.getGasInput()).getType() ? stack : new GasStack(stack, MekanismRecipeUtils.getAmount(r.getGasInput()))), r.getFluidOutputRaw());
+            return new BasicRotaryRecipe(MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getGasInput()), r.getFluidOutputRaw());
         }, r -> {
             return MekanismRecipeUtils.of(r.getGasInput());
-        }, () -> new GasStack(MekanismGases.OXYGEN.get(), 1), MekanismRecipeUtils::limitedChemicalAmountSetter);
-        addAreaScrollAmountEmptyRightClick(130, 1, 18, 60, (r, stack) -> {
+        }, () -> new ChemicalAmountedIngredient<>(new GasStack(MekanismGases.OXYGEN.get(), 1)), MekanismRecipeUtils::limitedChemicalAmountSetter);
+        addAreaScrollAmountEmptyRightClick(130, 1, 18, 60, (r, input) -> {
+            FluidStack stack = input.toStack();
             return new BasicRotaryRecipe(r.getGasInput(), stack.getFluid() == r.getFluidOutputRaw().getFluid() ? stack : new FluidStack(stack, r.getFluidOutputRaw().getAmount()));
-        }, BasicRotaryRecipe::getFluidOutputRaw, () -> new FluidStack(Fluids.WATER, 1), SupportedRecipeType::limitedFluidAmountSetter);
+        }, r -> {
+            return new FluidAmountedIngredient(r.getFluidOutputRaw());
+        }, () -> new FluidAmountedIngredient(new FluidStack(Fluids.WATER, 1)), SupportedRecipeType::limitedFluidAmountSetter);
     }
 
     @Override

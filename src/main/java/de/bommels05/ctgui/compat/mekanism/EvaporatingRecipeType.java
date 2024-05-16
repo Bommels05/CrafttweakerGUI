@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.mekanism;
 
+import de.bommels05.ctgui.api.FluidAmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
@@ -22,13 +23,16 @@ public class EvaporatingRecipeType extends SupportedRecipeType<BasicFluidToFluid
         super(new ResourceLocation(MekanismAPI.MEKANISM_MODID, "evaporating"));
 
         addAreaScrollAmountEmptyRightClick(3, 1, 18, 60, (r, stack) -> {
-            return new BasicFluidToFluidRecipe(IngredientCreatorAccess.fluid().from(stack.getFluid() == MekanismRecipeUtils.of(r.getInput()).getFluid() ? stack : new FluidStack(stack, MekanismRecipeUtils.getAmount(r.getInput()))), r.getOutputRaw());
+            return new BasicFluidToFluidRecipe(MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getInput()), r.getOutputRaw());
         }, r -> {
             return MekanismRecipeUtils.of(r.getInput());
-        }, () -> new FluidStack(Fluids.WATER, 1), SupportedRecipeType::limitedFluidAmountSetter);
-        addAreaScrollAmountEmptyRightClick(149, 1, 18, 60, (r, stack) -> {
+        }, () -> new FluidAmountedIngredient(new FluidStack(Fluids.WATER, 1)), SupportedRecipeType::limitedFluidAmountSetter);
+        addAreaScrollAmountEmptyRightClick(149, 1, 18, 60, (r, input) -> {
+            FluidStack stack = input.toStack();
             return new BasicFluidToFluidRecipe(r.getInput(), stack.getFluid() == r.getOutputRaw().getFluid() ? stack : new FluidStack(stack, r.getOutputRaw().getAmount()));
-        }, BasicFluidToFluidRecipe::getOutputRaw, () -> new FluidStack(Fluids.WATER, 1), SupportedRecipeType::limitedFluidAmountSetter);
+        }, r -> {
+            return new FluidAmountedIngredient(r.getOutputRaw());
+        }, () -> new FluidAmountedIngredient(new FluidStack(Fluids.WATER, 1)), SupportedRecipeType::limitedFluidAmountSetter);
     }
 
     @Override

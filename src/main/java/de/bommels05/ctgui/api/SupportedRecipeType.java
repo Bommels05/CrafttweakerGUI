@@ -1,9 +1,12 @@
 package de.bommels05.ctgui.api;
 
+import com.blamejared.crafttweaker.api.fluid.CTFluidIngredient;
 import com.blamejared.crafttweaker.api.fluid.IFluidStack;
 import com.blamejared.crafttweaker.api.ingredient.IIngredient;
 import com.blamejared.crafttweaker.api.ingredient.type.IngredientWithAmount;
+import com.blamejared.crafttweaker.api.tag.CraftTweakerTagRegistry;
 import com.blamejared.crafttweaker.api.util.ItemStackUtil;
+import com.mojang.datafixers.util.Either;
 import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.screen.RecipeEditScreen;
 import de.bommels05.ctgui.api.option.RecipeOption;
@@ -13,9 +16,11 @@ import dev.emi.emi.api.recipe.EmiRecipeCategory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -42,7 +47,7 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
         UNSET.getOrCreateTag().put("display", display);
     }
     private final ResourceLocation id;
-    private final List<Area<R, ?>> areas = new ArrayList<>();
+    private final List<Area<R, ?, ?>> areas = new ArrayList<>();
     private final List<RecipeOption<?, R>> options = new ArrayList<>();
 
     /**
@@ -170,35 +175,54 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
         return IFluidStack.of(stack).getCommandString();
     }
 
-    @SuppressWarnings("unchecked")
+    /**
+     * Returns the CraftTweaker representation of the fluid ingredient
+     * @param stack The fluid ingredient
+     * @return The CraftTweaker representation of the fluid ingredient
+     */
+    protected String getCTString(FluidAmountedIngredient stack) {
+        if (stack.isStack()) {
+            return IFluidStack.of(stack.shouldUseAmount() ? stack.getStack().copyWithAmount(stack.getAmount()) : stack.getStack()).getCommandString();
+        } else {
+            return new CTFluidIngredient.FluidTagWithAmountIngredient(CraftTweakerTagRegistry.INSTANCE.knownTagManager(Registries.FLUID).tag(stack.getTag()).withAmount(stack.getRightAmount())).getCommandString();
+        }
+    }
+
     public R onDragAndDrop(R recipe, int x, int y, AmountedIngredient ingredient) {
-        for (Area<R, ?> area : areas) {
-            if (area.inside(x, y) && area.stackSupplier.apply(recipe) instanceof AmountedIngredient) {
-                return ((Area<R, AmountedIngredient>) area).dragAndDropHandler.apply(recipe, ingredient);
+        for (Area<R, ?, ?> area : areas) {
+            if (area.inside(x, y) && area.stackSupplier.apply(recipe).left().isPresent()) {
+                return area.dragAndDropHandler.apply(recipe, Either.left(ingredient));
             }
         }
         return null;
     }
 
     @SuppressWarnings("unchecked")
-    public <T> R onDragAndDropSpecial(R recipe, int x, int y, T ingredient) {
-        for (Area<R, ?> area : areas) {
+    public <S, T> R onDragAndDropSpecial(R recipe, int x, int y, SpecialAmountedIngredient<S, T> ingredient) {
+        for (Area<R, ?, ?> area : areas) {
             if (area.inside(x, y)) {
                 try {
-                    return ((Area<R, T>) area).dragAndDropHandler.apply(recipe, ingredient);
+                    return ((Area<R, S, T>) area).dragAndDropHandler.apply(recipe, Either.right(ingredient));
                 } catch (ClassCastException ignored) {}
             }
         }
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     public R onClick(R recipe, int x, int y, boolean rightClick, RecipeEditScreen<R> screen) {
-        for (Area<R, ?> area : areas) {
+        for (Area<R, ?, ?> area : areas) {
             if (area.inside(x, y)) {
                 R result = area.clickHandler.apply(recipe, rightClick);
-                if (result == null && area.stackSupplier.apply(recipe) instanceof AmountedIngredient ingredient) {
-                    if (!ingredient.isEmpty()) {
-                        screen.setDragged(ingredient);
+                if (result == null) {
+                    Either<AmountedIngredient, ? extends SpecialAmountedIngredient<?, ?>> stack = area.stackSupplier.apply(recipe);
+                    if (stack.left().isPresent()) {
+                        AmountedIngredient ingredient = stack.left().get();
+                        if (!ingredient.isEmpty()) {
+                            screen.setDragged(ingredient);
+                        }
+                    } else if (stack.right().orElseThrow().isTag() || !stack.right().orElseThrow().isStackEmpty()) {
+                        screen.setDraggedSpecial(stack.right().orElseThrow());
                     }
                 }
                 return result;
@@ -207,27 +231,23 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
         return null;
     }
 
-    /*public R onMiddleClick(R recipe, int x, int y) {
-        for (Area<R> area : areas) {
-            if (area.inside(x, y)) {
-                AmountedIngredient ingredient = area.stackSupplier.apply(recipe);
-
-            }
-        }
-        return null;
-    }*/
-
-    public R onReleased(R recipe, int x, int y, boolean rightClick, RecipeEditScreen<R> screen) {
+    @SuppressWarnings("unchecked")
+    public <S, T> R onReleased(R recipe, int x, int y, boolean rightClick, RecipeEditScreen<R> screen) {
         if (!rightClick && screen.getDragged() != null) {
             R result = onDragAndDrop(recipe, x, y, screen.getDragged());
             screen.setDragged(null);
+            return result;
+        }
+        if (!rightClick && screen.getDraggedSpecial() != null) {
+            R result = onDragAndDropSpecial(recipe, x, y, screen.getDraggedSpecial());
+            screen.setDraggedSpecial(null);
             return result;
         }
         return null;
     }
 
     public R onScroll(R recipe, int x, int y, boolean up) {
-        for (Area<R, ?> area : areas) {
+        for (Area<R, ?, ?> area : areas) {
             if (area.inside(x, y)) {
                 return area.scrollHandler.apply(recipe, up);
             }
@@ -284,9 +304,19 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
      * @param clickHandler The handler that handles left or right mouse clicks on the area and returns a modified recipe if needed
      * @param scrollHandler The handler that handles mouse scrolls on the area and returns a modified recipe if needed
      */
-    protected <T> void addArea(int x, int y, int width, int height, BiFunction<R, T, R> dragAndDropHandler, Function<R, T> stackSupplier,
+    @SuppressWarnings("unchecked")
+    protected <T, S, TT> void addArea(int x, int y, int width, int height, BiFunction<R, T, R> dragAndDropHandler, Function<R, T> stackSupplier,
                            BiFunction<R, Boolean, R> clickHandler, BiFunction<R, Boolean, R> scrollHandler) {
-        areas.add(new Area<>(x, y, width, height, dragAndDropHandler, stackSupplier, clickHandler, scrollHandler));
+        try {
+            ((BiFunction<R, AmountedIngredient, R>) dragAndDropHandler).apply(null, AmountedIngredient.empty());
+            //Probably thrown anyway
+            throw new NullPointerException();
+        } catch (ClassCastException e) {
+            //-> Does not accept AmountedIngredients
+            areas.add(Area.createSpecial(x, y, width, height, (BiFunction<R, SpecialAmountedIngredient<S, TT>, R>) dragAndDropHandler, (Function<R, SpecialAmountedIngredient<S, TT>>) stackSupplier, clickHandler, scrollHandler));
+        } catch (Throwable t) {
+            areas.add(Area.create(x, y, width, height, (BiFunction<R, AmountedIngredient, R>) dragAndDropHandler, (Function<R, AmountedIngredient>) stackSupplier, clickHandler, scrollHandler));
+        }
     }
 
     /**
@@ -396,25 +426,25 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
      * @param up Whether to increase or decrease the amount
      * @return A new fluid stack with the amount changed
      */
-    public static FluidStack fluidAmountSetter(FluidStack stack, boolean up) {
-        return new FluidStack(stack, Math.max(1, (stack.getAmount() == 1 ? (Screen.hasControlDown() ? 1 : 0) : stack.getAmount()) + getFluidScrollAmount(up)));
+    public static FluidAmountedIngredient fluidAmountSetter(FluidAmountedIngredient stack, boolean up) {
+        return stack.withAmount(Math.max(1, (stack.getRightAmount() == 1 ? (Screen.hasControlDown() ? 1 : 0) : stack.getRightAmount()) + getFluidScrollAmount(up)));
     }
 
     /**
-     * Function to use in a scroll amount area with fluid stacks that only changes the amount by 1
+     * Function to use in a scroll amount area with fluids that only changes the amount by 1
      * @param stack The original fluid stack
      * @param up Whether to increase or decrease the amount
      * @return A new fluid stack with the amount changed by 1
      */
-    public static FluidStack limitedFluidAmountSetter(FluidStack stack, boolean up) {
-        return new FluidStack(stack, Math.max(1, stack.getAmount() + (up ? 1 : -1)));
+    public static FluidAmountedIngredient limitedFluidAmountSetter(FluidAmountedIngredient stack, boolean up) {
+        return stack.withAmount(Math.max(1, stack.getRightAmount() + (up ? 1 : -1)));
     }
 
     /**
      * Adds a new area to interact with the recipe in the editing screen
      * @param area The area to add
      */
-    protected void addArea(Area<R, ?> area) {
+    protected void addArea(Area<R, ?, ?> area) {
         areas.add(area);
     }
 
@@ -426,7 +456,7 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
         areas.clear();
     }
 
-    public List<Area<R, ?>> getAreas() {
+    public List<Area<R, ?, ?>> getAreas() {
         return areas;
     }
 
@@ -486,9 +516,17 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
         return options;
     }
 
-    public record Area<R extends Recipe<?>, T>(int x, int y, int width, int height, BiFunction<R, T, R> dragAndDropHandler,
-                                            Function<R, T> stackSupplier,
-                                            BiFunction<R, Boolean, R> clickHandler, BiFunction<R, Boolean, R> scrollHandler) {
+    public record Area<R extends Recipe<?>, S, T>(int x, int y, int width, int height, BiFunction<R, Either<AmountedIngredient, SpecialAmountedIngredient<S, T>>, R> dragAndDropHandler,
+                                               Function<R, Either<AmountedIngredient, SpecialAmountedIngredient<S, T>>> stackSupplier,
+                                               BiFunction<R, Boolean, R> clickHandler, BiFunction<R, Boolean, R> scrollHandler) {
+
+        public static <R extends Recipe<?>> Area<R, AmountedIngredient, Item> create(int x, int y, int width, int height, BiFunction<R, AmountedIngredient, R> dragAndDropHandler, Function<R, AmountedIngredient> stackSupplier, BiFunction<R, Boolean, R> clickHandler, BiFunction<R, Boolean, R> scrollHandler) {
+            return new Area<>(x, y, width, height, (r, ingredient) -> dragAndDropHandler.apply(r, ingredient.left().orElseThrow(ClassCastException::new)), r -> Either.left(stackSupplier.apply(r)), clickHandler, scrollHandler);
+        }
+
+        public static <R extends Recipe<?>, S, T> Area<R, S, T> createSpecial(int x, int y, int width, int height, BiFunction<R,SpecialAmountedIngredient<S, T>, R> dragAndDropHandler, Function<R, SpecialAmountedIngredient<S, T>> stackSupplier, BiFunction<R, Boolean, R> clickHandler, BiFunction<R, Boolean, R> scrollHandler) {
+            return new Area<>(x, y, width, height, (r, ingredient) -> dragAndDropHandler.apply(r, ingredient.swap().orThrow()), r -> Either.right(stackSupplier.apply(r)), clickHandler, scrollHandler);
+        }
 
         public boolean inside(int x, int y) {
             return (this.x <= x && (this.x + this.width) >= x) && (this.y <= y && (this.y + this.height) >= y);

@@ -22,13 +22,16 @@ public class CentrifugingRecipeType extends SupportedRecipeType<BasicCentrifugin
         super(new ResourceLocation(MekanismAPI.MEKANISM_MODID, "centrifuging"));
 
         addAreaScrollAmountEmptyRightClick(21, 0, 18, 60, (r, stack) -> {
-            return new BasicCentrifugingRecipe(IngredientCreatorAccess.gas().from(stack.getType() == MekanismRecipeUtils.of(r.getInput()).getType() ? stack : new GasStack(stack, MekanismRecipeUtils.getAmount(r.getInput()))), r.getOutputRaw());
+            return new BasicCentrifugingRecipe(MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getInput()), r.getOutputRaw());
         }, r -> {
             return MekanismRecipeUtils.of(r.getInput());
-        }, () -> new GasStack(MekanismGases.OXYGEN.get(), 1), MekanismRecipeUtils::limitedChemicalAmountSetter);
-        addAreaScrollAmountEmptyRightClick(129, 0, 18, 60, (r, stack) -> {
+        }, () -> new ChemicalAmountedIngredient<>(new GasStack(MekanismGases.OXYGEN.get(), 1)), MekanismRecipeUtils::limitedChemicalAmountSetter);
+        addAreaScrollAmountEmptyRightClick(129, 0, 18, 60, (r, input) -> {
+            GasStack stack = input.toStack();
             return new BasicCentrifugingRecipe(r.getInput(), stack.getType() == r.getOutputRaw().getType() ? stack : new GasStack(stack, r.getOutputRaw().getAmount()));
-        }, BasicCentrifugingRecipe::getOutputRaw, () -> new GasStack(MekanismGases.OXYGEN.get(), 1), MekanismRecipeUtils::limitedChemicalAmountSetter);
+        }, r -> {
+            return new ChemicalAmountedIngredient<>(r.getOutputRaw());
+        }, () -> new ChemicalAmountedIngredient<>(new GasStack(MekanismGases.OXYGEN.get(), 1)), MekanismRecipeUtils::limitedChemicalAmountSetter);
     }
 
     @Override

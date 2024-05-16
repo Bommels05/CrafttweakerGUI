@@ -32,10 +32,10 @@ public class InfusingRecipeType extends SupportedRecipeType<BasicMetallurgicInfu
             return AmountedIngredient.of(convertUnset(r.getOutputRaw()));
         });
         addAreaScrollAmountEmptyRightClick(1, -2, 6, 54, (r, stack) -> {
-            return new BasicMetallurgicInfuserRecipe(r.getItemInput(), IngredientCreatorAccess.infusion().from(stack.getType() == MekanismRecipeUtils.of(r.getChemicalInput()).getType() ? stack : new InfusionStack(stack, MekanismRecipeUtils.getAmount(r.getChemicalInput()))), r.getOutputRaw());
+            return new BasicMetallurgicInfuserRecipe(r.getItemInput(), MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getChemicalInput()), r.getOutputRaw());
         }, r -> {
             return MekanismRecipeUtils.of(r.getChemicalInput());
-        }, () -> new InfusionStack(MekanismInfuseTypes.REDSTONE.get(), 10), (stack, up) ->
+        }, () -> new ChemicalAmountedIngredient<>(new InfusionStack(MekanismInfuseTypes.REDSTONE.get(), 10)), (stack, up) ->
                 MekanismRecipeUtils.chemicalAmountSetter(stack, up, 1, 10, 100));
     }
 

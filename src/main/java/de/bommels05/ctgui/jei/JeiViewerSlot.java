@@ -1,15 +1,15 @@
 package de.bommels05.ctgui.jei;
 
 import de.bommels05.ctgui.ViewerSlot;
+import de.bommels05.ctgui.api.SpecialAmountedIngredient;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.ingredients.ITypedIngredient;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.runtime.IIngredientVisibility;
 import mezz.jei.common.gui.TooltipRenderer;
 import mezz.jei.library.gui.ingredients.RecipeSlot;
-import mezz.jei.library.gui.recipes.layout.builder.RecipeSlotBuilder;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.Registry;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 
@@ -38,6 +38,13 @@ public class JeiViewerSlot implements ViewerSlot {
     private JeiViewerSlot(List<ItemStack> stack, int x, int y) {
         this.slot = new RecipeSlot(RUNTIME.getIngredientManager(), RecipeIngredientRole.RENDER_ONLY, x, y, 0);
         this.slot.set(stack.stream().map(this::of).toList(), Set.of(), RUNTIME.getIngredientVisibility());
+    }
+
+    @SuppressWarnings("unchecked")
+    public <S, T> JeiViewerSlot(SpecialAmountedIngredient<S, T> ingredient, int x, int y) {
+        this.slot = new RecipeSlot(RUNTIME.getIngredientManager(), RecipeIngredientRole.RENDER_ONLY, x, y, 0);
+        List<S> stacks = ingredient.getStacks();
+        this.slot.set((List<Optional<ITypedIngredient<?>>>) (List<?>) stacks.stream().map(s -> RUNTIME.getIngredientManager().createTypedIngredient(s)).toList(), Set.of(), RUNTIME.getIngredientVisibility());
     }
 
     @SuppressWarnings("unchecked")

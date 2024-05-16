@@ -4,7 +4,6 @@ import com.blamejared.crafttweaker.api.CraftTweakerConstants;
 import de.bommels05.ctgui.ChangedRecipeManager;
 import de.bommels05.ctgui.Config;
 import de.bommels05.ctgui.CraftTweakerGUI;
-import de.bommels05.ctgui.compat.minecraft.custom.TagRecipe;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.recipe.category.extensions.IRecipeCategoryDecorator;
@@ -27,7 +26,7 @@ public class JeiRecipeDecorator<T> implements IRecipeCategoryDecorator<T> {
         ResourceLocation id = category.getRegistryName(recipe);
         ChangedRecipeManager.ChangedRecipe<?> change = ChangedRecipeManager.getAffectingChange(id);
         if (change != null /*&& !(change.getRecipe() instanceof TagRecipe && change.wasExported())*/) {
-            graphics.fill(0, 0, category.getHeight(), category.getHeight(), FastColor.ARGB32.color(157, 148, 60, 60));
+            graphics.fill(0, 0, category.getWidth(), category.getHeight(), FastColor.ARGB32.color(157, 148, 60, 60));
             if (new Rect2i(0, 0, category.getWidth(), category.getHeight()).contains(mX, mY)) {
                 TooltipRenderer.drawHoveringText(graphics, List.of(Component.translatable(change.getType() == ChangedRecipeManager.ChangedRecipe.Type.CHANGED ? "ctgui.recipe_changed" : "ctgui.recipe_removed")), mX, mY);
             }

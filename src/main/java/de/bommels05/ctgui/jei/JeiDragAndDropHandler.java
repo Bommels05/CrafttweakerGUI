@@ -18,7 +18,7 @@ public class JeiDragAndDropHandler implements IGhostIngredientHandler<RecipeEdit
     @SuppressWarnings("unchecked")
     public <I> List<Target<I>> getTargetsTyped(RecipeEditScreen screen, ITypedIngredient<I> ingredient, boolean doStart) {
         List<Target<I>> targets = new ArrayList<>();
-        for (SupportedRecipeType.Area<?, ?> area : ((RecipeEditScreen<Recipe<?>>) screen).getRecipeType().getAreas()) {
+        for (SupportedRecipeType.Area<?, ?, ?> area : ((RecipeEditScreen<Recipe<?>>) screen).getRecipeType().getAreas()) {
             targets.add(new Target<I>() {
                 @Override
                 public Rect2i getArea() {
@@ -29,21 +29,13 @@ public class JeiDragAndDropHandler implements IGhostIngredientHandler<RecipeEdit
                 public void accept(I ingredient) {
                     if (ingredient instanceof ItemStack stack) {
                         screen.handleDragAndDrop(screen.getRecipeX() + area.x(), screen.getRecipeY() + area.y(), AmountedIngredient.of(stack));
+                    } else {
+                        screen.handleDragAndDropSpecial(screen.getRecipeX() + area.x(), screen.getRecipeY() + area.y(), ingredient);
                     }
                 }
             });
         }
         return targets;
-    }
-
-    private List<Rect2i> splitRect(Rect2i rect) {
-        List<Rect2i> split = new ArrayList<>();
-        for (int y = rect.getY(); y < rect.getY() + rect.getHeight(); y++) {
-            for (int x = rect.getX(); x < rect.getX() + rect.getWidth(); x++) {
-                split.add(new Rect2i(x, y, 1, 1));
-            }
-        }
-        return split;
     }
 
     @Override

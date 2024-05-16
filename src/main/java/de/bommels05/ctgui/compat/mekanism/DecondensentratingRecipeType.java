@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.mekanism;
 
+import de.bommels05.ctgui.api.FluidAmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
@@ -23,14 +24,17 @@ public class DecondensentratingRecipeType extends SupportedRecipeType<BasicRotar
     public DecondensentratingRecipeType() {
         super(new ResourceLocation(MekanismAPI.MEKANISM_MODID, "decondensentrating"));
 
-        addAreaScrollAmountEmptyRightClick(22, 1, 18, 60, (r, stack) -> {
+        addAreaScrollAmountEmptyRightClick(22, 1, 18, 60, (r, input) -> {
+            GasStack stack = input.toStack();
             return new BasicRotaryRecipe(r.getFluidInput(), stack.getType() == r.getGasOutputRaw().getType() ? stack : new GasStack(stack, r.getGasOutputRaw().getAmount()));
-        }, BasicRotaryRecipe::getGasOutputRaw, () -> new GasStack(MekanismGases.OXYGEN.get(), 1), MekanismRecipeUtils::limitedChemicalAmountSetter);
+        }, r -> {
+            return new ChemicalAmountedIngredient<>(r.getGasOutputRaw());
+        }, () -> new ChemicalAmountedIngredient<>(new GasStack(MekanismGases.OXYGEN.get(), 1)), MekanismRecipeUtils::limitedChemicalAmountSetter);
         addAreaScrollAmountEmptyRightClick(130, 1, 18, 60, (r, stack) -> {
-            return new BasicRotaryRecipe(IngredientCreatorAccess.fluid().from(stack.getFluid() == MekanismRecipeUtils.of(r.getFluidInput()).getFluid() ? stack : new FluidStack(stack, MekanismRecipeUtils.getAmount(r.getFluidInput()))), r.getGasOutputRaw());
+            return new BasicRotaryRecipe(MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getFluidInput()), r.getGasOutputRaw());
         }, r -> {
             return MekanismRecipeUtils.of(r.getFluidInput());
-        }, () -> new FluidStack(Fluids.WATER, 1), SupportedRecipeType::limitedFluidAmountSetter);
+        }, () -> new FluidAmountedIngredient(new FluidStack(Fluids.WATER, 1)), SupportedRecipeType::limitedFluidAmountSetter);
     }
 
     @Override

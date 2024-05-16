@@ -32,10 +32,10 @@ public class OsmiumCompressingRecipeType extends SupportedRecipeType<BasicCompre
             return AmountedIngredient.of(convertUnset(r.getOutputRaw()));
         });
         addAreaScrollAmountEmptyRightClick(40, 20, 6, 12, (r, stack) -> {
-            return new BasicCompressingRecipe(r.getItemInput(), IngredientCreatorAccess.gas().from(stack.getType() == MekanismRecipeUtils.of(r.getChemicalInput()).getType() ? stack : new GasStack(stack, MekanismRecipeUtils.getAmount(r.getChemicalInput()))), r.getOutputRaw());
+            return new BasicCompressingRecipe(r.getItemInput(), MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getChemicalInput()), r.getOutputRaw());
         }, r -> {
             return MekanismRecipeUtils.of(r.getChemicalInput());
-        }, () -> new GasStack(MekanismGases.OSMIUM.get(), 1), MekanismRecipeUtils::limitedChemicalAmountSetter);
+        }, () -> new ChemicalAmountedIngredient<>(new GasStack(MekanismGases.OSMIUM.get(), 1)), MekanismRecipeUtils::limitedChemicalAmountSetter);
     }
 
     @Override

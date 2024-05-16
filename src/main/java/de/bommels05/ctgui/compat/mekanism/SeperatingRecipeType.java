@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.mekanism;
 
+import de.bommels05.ctgui.api.FluidAmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
@@ -29,16 +30,22 @@ public class SeperatingRecipeType extends SupportedRecipeType<BasicElectrolysisR
         super(new ResourceLocation(MekanismAPI.MEKANISM_MODID, "separating"));
 
         addAreaScrollAmountEmptyRightClick(1, 1, 18, 60, (r, stack) -> {
-            return new BasicElectrolysisRecipe(IngredientCreatorAccess.fluid().from(stack.getFluid() == MekanismRecipeUtils.of(r.getInput()).getFluid() ? stack : new FluidStack(stack, MekanismRecipeUtils.getAmount(r.getInput()))), r.getEnergyMultiplier(), r.getLeftGasOutput(), r.getRightGasOutput());
+            return new BasicElectrolysisRecipe(MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getInput()), r.getEnergyMultiplier(), r.getLeftGasOutput(), r.getRightGasOutput());
         }, r -> {
             return MekanismRecipeUtils.of(r.getInput());
-        }, () -> new FluidStack(Fluids.WATER, 10), SupportedRecipeType::limitedFluidAmountSetter);
-        addAreaScrollAmountEmptyRightClick(54, 9, 18, 30, (r, stack) -> {
+        }, () -> new FluidAmountedIngredient(new FluidStack(Fluids.WATER, 10)), SupportedRecipeType::limitedFluidAmountSetter);
+        addAreaScrollAmountEmptyRightClick(54, 9, 18, 30, (r, input) -> {
+            GasStack stack = input.toStack();
             return new BasicElectrolysisRecipe(r.getInput(), r.getEnergyMultiplier(), stack.getType() == r.getLeftGasOutput().getType() ? stack : new GasStack(stack, r.getLeftGasOutput().getAmount()), r.getRightGasOutput());
-        }, BasicElectrolysisRecipe::getLeftGasOutput, () -> new GasStack(MekanismGases.OXYGEN.get(), 10), MekanismRecipeUtils::limitedChemicalAmountSetter);
-        addAreaScrollAmountEmptyRightClick(96, 9, 18, 30, (r, stack) -> {
+        }, r -> {
+            return new ChemicalAmountedIngredient<>(r.getLeftGasOutput());
+        }, () -> new ChemicalAmountedIngredient<>(new GasStack(MekanismGases.OXYGEN.get(), 10)), MekanismRecipeUtils::limitedChemicalAmountSetter);
+        addAreaScrollAmountEmptyRightClick(96, 9, 18, 30, (r, input) -> {
+            GasStack stack = input.toStack();
             return new BasicElectrolysisRecipe(r.getInput(), r.getEnergyMultiplier(), r.getLeftGasOutput(), stack.getType() == r.getRightGasOutput().getType() ? stack : new GasStack(stack, r.getRightGasOutput().getAmount()));
-        }, BasicElectrolysisRecipe::getRightGasOutput, () -> new GasStack(MekanismGases.OXYGEN.get(), 10), MekanismRecipeUtils::limitedChemicalAmountSetter);
+        }, r -> {
+            return new ChemicalAmountedIngredient<>(r.getRightGasOutput());
+        }, () -> new ChemicalAmountedIngredient<>(new GasStack(MekanismGases.OXYGEN.get(), 10)), MekanismRecipeUtils::limitedChemicalAmountSetter);
 
         addOption(energyMultiplier, (r, energyMultiplier) -> {
             return new BasicElectrolysisRecipe(r.getInput(), FloatingLong.create(energyMultiplier), r.getLeftGasOutput(), r.getRightGasOutput());

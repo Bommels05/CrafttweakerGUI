@@ -5,12 +5,13 @@ import de.bommels05.ctgui.ChangedRecipeManager;
 import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.SupportedRecipe;
 import de.bommels05.ctgui.ViewerSlot;
-import de.bommels05.ctgui.api.AmountedIngredient;
-import de.bommels05.ctgui.api.SupportedRecipeType;
-import de.bommels05.ctgui.api.UnsupportedRecipeException;
-import de.bommels05.ctgui.api.UnsupportedViewerException;
+import de.bommels05.ctgui.api.*;
 import de.bommels05.ctgui.api.option.RecipeIdFieldRecipeOption;
 import de.bommels05.ctgui.api.option.RecipeOption;
+import de.bommels05.ctgui.compat.mekanism.ChemicalAmountedIngredient;
+import mekanism.api.MekanismAPI;
+import mekanism.api.chemical.Chemical;
+import mekanism.api.chemical.ChemicalStack;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -19,17 +20,22 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.*;
 import net.minecraft.client.renderer.Rect2i;
+import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.level.material.Fluid;
+import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,9 +48,10 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
     private final static ResourceLocation HOT_BAR = new ResourceLocation(CraftTweakerGUI.MOD_ID, "textures/gui/hotbar.png");
     private SupportedRecipe<R, ? extends SupportedRecipeType<R>> recipe;
     private AmountedIngredient dragged = null;
+    private SpecialAmountedIngredient<?, ?> draggedSpecial = null;
     private List<ViewerSlot> hotBarSlots = new ArrayList<>();
     private ViewerSlot tagSlot;
-    private Ingredient tag;
+    private TagKey<?> tag;
     public int imageWidth;
     public int imageHeight;
     private int optionsHeight;
@@ -175,14 +182,19 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
         EditBox tagBox = new EditBox(this.font, getTagMinX() + 1, getTagMinY() + 11, 100, 18, tagTitle);
         tagBox.setResponder(input -> {
             try {
-                TagKey<Item> key = TagKey.create(Registries.ITEM, new ResourceLocation(input));
-                tag = Ingredient.of(key);
-            } catch (ResourceLocationException e) {
-                tag = Ingredient.EMPTY;
+                String type = input.substring(0, input.indexOf(":", input.indexOf(":") + 1));
+                if (BuiltInRegistries.REGISTRY.containsKey(new ResourceLocation(type))) {
+                    tag = TagKey.create(ResourceKey.createRegistryKey(new ResourceLocation(type)), new ResourceLocation(input.replace(type + ":", "")));
+                } else {
+                    tag = null;
+                }
+            } catch (ResourceLocationException | NullPointerException | IndexOutOfBoundsException e) {
+                tag = null;
             }
-            tagSlot = CraftTweakerGUI.getViewerUtils().newSlot(tag, 102, getTagMinY() + 11);
+            tagSlot = CraftTweakerGUI.getViewerUtils().newSlotSpecial(tag == null ? new SpecialAmountedIngredient<>(ItemStack.EMPTY) : new SpecialAmountedIngredient<>(tag, 1), 102, getTagMinY() + 11);
         });
-        tagBox.setValue("forge:ingots/iron");
+        tagBox.setValue("minecraft:item:forge:ingots/iron");
+        tagBox.setMaxLength(256);
         addRenderableWidget(tagBox);
 
         if (!recipe.getType().getOptions().isEmpty() && !(recipe.getType().getOptions().size() == 1 && idOption.isPresent())) {
@@ -238,15 +250,19 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
         tagSlot.render(graphics, mouseX, mouseY, partialTick);
         tagSlot.renderTooltip(this, graphics, mouseX, mouseY);
         hotBarSlots.forEach(slot -> slot.renderTooltip(this, graphics, mouseX, mouseY));
-        if (dragged != null && !dragged.isEmpty()) {
+        if ((dragged != null && !dragged.isEmpty()) || draggedSpecial != null) {
             int x = mouseX - 8;
             int y = mouseY - 8;
             graphics.pose().pushPose();
             graphics.pose().translate(0.0F, 0.0F, 232.0F);
-            ItemStack stack = dragged.asStack();
-            graphics.renderItem(stack, x, y);
-            Font font = IClientItemExtensions.of(stack).getFont(stack, IClientItemExtensions.FontContext.ITEM_COUNT);
-            graphics.renderItemDecorations(font == null ? this.font : font, stack, x, y, dragged.isTag() ? "Tag" + (stack.getCount() == 1 ? "" : " " + stack.getCount()) : null);
+            if (draggedSpecial != null) {
+                CraftTweakerGUI.getViewerUtils().renderIngredientSpecial(draggedSpecial, graphics, x, y, partialTick);
+            } else {
+                ItemStack stack = dragged.asStack();
+                graphics.renderItem(stack, x, y);
+                Font font = IClientItemExtensions.of(stack).getFont(stack, IClientItemExtensions.FontContext.ITEM_COUNT);
+                graphics.renderItemDecorations(font == null ? this.font : font, stack, x, y, dragged.isTag() ? "Tag" + (stack.getCount() == 1 ? "" : " " + stack.getCount()) : null);
+            }
             graphics.pose().popPose();
         }
         CraftTweakerGUI.getViewerUtils().renderEnd(graphics, mouseX, mouseY, partialTick);
@@ -270,19 +286,46 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
     }
 
     public <T> void handleDragAndDropSpecial(int x, int y, T ingredient) {
-        R newRecipe = recipe.getType().onDragAndDropSpecial(recipe.getRecipe(), x - getRecipeX(), y - getRecipeY(), ingredient);
+        R newRecipe = recipe.getType().onDragAndDropSpecial(recipe.getRecipe(), x - getRecipeX(), y - getRecipeY(), getRightImplementation(new SpecialAmountedIngredient<>(ingredient)));
         changeRecipe(newRecipe);
     }
 
+    private SpecialAmountedIngredient<?, ?> getRightImplementation(SpecialAmountedIngredient<?, ?> ingredient) {
+        if (ingredient.isStack()) {
+            if (ingredient.getStack() instanceof FluidStack stack) {
+                return new FluidAmountedIngredient(stack, ingredient.shouldUseAmount() ? ingredient.getAmount() : stack.getAmount());
+            } else if (ModList.get().isLoaded("mekanism") && ingredient.getStack() instanceof ChemicalStack<?> stack) {
+                return new ChemicalAmountedIngredient<>(stack, ingredient.shouldUseAmount() ? ingredient.getAmount() : (int) stack.getAmount());
+            }
+        } else {
+            TagKey<?> tag = ingredient.getTag();
+            if (tag.isFor(Registries.FLUID)) {
+                return new FluidAmountedIngredient((TagKey<Fluid>) tag, ingredient.getAmount());
+            } else if (ModList.get().isLoaded("mekanism") && (
+                    tag.isFor(MekanismAPI.GAS_REGISTRY_NAME) ||
+                    tag.isFor(MekanismAPI.INFUSE_TYPE_REGISTRY_NAME) ||
+                    tag.isFor(MekanismAPI.SLURRY_REGISTRY_NAME) ||
+                    tag.isFor(MekanismAPI.PIGMENT_REGISTRY_NAME))) {
+                return new ChemicalAmountedIngredient(tag, ingredient.getAmount());
+            }
+        }
+        return ingredient;
+    }
+
     @Override
+    @SuppressWarnings("unchecked")
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
         recipe.mouseClicked(getRecipeX(), getRecipeY(), (int) mouseX, (int) mouseY, mouseButton);
 
         boolean rightClick = InputConstants.Type.MOUSE.getOrCreate(mouseButton).getValue() == InputConstants.MOUSE_BUTTON_RIGHT;
         R newRecipe = recipe.getType().onClick(recipe.getRecipe(), (int) mouseX - getRecipeX(), (int) mouseY - getRecipeY(), rightClick, this);
         if (!rightClick) {
-            if (tagSlot.mouseOver((int) mouseX, (int) mouseY) && !tag.isEmpty()) {
-                setDragged(new AmountedIngredient(tag, 1));
+            if (tagSlot.mouseOver((int) mouseX, (int) mouseY) && tag != null) {
+                if (tag.isFor(Registries.ITEM)) {
+                    setDragged(new AmountedIngredient(Ingredient.of((TagKey<Item>) tag), 1));
+                } else {
+                    setDraggedSpecial(getRightImplementation(new SpecialAmountedIngredient<>(tag, 1)));
+                }
             } else {
                 for (ViewerSlot slot : hotBarSlots) {
                     if (slot.mouseOver((int) mouseX, (int) mouseY) && !slot.getStack().isEmpty()) {
@@ -462,8 +505,16 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
         return dragged;
     }
 
+    public SpecialAmountedIngredient<?, ?> getDraggedSpecial() {
+        return draggedSpecial;
+    }
+
     public void setDragged(AmountedIngredient dragged) {
         this.dragged = dragged;
+    }
+
+    public void setDraggedSpecial(SpecialAmountedIngredient<?, ?> draggedSpecial) {
+        this.draggedSpecial = draggedSpecial;
     }
 
     public ResourceLocation getOriginalRecipeId() {

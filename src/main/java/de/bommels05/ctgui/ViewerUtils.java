@@ -1,14 +1,40 @@
 package de.bommels05.ctgui;
 
+import com.mojang.datafixers.util.Either;
+import de.bommels05.ctgui.api.SpecialAmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
+import de.bommels05.ctgui.jei.JeiViewerUtils;
+import mekanism.api.chemical.Chemical;
+import mekanism.api.chemical.ChemicalStack;
+import mekanism.api.chemical.gas.Gas;
+import mekanism.api.chemical.gas.GasStack;
+import mekanism.api.chemical.infuse.InfuseType;
+import mekanism.api.chemical.infuse.InfusionStack;
+import mekanism.api.chemical.pigment.Pigment;
+import mekanism.api.chemical.pigment.PigmentStack;
+import mekanism.api.chemical.slurry.Slurry;
+import mekanism.api.chemical.slurry.SlurryStack;
+import mekanism.client.recipe_viewer.emi.ChemicalEmiStack;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.material.Fluid;
+import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.fluids.FluidStack;
+import org.apache.commons.lang3.stream.Streams;
+
+import java.util.List;
 
 public interface ViewerUtils<R> {
 
@@ -32,6 +58,10 @@ public interface ViewerUtils<R> {
 
     public ViewerSlot newSlot(ItemStack stack, int x, int y);
 
+    public <S, T> ViewerSlot newSlotSpecial(SpecialAmountedIngredient<S, T> ingredient, int x, int y);
+
+    public <S, T> void renderIngredientSpecial(SpecialAmountedIngredient<S, T> ingredient, GuiGraphics graphics, int x, int y, float partialTick);
+
     //Rendering
     public boolean keyPressed(int keyCode, int scanCode, int modifiers);
 
@@ -52,5 +82,37 @@ public interface ViewerUtils<R> {
     public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick);
 
     public void init(Screen screen);
+
+    public static ChemicalStack<?> from(Chemical<?> chemical, long amount) {
+        if (chemical instanceof Gas gas) {
+            return new GasStack(gas, amount);
+        }
+        if (chemical instanceof InfuseType infuseType) {
+            return new InfusionStack(infuseType, amount);
+        }
+        if (chemical instanceof Pigment pigment) {
+            return new PigmentStack(pigment, amount);
+        }
+        if (chemical instanceof Slurry slurry) {
+            return new SlurryStack(slurry, amount);
+        }
+        throw new IllegalArgumentException("Unsupported chemical type: " + chemical);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <S, T, RT extends Registry<?>, RT2 extends Registry<T>> List<S> of(TagKey<T> tag) {
+        return (List<S>) Streams.of(((RT2) ((Registry<RT>) BuiltInRegistries.REGISTRY).get((ResourceKey<RT>) tag.registry())).getTagOrEmpty(tag)).map(Holder::value).map(ViewerUtils::stackFromType).toList();
+    }
+
+    public static <T> Object stackFromType(T type) {
+        if (type instanceof ItemLike item) {
+            return new ItemStack(item);
+        } else if (type instanceof Fluid fluid) {
+            return new FluidStack(fluid, 1);
+        } else if (ModList.get().isLoaded("mekanism") && type instanceof Chemical<?> chemical) {
+            return ViewerUtils.from(chemical, 1);
+        }
+        return type;
+    }
 
 }

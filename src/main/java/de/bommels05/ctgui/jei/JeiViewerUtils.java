@@ -1,12 +1,15 @@
 package de.bommels05.ctgui.jei;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.bommels05.ctgui.ChangedRecipeManager;
 import de.bommels05.ctgui.SupportedRecipe;
 import de.bommels05.ctgui.ViewerSlot;
 import de.bommels05.ctgui.ViewerUtils;
+import de.bommels05.ctgui.api.SpecialAmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
 import mezz.jei.api.gui.IRecipeLayoutDrawable;
+import mezz.jei.api.ingredients.ITypedIngredient;
 import mezz.jei.api.recipe.IRecipeManager;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.gui.GuiGraphics;
@@ -17,7 +20,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,6 +84,24 @@ public class JeiViewerUtils implements ViewerUtils<IRecipeLayoutDrawable<RecipeH
     @Override
     public ViewerSlot newSlot(ItemStack stack, int x, int y) {
         return new JeiViewerSlot(stack, x, y);
+    }
+
+    @Override
+    public <S, T> ViewerSlot newSlotSpecial(SpecialAmountedIngredient<S, T> ingredient, int x, int y) {
+        return new JeiViewerSlot(ingredient, x, y);
+    }
+
+    @Override
+    public <S, T> void renderIngredientSpecial(SpecialAmountedIngredient<S, T> ingredient, GuiGraphics graphics, int x, int y, float partialTick) {
+        List<S> ingredients = ingredient.getStacks();
+        if (!ingredients.isEmpty()) {
+            ITypedIngredient<S> typedIngredient = RUNTIME.getIngredientManager().createTypedIngredient(ingredients.get(0)).orElseThrow(() -> new IllegalArgumentException("Unsupported ingredient: " + ingredients.get(0)));
+            PoseStack pose = graphics.pose();
+            pose.pushPose();
+            pose.translate(x, y, 232);
+            RUNTIME.getIngredientManager().getIngredientRenderer(typedIngredient.getIngredient()).render(graphics, typedIngredient.getIngredient());
+            pose.popPose();
+        }
     }
 
     @Override

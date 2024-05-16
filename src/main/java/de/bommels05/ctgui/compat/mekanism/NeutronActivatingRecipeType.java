@@ -22,13 +22,16 @@ public class NeutronActivatingRecipeType extends SupportedRecipeType<BasicActiva
         super(new ResourceLocation(MekanismAPI.MEKANISM_MODID, "activating"));
 
         addAreaScrollAmountEmptyRightClick(21, 0, 18, 60, (r, stack) -> {
-            return new BasicActivatingRecipe(IngredientCreatorAccess.gas().from(stack.getType() == MekanismRecipeUtils.of(r.getInput()).getType() ? stack : new GasStack(stack, MekanismRecipeUtils.getAmount(r.getInput()))), r.getOutputRaw());
+            return new BasicActivatingRecipe(MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getInput()), r.getOutputRaw());
         }, r -> {
             return MekanismRecipeUtils.of(r.getInput());
-        }, () -> new GasStack(MekanismGases.OXYGEN.get(), 1), MekanismRecipeUtils::limitedChemicalAmountSetter);
-        addAreaScrollAmountEmptyRightClick(129, 0, 18, 60, (r, stack) -> {
+        }, () -> new ChemicalAmountedIngredient<>(new GasStack(MekanismGases.OXYGEN.get(), 1)), MekanismRecipeUtils::limitedChemicalAmountSetter);
+        addAreaScrollAmountEmptyRightClick(129, 0, 18, 60, (r, input) -> {
+            GasStack stack = input.toStack();
             return new BasicActivatingRecipe(r.getInput(), stack.getType() == r.getOutputRaw().getType() ? stack : new GasStack(stack, r.getOutputRaw().getAmount()));
-        }, BasicActivatingRecipe::getOutputRaw, () -> new GasStack(MekanismGases.OXYGEN.get(), 1), MekanismRecipeUtils::limitedChemicalAmountSetter);
+        }, r -> {
+            return new ChemicalAmountedIngredient<>(r.getOutputRaw());
+        }, () -> new ChemicalAmountedIngredient<>(new GasStack(MekanismGases.OXYGEN.get(), 1)), MekanismRecipeUtils::limitedChemicalAmountSetter);
     }
 
     @Override

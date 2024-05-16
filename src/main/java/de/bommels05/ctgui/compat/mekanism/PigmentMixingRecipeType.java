@@ -23,18 +23,21 @@ public class PigmentMixingRecipeType extends SupportedRecipeType<BasicPigmentMix
         super(new ResourceLocation(MekanismAPI.MEKANISM_MODID, "pigment_mixing"));
 
         addAreaScrollAmountEmptyRightClick(22, 10, 18, 60, (r, stack) -> {
-            return new BasicPigmentMixingRecipe(IngredientCreatorAccess.pigment().from(stack.getType() == MekanismRecipeUtils.of(r.getLeftInput()).getType() ? stack : new PigmentStack(stack, MekanismRecipeUtils.getAmount(r.getLeftInput()))), r.getRightInput(), r.getOutputRaw());
+            return new BasicPigmentMixingRecipe(MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getLeftInput()), r.getRightInput(), r.getOutputRaw());
         }, r -> {
             return MekanismRecipeUtils.of(r.getLeftInput());
-        }, () -> new PigmentStack(MekanismPigments.PIGMENT_COLOR_LOOKUP.get(EnumColor.RED), 1), MekanismRecipeUtils::limitedChemicalAmountSetter);
+        }, () -> new ChemicalAmountedIngredient<>(new PigmentStack(MekanismPigments.PIGMENT_COLOR_LOOKUP.get(EnumColor.RED), 1)), MekanismRecipeUtils::limitedChemicalAmountSetter);
         addAreaScrollAmountEmptyRightClick(130, 10, 18, 60, (r, stack) -> {
-            return new BasicPigmentMixingRecipe(r.getLeftInput(), IngredientCreatorAccess.pigment().from(stack.getType() == MekanismRecipeUtils.of(r.getRightInput()).getType() ? stack : new PigmentStack(stack, MekanismRecipeUtils.getAmount(r.getRightInput()))), r.getOutputRaw());
+            return new BasicPigmentMixingRecipe(r.getLeftInput(), MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getRightInput()), r.getOutputRaw());
         }, r -> {
             return MekanismRecipeUtils.of(r.getRightInput());
-        }, () -> new PigmentStack(MekanismPigments.PIGMENT_COLOR_LOOKUP.get(EnumColor.RED), 1), MekanismRecipeUtils::limitedChemicalAmountSetter);
-        addAreaScrollAmountEmptyRightClick(76, 1, 18, 60, (r, stack) -> {
+        }, () -> new ChemicalAmountedIngredient<>(new PigmentStack(MekanismPigments.PIGMENT_COLOR_LOOKUP.get(EnumColor.RED), 1)), MekanismRecipeUtils::limitedChemicalAmountSetter);
+        addAreaScrollAmountEmptyRightClick(76, 1, 18, 60, (r, input) -> {
+            PigmentStack stack = input.toStack();
             return new BasicPigmentMixingRecipe(r.getLeftInput(), r.getRightInput(), stack.getType() == r.getOutputRaw().getType() ? stack : new PigmentStack(stack, r.getOutputRaw().getAmount()));
-        }, BasicPigmentMixingRecipe::getOutputRaw, () -> new PigmentStack(MekanismPigments.PIGMENT_COLOR_LOOKUP.get(EnumColor.RED), 2), MekanismRecipeUtils::limitedChemicalAmountSetter);
+        }, r -> {
+            return new ChemicalAmountedIngredient<>(r.getOutputRaw());
+        }, () -> new ChemicalAmountedIngredient<>(new PigmentStack(MekanismPigments.PIGMENT_COLOR_LOOKUP.get(EnumColor.RED), 2)), MekanismRecipeUtils::limitedChemicalAmountSetter);
     }
 
     @Override

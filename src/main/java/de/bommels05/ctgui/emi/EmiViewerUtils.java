@@ -2,6 +2,7 @@ package de.bommels05.ctgui.emi;
 
 import com.mojang.logging.LogUtils;
 import de.bommels05.ctgui.*;
+import de.bommels05.ctgui.api.SpecialAmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
 import de.bommels05.ctgui.jei.JeiViewerUtils;
@@ -19,15 +20,19 @@ import dev.emi.emi.registry.EmiRecipes;
 import dev.emi.emi.runtime.EmiDrawContext;
 import dev.emi.emi.screen.EmiScreenManager;
 import dev.emi.emi.screen.WidgetGroup;
+import mekanism.api.chemical.ChemicalStack;
+import mekanism.client.recipe_viewer.emi.ChemicalEmiStack;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.slf4j.Logger;
 
 import java.lang.reflect.Field;
@@ -184,6 +189,34 @@ public class EmiViewerUtils implements ViewerUtils<EmiRecipe> {
     @Override
     public ViewerSlot newSlot(ItemStack stack, int x, int y) {
         return new EmiViewerSlot(stack, x, y);
+    }
+
+    @Override
+    public <S, T> ViewerSlot newSlotSpecial(SpecialAmountedIngredient<S, T> ingredient, int x, int y) {
+        return new EmiViewerSlot(ingredient, x, y);
+    }
+
+    @Override
+    public <S, T> void renderIngredientSpecial(SpecialAmountedIngredient<S, T> ingredient, GuiGraphics graphics, int x, int y, float partialTick) {
+        of(ingredient).render(graphics, x, y, partialTick);
+    }
+
+    public static <S, T> EmiIngredient of(SpecialAmountedIngredient<S, T> ingredient) {
+        if (ingredient.isTag()) {
+            return EmiIngredient.of(ingredient.getTag());
+        } else {
+            S stack = ingredient.getStack();
+            if (stack instanceof ItemStack itemStack) {
+                return EmiStack.of(itemStack);
+            } else if (stack instanceof FluidStack fluidStack) {
+                return EmiStack.of(fluidStack.getFluid(), fluidStack.getAmount());
+            } else if (ModList.get().isLoaded("mekanism")) {
+                if (stack instanceof ChemicalStack<?> chemicalStack) {
+                    return ChemicalEmiStack.create(chemicalStack);
+                }
+            }
+        }
+        throw new IllegalArgumentException("Unsupported ingredient");
     }
 
     @Override
