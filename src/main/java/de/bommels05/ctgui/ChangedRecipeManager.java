@@ -36,10 +36,12 @@ import java.util.List;
 public class ChangedRecipeManager {
 
     public static final Path CHANGE_FILE = FMLPaths.CONFIGDIR.get().resolve("ctgui/changed_recipes.snbt");
+    public static final Path OLD_CHANGE_FILE = FMLPaths.CONFIGDIR.get().resolve("ctgui/changed_recipes.snbt.old");
     public static final Path SCRIPT_FILE = FMLPaths.GAMEDIR.get().resolve("scripts/ctgui_generated.zs");
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final List<ChangedRecipe<?>> changedRecipes = new ArrayList<>();
     private static long lastSave = System.currentTimeMillis();
+    private static boolean savedOld = false;
     static {
         load();
         if (CraftTweakerGUI.isJeiActive()) {
@@ -106,23 +108,28 @@ public class ChangedRecipeManager {
                 changes.add(changeTag);
             } catch (Throwable t) {
                 LOGGER.error("Could not save recipe change, ignoring", t);
-                Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToast.SystemToastId.PERIODIC_NOTIFICATION, Component.translatable("ctgui.saving_error_title"), Component.translatable("ctgui.error_message")));
+                toastWithChat(Component.translatable("ctgui.saving_error_title"), Component.translatable("ctgui.error_message"));
             }
         }
         root.put("changes", changes);
         try {
-
-            File old = CHANGE_FILE.getParent().resolve("changed_recipes.snbt.old").toFile();
-            old.delete();
-            CHANGE_FILE.toFile().renameTo(old);
+            File old = OLD_CHANGE_FILE.toFile();
+            if (!savedOld) {
+                //Only backup the changes once per session. Else the file is saved too often to be useful, especially in singleplayer
+                old.delete();
+                CHANGE_FILE.toFile().renameTo(old);
+                savedOld = true;
+            } else {
+                CHANGE_FILE.toFile().delete();
+            }
             NbtToSnbt.writeSnbt(CachedOutput.NO_CACHE, CHANGE_FILE, NbtUtils.structureToSnbt(root));
             if (Config.saveToast) {
-                Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToast.SystemToastId.PERIODIC_NOTIFICATION, Component.translatable("ctgui.changes_saved_title"), Component.translatable("ctgui.changes_saved")));
+                toastWithChat(Component.translatable("ctgui.changes_saved_title"), Component.translatable("ctgui.changes_saved"));
             }
             LOGGER.info("Saved " + changedRecipes.size() + " recipe changes");
         } catch (IOException e) {
             LOGGER.error("Could not save recipe changes", e);
-            Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToast.SystemToastId.PERIODIC_NOTIFICATION, Component.translatable("ctgui.saving_error_title"), Component.translatable("ctgui.error_message")));
+            toastWithChat(Component.translatable("ctgui.saving_error_title"), Component.translatable("ctgui.error_message"));
         }
     }
 
@@ -145,10 +152,12 @@ public class ChangedRecipeManager {
                         i++;
                     } catch (Throwable t) {
                         LOGGER.error("Could not load recipe change, ignoring", t);
+                        toastWithChat(Component.translatable("ctgui.loading_error_title"), Component.translatable("ctgui.error_message"));
                     }
                 }
             } catch (IOException | CommandSyntaxException e) {
                 LOGGER.error("Could not load recipe changes", e);
+                toastWithChat(Component.translatable("ctgui.loading_error_title"), Component.translatable("ctgui.error_message"));
             }
         }
         if (!SCRIPT_FILE.toFile().exists()) {
@@ -210,7 +219,7 @@ public class ChangedRecipeManager {
             writer.close();;
         } catch (Throwable t) {
             LOGGER.error("Could not export recipe changes", t);
-            Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToast.SystemToastId.PERIODIC_NOTIFICATION, Component.translatable("ctgui.export_error_title"), Component.translatable("ctgui.error_message")));
+            toastWithChat(Component.translatable("ctgui.export_error_title"), Component.translatable("ctgui.error_message"));
         }
     }
 
@@ -220,6 +229,11 @@ public class ChangedRecipeManager {
                 CraftTweakerGUI.getViewerUtils().inject(change);
             }
         }
+    }
+
+    private static void toastWithChat(Component title, Component message) {
+        Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToast.SystemToastId.PERIODIC_NOTIFICATION, title, message));
+        Minecraft.getInstance().player.sendSystemMessage(title.copy().append(": ").append(message));
     }
 
     public static class ChangedRecipe<T extends Recipe<?>> {

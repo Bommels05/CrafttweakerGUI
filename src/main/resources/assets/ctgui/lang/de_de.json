@@ -53,6 +53,7 @@
   "ctgui.changes_saved_title": "Rezept Änderungen gespeichert",
   "ctgui.changes_saved": "Exportiere sie zu CraftTweaker damit sie aktiv werden",
   "ctgui.saving_error_title": "Fehler beim speichern der Rezept Änderungen",
+  "ctgui.loading_error_title": "Fehler beim laden der Rezept Änderungen",
   "ctgui.export_error_title": "Fehler beim exportieren der Rezept Änderungen",
   "ctgui.error_message": "Schau im log für mehr Details nach",
   "ctgui.unsupported": "Nicht Unterstütztes"
