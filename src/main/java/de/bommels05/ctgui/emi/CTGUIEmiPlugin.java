@@ -5,6 +5,7 @@ import de.bommels05.ctgui.ChangedRecipeManager;
 import de.bommels05.ctgui.Config;
 import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.ViewerUtils;
+import de.bommels05.ctgui.compat.mekanism.MekanismRecipeUtils;
 import de.bommels05.ctgui.compat.minecraft.custom.TagRecipe;
 import de.bommels05.ctgui.screen.RecipeEditScreen;
 import de.bommels05.ctgui.api.AmountedIngredient;
@@ -56,7 +57,7 @@ public class CTGUIEmiPlugin implements EmiPlugin {
                 return true;
             }
             if (ModList.get().isLoaded("mekanism") && stack instanceof ChemicalEmiStack<?> emiStack) {
-                ChemicalStack<?> chemicalStack = ViewerUtils.from(emiStack.getKey(), emiStack.getAmount());
+                ChemicalStack<?> chemicalStack = MekanismRecipeUtils.from(emiStack.getKey(), emiStack.getAmount());
                 screen.handleDragAndDropSpecial(x, y, chemicalStack);
                 return true;
             }

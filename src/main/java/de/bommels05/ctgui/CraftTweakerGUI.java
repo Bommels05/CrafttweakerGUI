@@ -5,8 +5,6 @@ import com.mojang.logging.LogUtils;
 import de.bommels05.ctgui.api.RecipeTypeManager;
 import de.bommels05.ctgui.emi.EmiViewerUtils;
 import de.bommels05.ctgui.jei.JeiViewerUtils;
-import dev.emi.emi.api.recipe.EmiRecipe;
-import dev.emi.emi.recipe.EmiTagRecipe;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;

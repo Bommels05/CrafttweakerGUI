@@ -201,4 +201,20 @@ public class MekanismRecipeUtils {
         return stack.withAmount(Math.max(1, stack.getRightAmount() + (up ? 1 : -1)));
     }
 
+    public static ChemicalStack<?> from(Chemical<?> chemical, long amount) {
+        if (chemical instanceof Gas gas) {
+            return new GasStack(gas, amount);
+        }
+        if (chemical instanceof InfuseType infuseType) {
+            return new InfusionStack(infuseType, amount);
+        }
+        if (chemical instanceof Pigment pigment) {
+            return new PigmentStack(pigment, amount);
+        }
+        if (chemical instanceof Slurry slurry) {
+            return new SlurryStack(slurry, amount);
+        }
+        throw new IllegalArgumentException("Unsupported chemical type: " + chemical);
+    }
+
 }

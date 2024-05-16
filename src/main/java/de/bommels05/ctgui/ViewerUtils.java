@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Either;
 import de.bommels05.ctgui.api.SpecialAmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
+import de.bommels05.ctgui.compat.mekanism.MekanismRecipeUtils;
 import de.bommels05.ctgui.jei.JeiViewerUtils;
 import mekanism.api.chemical.Chemical;
 import mekanism.api.chemical.ChemicalStack;
@@ -83,22 +84,6 @@ public interface ViewerUtils<R> {
 
     public void init(Screen screen);
 
-    public static ChemicalStack<?> from(Chemical<?> chemical, long amount) {
-        if (chemical instanceof Gas gas) {
-            return new GasStack(gas, amount);
-        }
-        if (chemical instanceof InfuseType infuseType) {
-            return new InfusionStack(infuseType, amount);
-        }
-        if (chemical instanceof Pigment pigment) {
-            return new PigmentStack(pigment, amount);
-        }
-        if (chemical instanceof Slurry slurry) {
-            return new SlurryStack(slurry, amount);
-        }
-        throw new IllegalArgumentException("Unsupported chemical type: " + chemical);
-    }
-
     @SuppressWarnings("unchecked")
     public static <S, T, RT extends Registry<?>, RT2 extends Registry<T>> List<S> of(TagKey<T> tag) {
         return (List<S>) Streams.of(((RT2) ((Registry<RT>) BuiltInRegistries.REGISTRY).get((ResourceKey<RT>) tag.registry())).getTagOrEmpty(tag)).map(Holder::value).map(ViewerUtils::stackFromType).toList();
@@ -110,7 +95,7 @@ public interface ViewerUtils<R> {
         } else if (type instanceof Fluid fluid) {
             return new FluidStack(fluid, 1);
         } else if (ModList.get().isLoaded("mekanism") && type instanceof Chemical<?> chemical) {
-            return ViewerUtils.from(chemical, 1);
+            return MekanismRecipeUtils.from(chemical, 1);
         }
         return type;
     }
