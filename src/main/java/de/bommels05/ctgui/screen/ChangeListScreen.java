@@ -4,7 +4,7 @@ import de.bommels05.ctgui.ChangedRecipeManager;
 import de.bommels05.ctgui.Config;
 import de.bommels05.ctgui.CraftTweakerGUI;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
+import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.*;
 import net.minecraft.client.gui.screens.ConfirmScreen;
@@ -56,8 +56,13 @@ public class ChangeListScreen extends Screen {
             list = new ChangedRecipesList(minecraft, this.width, this.height - 60, 30, false);
             addRenderableWidget(list);
             addRenderableWidget(new ColoredButton(this.width - 25, this.height - (25), 20, 20, Component.literal("?"), 16762624, button -> {
-                ChangedRecipeManager.save();
-                minecraft.setScreen(new DisconnectedScreen(this, Component.translatable("ctgui.help.title"), Component.translatable("ctgui.help"), CommonComponents.GUI_BACK));
+                minecraft.setScreen(new ConfirmScreen(b -> {
+                    if (b) {
+                        Util.getPlatform().openUri("https://www.curseforge.com/minecraft/mc-mods/crafttweaker-gui");
+                    } else {
+                        Util.getPlatform().openUri("https://modrinth.com/mod/crafttweaker-gui");
+                    }
+                }, Component.translatable("ctgui.help.title"), Component.translatable("ctgui.help.choose"), Component.literal("Curseforge"), Component.literal("Modrinth")));
             }, Config.editMode));
         } else {
             minecraft.setScreen(new DisconnectedScreen(null, Component.translatable("ctgui.list.unavailable"), Component.translatable("ctgui.list.only_ingame"), CommonComponents.GUI_BACK));
