@@ -1,6 +1,7 @@
 {
   "ctgui.editing.title": "Editing %s Recipe",
   "ctgui.editing.tag_title": "New Tag Ingredient",
+  "ctgui.editing.tag_registry": "Registry (=Type) of the Tag",
   "ctgui.editing.options_title": "Recipe Options",
   "ctgui.editing.save": "Save",
   "ctgui.editing.save_description": "Saves the changes you made to the recipe. When exporting the original recipe will be removed and yours will be added.",

@@ -64,6 +64,8 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
     private Button save;
     private EditBox idBox;
     private UnsupportedViewerException exception;
+    private String tagTypeString;
+    private String tagString;
 
     public RecipeEditScreen(SupportedRecipe<R, ? extends SupportedRecipeType<R>> recipe, ResourceLocation recipeId) {
         super(Component.translatable("ctgui.editing.title", ""));
@@ -119,6 +121,7 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
         Component title = Component.translatable("ctgui.editing.title", recipe.getCategoryName());
         addRenderableWidget(new StringWidget((this.width / 2) - (font.width(title) / 2), getMinY(), font.width(title), font.lineHeight, title, this.font));
 
+        //Main buttons
         saveNew = new Button.Builder(Component.translatable("ctgui.editing.save_new"), button -> {
             //Screen is set to null first to not trigger anti tag collapsing and last to the change list screen so the new change is listed
             minecraft.setScreen(null);
@@ -152,6 +155,7 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
         delete.active = action.isEdit();
         addRenderableWidget(delete);
 
+        //Recipe id box
         idBox = new EditBox(this.font, (this.width / 2) - (imageWidth - 10) / 2, getMinY() + 15, imageWidth - 10, 18, Component.empty());
         Optional<RecipeOption<?, R>> idOption = recipe.getType().getOptions().stream().filter(option -> option instanceof RecipeIdFieldRecipeOption).findFirst();
         if (idOption.isPresent()) {
@@ -177,26 +181,29 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
         }
         addRenderableWidget(idBox);
 
+        //Tag boxes
         Component tagTitle = Component.translatable("ctgui.editing.tag_title");
         addRenderableWidget(new StringWidget((getTagMaxX() / 2) - (font.width(tagTitle) / 2), getTagMinY() + 1, font.width(tagTitle), font.lineHeight, tagTitle, this.font));
-        EditBox tagBox = new EditBox(this.font, getTagMinX() + 1, getTagMinY() + 11, 100, 18, tagTitle);
+        EditBox tagBox = new EditBox(this.font, getTagMinX() + 1, getTagMinY() + 11, 119, 18, tagTitle);
         tagBox.setResponder(input -> {
-            try {
-                String type = input.substring(0, input.indexOf(":", input.indexOf(":") + 1));
-                if (BuiltInRegistries.REGISTRY.containsKey(new ResourceLocation(type))) {
-                    tag = TagKey.create(ResourceKey.createRegistryKey(new ResourceLocation(type)), new ResourceLocation(input.replace(type + ":", "")));
-                } else {
-                    tag = null;
-                }
-            } catch (ResourceLocationException | NullPointerException | IndexOutOfBoundsException e) {
-                tag = null;
-            }
-            tagSlot = CraftTweakerGUI.getViewerUtils().newSlotSpecial(tag == null ? new SpecialAmountedIngredient<>(ItemStack.EMPTY) : new SpecialAmountedIngredient<>(tag, 1), 102, getTagMinY() + 11);
+            tagString = input;
+            setTag(tagTypeString, input);
         });
-        tagBox.setValue("minecraft:item:forge:ingots/iron");
+        tagBox.setValue("forge:ingots/iron");
         tagBox.setMaxLength(256);
         addRenderableWidget(tagBox);
+        Component registryTooltip = Component.translatable("ctgui.editing.tag_registry");
+        EditBox tagRegistryBox = new EditBox(this.font, getTagMinX() + 1, getTagMinY() + 31, 100, 18, registryTooltip);
+        tagRegistryBox.setResponder(input -> {
+            tagTypeString = input;
+            setTag(input, tagString);
+        });
+        tagRegistryBox.setTooltip(Tooltip.create(registryTooltip));
+        tagRegistryBox.setValue("minecraft:item");
+        tagRegistryBox.setMaxLength(256);
+        addRenderableWidget(tagRegistryBox);
 
+        //Recipe options
         if (!recipe.getType().getOptions().isEmpty() && !(recipe.getType().getOptions().size() == 1 && idOption.isPresent())) {
             int y = getOptionsMinY() + 2;
             Component optionsTitle = Component.translatable("ctgui.editing.options_title");
@@ -221,6 +228,19 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
         CraftTweakerGUI.getViewerUtils().init(this);
     }
 
+    private void setTag(String type, String tag) {
+        try {
+            if (BuiltInRegistries.REGISTRY.containsKey(new ResourceLocation(type))) {
+                this.tag = TagKey.create(ResourceKey.createRegistryKey(new ResourceLocation(type)), new ResourceLocation(tag));
+            } else {
+                this.tag = null;
+            }
+        } catch (ResourceLocationException | NullPointerException e) {
+            this.tag = null;
+        }
+        tagSlot = CraftTweakerGUI.getViewerUtils().newSlotSpecial(this.tag == null ? new SpecialAmountedIngredient<>(ItemStack.EMPTY) : new SpecialAmountedIngredient<>(this.tag, 1), 102, getTagMinY() + 31);
+    }
+
     @Override
     public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         super.renderBackground(graphics, mouseX, mouseY, partialTick);
@@ -241,8 +261,9 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
 
         CraftTweakerGUI.getViewerUtils().renderStart(graphics, mouseX, mouseY, partialTick);
 
-        recipe.render(getRecipeX(), getRecipeY(), graphics, mouseX, mouseY, this);
+        //Render first so tooltips don't get cut off
         hotBarSlots.forEach(slot -> slot.render(graphics, mouseX, mouseY, partialTick));
+        recipe.render(getRecipeX(), getRecipeY(), graphics, mouseX, mouseY, this);
         if (CraftTweakerGUI.isJeiActive()) {
             //Jei does not render slot backgrounds
             graphics.blit(HOT_BAR, 102, getTagMinY() + 11, 7, 3, 18, 18, 256, 32);
@@ -466,7 +487,7 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
     }
 
     public int getTagMinY() {
-        return this.height - 36 - 31;
+        return this.height - 36 - 31 - 20;
     }
 
     public int getTagMaxY() {
