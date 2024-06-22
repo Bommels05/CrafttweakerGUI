@@ -40,6 +40,14 @@ public class ChemicalAmountedIngredient<S extends ChemicalStack<T>, T extends Ch
     }
 
     @Override
+    @SuppressWarnings("unchecked")
+    public S toStack() {
+        ChemicalStack<T> withAmount = super.toStack().copy();
+        withAmount.setAmount(getRightAmount());
+        return (S) withAmount;
+    }
+
+    @Override
     public boolean isStackEmpty() {
         return getStack().isEmpty();
     }

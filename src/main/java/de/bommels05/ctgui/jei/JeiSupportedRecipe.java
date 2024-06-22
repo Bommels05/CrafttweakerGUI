@@ -1,13 +1,11 @@
 package de.bommels05.ctgui.jei;
 
+import com.mojang.datafixers.util.Either;
 import de.bommels05.ctgui.SupportedRecipe;
 import de.bommels05.ctgui.api.RecipeTypeManager;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
 import mezz.jei.api.gui.IRecipeLayoutDrawable;
-import mezz.jei.api.recipe.IFocus;
-import mezz.jei.api.recipe.IRecipeManager;
-import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -15,20 +13,17 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 
-import java.util.List;
-import static de.bommels05.ctgui.jei.CTGUIJeiPlugin.RUNTIME;
-
 public class JeiSupportedRecipe<R extends Recipe<?>, T extends SupportedRecipeType<R>> implements SupportedRecipe<R, T> {
 
-    private IRecipeLayoutDrawable<RecipeHolder<R>> recipe;
+    private Either<IRecipeLayoutDrawable<RecipeHolder<R>>, IRecipeLayoutDrawable<R>> recipe;
     private R mcRecipe;
     private final T type;
 
     @SuppressWarnings("unchecked")
-    public JeiSupportedRecipe(IRecipeLayoutDrawable<RecipeHolder<?>> recipe) {
-        this.recipe = (IRecipeLayoutDrawable<RecipeHolder<R>>) (IRecipeLayoutDrawable<?>) recipe;
-        this.type = (T) RecipeTypeManager.getType(this.recipe.getRecipeCategory().getRecipeType().getUid());
-        this.mcRecipe = this.recipe.getRecipe().value();
+    public JeiSupportedRecipe(Either<IRecipeLayoutDrawable<RecipeHolder<R>>, IRecipeLayoutDrawable<R>> recipe) {
+        this.recipe = recipe;
+        this.type = (T) RecipeTypeManager.getType(getUnknown().getRecipeCategory().getRecipeType().getUid());
+        this.mcRecipe = this.recipe.map(r -> r.getRecipe().value(), IRecipeLayoutDrawable::getRecipe);
     }
 
 
@@ -39,24 +34,24 @@ public class JeiSupportedRecipe<R extends Recipe<?>, T extends SupportedRecipeTy
 
     @Override
     public int getWidth() {
-        return recipe != null ? recipe.getRect().getWidth() : 0;
+        return recipe != null ? getUnknown().getRect().getWidth() : 0;
     }
 
     @Override
     public int getHeight() {
-        return recipe != null ? recipe.getRect().getHeight() : 0;
+        return recipe != null ? getUnknown().getRect().getHeight() : 0;
     }
 
     @Override
     public Component getCategoryName() {
-        return recipe.getRecipeCategory().getTitle();
+        return getUnknown().getRecipeCategory().getTitle();
     }
 
     @Override
     public void render(int x, int y, GuiGraphics graphics, int mouseX, int mouseY, Screen screen) {
-        recipe.setPosition(x, y);
-        recipe.drawRecipe(graphics, mouseX, mouseY);
-        recipe.drawOverlays(graphics, mouseX, mouseY);
+        getUnknown().setPosition(x, y);
+        getUnknown().drawRecipe(graphics, mouseX, mouseY);
+        getUnknown().drawOverlays(graphics, mouseX, mouseY);
     }
 
     @Override
@@ -76,6 +71,10 @@ public class JeiSupportedRecipe<R extends Recipe<?>, T extends SupportedRecipeTy
     @SuppressWarnings("unchecked")
     public void setRecipe(R recipe) throws UnsupportedViewerException {
         this.mcRecipe = recipe;
-        this.recipe = (IRecipeLayoutDrawable<RecipeHolder<R>>) (IRecipeLayoutDrawable<?>) JeiViewerUtils.INSTANCE.getViewerRecipe(type, recipe);
+        this.recipe = (Either<IRecipeLayoutDrawable<RecipeHolder<R>>, IRecipeLayoutDrawable<R>>) (Either<?, ?>) JeiViewerUtils.INSTANCE.getViewerRecipe(type, recipe);
+    }
+
+    private IRecipeLayoutDrawable<?> getUnknown() {
+        return recipe.map(r -> r, r -> r);
     }
 }

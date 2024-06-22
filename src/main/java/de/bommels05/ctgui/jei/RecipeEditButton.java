@@ -30,7 +30,7 @@ public class RecipeEditButton<T> extends RecipeTransferButton {
         this.index = index;
         this.clickHandler = (mouseX, mouseY) -> {
             onClose.run();
-            Minecraft.getInstance().setScreen(new RecipeEditScreen<>(CraftTweakerGUI.getViewerUtils().toSupportedRecipe(recipeLayout), recipeLayout.getRecipeCategory().getRegistryName(recipeLayout.getRecipe())));
+            Minecraft.getInstance().setScreen(new RecipeEditScreen<>(CraftTweakerGUI.getViewerUtils().toSupportedRecipe(JeiViewerUtils.rightEither(recipeLayout)), recipeLayout.getRecipeCategory().getRegistryName(recipeLayout.getRecipe())));
         };
     }
 

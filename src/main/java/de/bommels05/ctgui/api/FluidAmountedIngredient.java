@@ -39,6 +39,11 @@ public class FluidAmountedIngredient extends SpecialAmountedIngredient<FluidStac
     }
 
     @Override
+    public FluidStack toStack() {
+        return super.toStack().copyWithAmount(getRightAmount());
+    }
+
+    @Override
     public boolean isStackEmpty() {
         return getStack().isEmpty();
     }

@@ -5,6 +5,7 @@ import de.bommels05.ctgui.Config;
 import de.bommels05.ctgui.CraftTweakerGUI;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.*;
 import net.minecraft.client.gui.screens.ConfirmScreen;
@@ -59,8 +60,10 @@ public class ChangeListScreen extends Screen {
                 minecraft.setScreen(new ConfirmScreen(b -> {
                     if (b) {
                         Util.getPlatform().openUri("https://www.curseforge.com/minecraft/mc-mods/crafttweaker-gui");
+                        Minecraft.getInstance().setScreen(this);
                     } else {
                         Util.getPlatform().openUri("https://modrinth.com/mod/crafttweaker-gui");
+                        Minecraft.getInstance().setScreen(this);
                     }
                 }, Component.translatable("ctgui.help.title"), Component.translatable("ctgui.help.choose"), Component.literal("Curseforge"), Component.literal("Modrinth")));
             }, Config.editMode));

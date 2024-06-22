@@ -7,6 +7,7 @@ import de.bommels05.ctgui.Config;
 import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.api.RecipeTypeManager;
 import de.bommels05.ctgui.jei.JeiSupportedRecipe;
+import de.bommels05.ctgui.jei.JeiViewerUtils;
 import de.bommels05.ctgui.jei.RecipeEditButton;
 import de.bommels05.ctgui.screen.RecipeEditScreen;
 import dev.emi.emi.recipe.EmiTagRecipe;
@@ -100,7 +101,7 @@ public abstract class RecipesGuiMixin extends Screen {
     @Inject(method = "lambda$addRecipeTransferButtons$14", at = @At(value = "RETURN"))
     protected <T> void addEditButtons(AbstractContainerMenu container, Player player, IRecipeLayoutDrawable<T> recipeLayout, CallbackInfo ci) {
         if (CraftTweakerGUI.shouldShowEditButton(recipeLayout.getRecipeCategory().getRecipeType().getUid(),
-                recipeLayout.getRecipeCategory().getRegistryName(recipeLayout.getRecipe()), recipeLayout)) {
+                recipeLayout.getRecipeCategory().getRegistryName(recipeLayout.getRecipe()), JeiViewerUtils.rightEither(recipeLayout))) {
             Rect2i buttonArea = recipeLayout.getRecipeTransferButtonArea();
             RecipeEditButton<?> button = new RecipeEditButton<>(recipeLayout, textures, this::onClose, index);
             button.update(buttonArea, recipeTransferManager, container, player);
