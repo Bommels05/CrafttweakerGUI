@@ -1,18 +1,24 @@
 package de.bommels05.ctgui.compat.minecraft;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+import com.mojang.serialization.JsonOps;
 import de.bommels05.ctgui.api.AmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
 import de.bommels05.ctgui.api.option.BooleanRecipeOption;
-import dev.emi.emi.api.recipe.EmiRecipe;
 import dev.emi.emi.recipe.EmiShapedRecipe;
 import dev.emi.emi.recipe.EmiShapelessRecipe;
+import mekanism.common.recipe.upgrade.MekanismShapedRecipe;
+import mekanism.common.registries.MekanismRecipeSerializersInternal;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
+import net.neoforged.fml.ModList;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -85,6 +91,9 @@ public class CraftingRecipeType extends SupportedRecipeType<CraftingRecipe> {
             //Forces the anti centering mixins to apply in jei
             return r;
         }
+        if (ModList.get().isLoaded("mekanism") && r instanceof MekanismShapedRecipe recipe) {
+            return onInitialize(recipe.getInternal());
+        }
         throw new UnsupportedRecipeException();
     }
 
@@ -107,7 +116,14 @@ public class CraftingRecipeType extends SupportedRecipeType<CraftingRecipe> {
     @Override
     public String getCraftTweakerString(CraftingRecipe r, String id) {
         if (r instanceof ShapedRecipe recipe) {
-            return "craftingTable.addShaped(\"" + id + "\", " + getCTString(recipe.getResultItem(regAccess())) + ", " + getGrid(recipe) + ");";
+            //Enable Mekanism support (Energy, Chemical and more transfer) for recipes with an mekanism output
+            if (ModList.get().isLoaded("mekanism") && BuiltInRegistries.ITEM.getKey(recipe.getResultItem(regAccess()).getItem()).getNamespace().equals("mekanism")) {
+                JsonElement json = MekanismRecipeSerializersInternal.MEK_DATA.get().codec().encode(new MekanismShapedRecipe(recipe), JsonOps.INSTANCE, null).getOrThrow(false, s -> {});
+                json.getAsJsonObject().add("type", new JsonPrimitive("mekanism:mek_data"));
+                return "<recipetype:minecraft:crafting>.addJsonRecipe(\"" + id + "\", " + json + ");";
+            } else {
+                return "craftingTable.addShaped(\"" + id + "\", " + getCTString(recipe.getResultItem(regAccess())) + ", " + getGrid(recipe) + ");";
+            }
         }
         if (r instanceof ShapelessRecipe recipe) {
             return "craftingTable.addShapeless(\"" + id + "\", " + getCTString(recipe.getResultItem(regAccess())) + ", " + getCTString(recipe.getIngredients()) + ");";

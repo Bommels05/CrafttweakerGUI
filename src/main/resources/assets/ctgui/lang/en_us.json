@@ -57,6 +57,6 @@
   "ctgui.saving_error_title": "Error saving recipe changes",
   "ctgui.loading_error_title": "Error loading recipe changes",
   "ctgui.export_error_title": "Error exporting recipe changes",
-  "ctgui.error_message": "Check you log for more details",
+  "ctgui.error_message": "Check your log for more details",
   "ctgui.unsupported": "Unsupported"
 }
