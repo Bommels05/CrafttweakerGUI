@@ -2,6 +2,7 @@ package de.bommels05.ctgui.compat.mekanism;
 
 import de.bommels05.ctgui.api.AmountedIngredient;
 import de.bommels05.ctgui.api.FluidAmountedIngredient;
+import mekanism.api.MekanismAPI;
 import mekanism.api.chemical.Chemical;
 import mekanism.api.chemical.ChemicalStack;
 import mekanism.api.chemical.ChemicalType;
@@ -23,6 +24,7 @@ import mekanism.common.recipe.ingredient.chemical.TaggedChemicalStackIngredient;
 import mekanism.common.recipe.ingredient.creator.FluidStackIngredientCreator;
 import mekanism.common.recipe.ingredient.creator.ItemStackIngredientCreator;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -171,8 +173,24 @@ public class MekanismRecipeUtils {
             return getCTString(chemicalIngredient.getStack());
         } else {
             TagKey<?> tag = chemicalIngredient.getTag();
-            return "<tag:" + tag.registry().location().toString().replace(":", "/") + ":" + tag.location() + "> * " + chemicalIngredient.getAmount();
+            return getCTClass(tag.registry()) + ".from(<tag:" + tag.registry().location().toString().replace(":", "/") + ":" + tag.location() + "> * " + chemicalIngredient.getAmount() + ")";
         }
+    }
+
+    public static String getCTClass(ResourceKey<?> registry) {
+        String suffix;
+        if (registry == MekanismAPI.GAS_REGISTRY_NAME) {
+            suffix = "GasStackIngredient";
+        } else if (registry == MekanismAPI.INFUSE_TYPE_REGISTRY_NAME) {
+            suffix = "InfusionStackIngredient";
+        } else if (registry == MekanismAPI.SLURRY_REGISTRY_NAME) {
+            suffix = "SlurryStackIngredient";
+        } else if (registry == MekanismAPI.PIGMENT_REGISTRY_NAME) {
+            suffix = "PigmentStackIngredient";
+        } else {
+            throw new IllegalArgumentException("Unknown chemical: " + registry);
+        }
+        return "mods.mekanism.api.ingredient.ChemicalStackIngredient." + suffix;
     }
 
     public static String getCTString(ChemicalStack<?> stack) {
