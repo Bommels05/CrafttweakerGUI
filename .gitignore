@@ -20,3 +20,6 @@ build
 # other
 eclipse
 runs
+/common/run/
+/neoforge/run/
+gradle/wrapper/gradle-wrapper.jar

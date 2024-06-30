@@ -1,0 +1,17 @@
+architectury {
+    common(enabled_platforms.split(","))
+}
+
+loom {
+    accessWidenerPath = file("src/main/resources/ctgui.accesswidener")
+}
+
+dependencies {
+    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+
+    implementation "dev.emi:emi-neoforge:${emi_version}"
+    implementation "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
+    implementation("com.blamejared.crafttweaker:CraftTweaker-neoforge-${minecraft_version}:${crafttweaker_version}") {
+        transitive = false
+    }
+}
