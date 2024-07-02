@@ -3,7 +3,6 @@
   "minVersion": "0.8",
   "package": "de.bommels05.ctgui.mixin",
   "compatibilityLevel": "JAVA_17",
-  "refmap": "CrafttweakerGUI.refmap.json",
   "client": [
     "EmiCraftingRecipeMixin",
     "RecipeDisplayMixin",

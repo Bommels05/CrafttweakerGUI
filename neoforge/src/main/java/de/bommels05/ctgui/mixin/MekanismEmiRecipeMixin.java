@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(MekanismEmiRecipe.class)
 public class MekanismEmiRecipeMixin {
 
-    @Inject(method = "ingredient(Lmekanism/api/recipes/ingredients/ItemStackIngredient;)Ldev/emi/emi/api/stack/EmiIngredient;", at = @At(value = "HEAD"), cancellable = true)
+    @Inject(method = "ingredient(Lmekanism/api/recipes/ingredients/ItemStackIngredient;)Ldev/emi/emi/api/stack/EmiIngredient;", at = @At(value = "HEAD"), cancellable = true, remap = false)
     protected void alwaysDisplayTag(ItemStackIngredient ingredient, CallbackInfoReturnable<EmiIngredient> cir) {
         if (Config.noTagCollapsing && (Minecraft.getInstance().screen instanceof RecipeEditScreen<?> || Config.showTagsEverywhere) && ingredient instanceof ItemStackIngredientCreator.SingleItemStackIngredient singleIngredient && new AmountedIngredient(singleIngredient.getInputRaw(), 1).isTag()) {
             Ingredient i = singleIngredient.getInputRaw();
