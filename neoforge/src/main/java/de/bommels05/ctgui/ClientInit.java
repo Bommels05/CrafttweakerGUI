@@ -53,7 +53,7 @@ public class ClientInit {
                         CraftTweakerGUI.MOD_ID, MavenVersionAdapter.createFromVersionSpec("[17.3.0.49,)[1.1.6+1.20.4+neoforge,)"),
                         new DefaultArtifactVersion("null"), Optional.empty()))));
             } catch (Throwable ignored) {}
-            throw new IllegalStateException("Either Emi or Jei is required for Crafttweaker GUI to work");
+            throw new IllegalStateException("Either Emi or Jei is required for CraftTweaker GUI to work");
         }
 
         CraftTweakerGUI.initVanillaRecipeTypes();

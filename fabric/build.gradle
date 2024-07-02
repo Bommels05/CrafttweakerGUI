@@ -4,7 +4,7 @@ plugins {
 
 architectury {
     platformSetupLoomIde()
-    neoForge()
+    fabric()
 }
 
 loom {
@@ -22,43 +22,43 @@ configurations {
     shadowCommon // Don't use shadow from the shadow plugin since it *excludes* files.
     compileClasspath.extendsFrom common
     runtimeClasspath.extendsFrom common
-    developmentForge.extendsFrom common
+    developmentFabric.extendsFrom common
 }
 
 dependencies {
-    neoForge "net.neoforged:neoforge:${neo_version}"
+    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    modApi "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
-    shadowCommon(project(path: ":common", configuration: "transformProductionNeoForge")) { transitive = false }
+    shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive = false }
 
-    implementation "dev.emi:emi-neoforge:${emi_version}"
-    implementation "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
-    implementation("com.blamejared.crafttweaker:CraftTweaker-neoforge-${minecraft_version}:${crafttweaker_version}") {
+    modApi "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:${fabric_config_version}"
+    modImplementation("com.terraformersmc:modmenu:${modmenu_version}") { transitive = false }
+    modImplementation("dev.emi:emi-fabric:${emi_version}")
+    modImplementation("mezz.jei:jei-${minecraft_version}-fabric:${jei_version}")
+    modCompileOnly("com.blamejared.crafttweaker:CraftTweaker-fabric-${minecraft_version}:${crafttweaker_version}") {
         transitive = false
     }
-
-    implementation "mekanism:Mekanism:${mekanism_version}"
-    runtimeOnly "mekanism:Mekanism:${mekanism_version}:generators"
+    modLocalRuntime("com.blamejared.crafttweaker:CraftTweaker-fabric-${minecraft_version}:${crafttweaker_version}")
 }
 
 processResources {
     var replaceProperties = [
-            minecraft_version: minecraft_version, min_emi_neo_version: min_emi_neo_version,
-            neo_version: neo_version, neo_version_range: neo_version_range,
-            loader_version_range: loader_version_range,
+            minecraft_version: minecraft_version, min_emi_fabric_version: min_emi_fabric_version,
+            min_fabric_loader_version: min_fabric_loader_version, neo_version_range: neo_version_range,
+            min_fabric_api_version: min_fabric_api_version,
             mod_id: mod_id, mod_version: mod_version,
             min_jei_version: min_jei_version, min_crafttweaker_version: min_crafttweaker_version,
-            min_mekanism_version: min_mekanism_version
+            min_mekanism_version: min_mekanism_version, min_fabric_config_version: min_fabric_config_version
     ]
     inputs.properties replaceProperties
 
-    filesMatching(['META-INF/mods.toml']) {
+    filesMatching(['fabric.mod.json']) {
         expand replaceProperties + [project: project]
     }
 }
 
 shadowJar {
-    exclude "fabric.mod.json"
     exclude "architectury.common.json"
 
     configurations = [project.configurations.shadowCommon]

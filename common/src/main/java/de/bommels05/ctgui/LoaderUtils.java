@@ -32,6 +32,8 @@ public interface LoaderUtils {
 
     public Path getGameDir();
 
+    public String getDefaultTag();
+
     //Actually returns an EmiIngredient but can't be class loaded when it is not installed
     public <S> Object getEmiIngredient(S stack);
 

@@ -1,12 +1,8 @@
 package de.bommels05.ctgui;
 
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
-@Mod.EventBusSubscriber(modid = CraftTweakerGUI.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class NeoConfig {
+public class FabricConfig {
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
 
     private static final ModConfigSpec.BooleanValue EDIT_MODE = BUILDER.comment("Enables editing of recipes. When disabled CTGUI can still be used to display changed recipes").define("editMode", true);
@@ -20,8 +16,7 @@ public class NeoConfig {
 
     static final ModConfigSpec SPEC = BUILDER.build();
 
-    @SubscribeEvent
-    public static void onLoad(ModConfigEvent event) {
+    public static void onLoad() {
         Config.editMode = EDIT_MODE.get();
         if (Config.editMode) {
             Config.noTagCollapsing = NO_TAG_COLLAPSING.get();
@@ -38,12 +33,12 @@ public class NeoConfig {
     public static void setEditMode(boolean value) {
         EDIT_MODE.set(value);
         SPEC.save();
-        onLoad(null);
+        onLoad();
     }
 
     public static void setListButton(boolean value) {
         LIST_BUTTON.set(value);
         SPEC.save();
-        onLoad(null);
+        onLoad();
     }
 }

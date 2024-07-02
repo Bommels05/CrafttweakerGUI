@@ -22,4 +22,5 @@ eclipse
 runs
 /common/run/
 /neoforge/run/
+/fabric/run/
 gradle/wrapper/gradle-wrapper.jar

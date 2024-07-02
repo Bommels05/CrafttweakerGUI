@@ -179,7 +179,7 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
             tagString = input;
             setTag(tagTypeString, input);
         });
-        tagBox.setValue("forge:ingots/iron");
+        tagBox.setValue(CraftTweakerGUI.getLoaderUtils().getDefaultTag());
         tagBox.setMaxLength(256);
         addRenderableWidget(tagBox);
         Component registryTooltip = Component.translatable("ctgui.editing.tag_registry");

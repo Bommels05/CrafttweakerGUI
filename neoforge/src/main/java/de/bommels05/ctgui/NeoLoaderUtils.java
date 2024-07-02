@@ -120,6 +120,11 @@ public class NeoLoaderUtils implements LoaderUtils {
     }
 
     @Override
+    public String getDefaultTag() {
+        return "forge:ingots/iron";
+    }
+
+    @Override
     public <S> Object getEmiIngredient(S stack) {
         if (stack instanceof FluidStack fluidStack) {
             return EmiStack.of(fluidStack.getFluid(), fluidStack.getAmount());

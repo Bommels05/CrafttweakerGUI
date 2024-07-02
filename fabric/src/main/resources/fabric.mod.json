@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${mod_version}",
+  "name": "CraftTweaker GUI",
+  "description": "Recipe editing GUI for CraftTweaker",
+  "authors": [
+    "Bommels05"
+  ],
+  "contact": {
+    "sources": "https://github.com/Bommels05/CrafttweakerGUI",
+    "issues": "https://github.com/Bommels05/CrafttweakerGUI/issues"
+  },
+  "license": "MIT",
+  "icon": "logo.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "de.bommels05.ctgui.ClientInit"
+    ],
+    "emi": [
+      "de.bommels05.ctgui.emi.CTGUIEmiPlugin"
+    ],
+    "modmenu": [
+      "de.bommels05.ctgui.compat.ModMenuCompat"
+    ]
+  },
+  "mixins": [
+    {
+      "config": "ctgui.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${min_fabric_loader_version}",
+    "fabric": ">=${min_fabric_api_version}",
+    "minecraft": "=${minecraft_version}",
+    "emi": ">=${min_emi_fabric_version}",
+    "jei": ">=${min_jei_version}",
+    "crafttweaker": ">=${min_crafttweaker_version}",
+    "forgeconfigapiport": ">=${min_fabric_config_version}"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "de.bommels05.ctgui.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "EmiCraftingRecipeMixin",
+    "RecipeDisplayMixin",
+    "EmiRenderHelperMixin",
+    "EmiTagsMixin",
+    "EmiIngredientMixin",
+    "EmiScreenBaseMixin",
+    "RecipeScreenMixin",
+    "ShapedRecipePatternMixin",
+    "EmiRecipesMixin",
+    "EmiApiMixin",
+    "RecipesGuiMixin",
+    "CraftingGridHelperMixin",
+    "PauseScreenMixin",
+    "ServerLevelMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

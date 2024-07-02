@@ -36,7 +36,7 @@ public class ChangeListScreen extends Screen {
                     text = text.append(Component.translatable("ctgui.list.export_server").withStyle(ChatFormatting.RED));
                     minecraft.setScreen(new DisconnectedScreen(this, Component.translatable("ctgui.list.export"), text, CommonComponents.GUI_OK));
                 } else {
-                    minecraft.setScreen(new ConfirmScreen(b -> {
+                    minecraft.setScreen(new ClosingConfirmScreen(b -> {
                         if (b) {
                             minecraft.setScreen(null);
                             minecraft.player.connection.sendCommand("reload");
