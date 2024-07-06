@@ -20,19 +20,19 @@ public class SmithingRecipeType extends SupportedRecipeType<SmithingRecipe> {
         super(new ResourceLocation("minecraft:smithing"));
         addAreaEmptyRightClick(0, 0, 17, 17, (r, am) -> {
             SmithingTransformRecipe recipe = ((SmithingTransformRecipe) r);
-            return new SmithingTransformRecipe(am.ingredient(), recipe.base, recipe.addition, recipe.getResultItem(regAccess()));
+            return new SmithingTransformRecipe(am.ensureAmount(1, 1).ingredient(), recipe.base, recipe.addition, recipe.getResultItem(regAccess()));
         }, r -> {
             return new AmountedIngredient(((SmithingTransformRecipe) r).template, 1);
         });
         addAreaEmptyRightClick(18, 0, 17, 17, (r, am) -> {
             SmithingTransformRecipe recipe = ((SmithingTransformRecipe) r);
-            return new SmithingTransformRecipe(recipe.template, am.ingredient(), recipe.addition, recipe.getResultItem(regAccess()));
+            return new SmithingTransformRecipe(recipe.template, am.ensureAmount(1, 1).ingredient(), recipe.addition, recipe.getResultItem(regAccess()));
         }, r -> {
             return new AmountedIngredient(((SmithingTransformRecipe) r).base, 1);
         });
         addAreaEmptyRightClick(36, 0, 17, 17, (r, am) -> {
             SmithingTransformRecipe recipe = ((SmithingTransformRecipe) r);
-            return new SmithingTransformRecipe(recipe.template, recipe.base, am.ingredient(), recipe.getResultItem(regAccess()));
+            return new SmithingTransformRecipe(recipe.template, recipe.base, am.ensureAmount(1, 1).ingredient(), recipe.getResultItem(regAccess()));
         }, r -> {
             return new AmountedIngredient(((SmithingTransformRecipe) r).addition, 1);
         });

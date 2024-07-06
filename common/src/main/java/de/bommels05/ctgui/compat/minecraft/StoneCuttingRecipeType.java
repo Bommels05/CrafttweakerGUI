@@ -20,7 +20,7 @@ public class StoneCuttingRecipeType extends SupportedRecipeType<StonecutterRecip
         super(new ResourceLocation("minecraft:stonecutting"));
 
         addAreaEmptyRightClick(0, 0, 17, 17, (r, am) -> {
-            return new StonecutterRecipe(r.getGroup(),am.ingredient(), r.getResultItem(regAccess()));
+            return new StonecutterRecipe(r.getGroup(), am.ensureAmount(1, 1).ingredient(), r.getResultItem(regAccess()));
         }, r -> {
             return new AmountedIngredient(r.getIngredients().get(0), 1);
         });
