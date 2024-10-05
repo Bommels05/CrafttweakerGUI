@@ -10,7 +10,9 @@ import de.bommels05.ctgui.api.FluidAmountedIngredient;
 import de.bommels05.ctgui.api.SpecialAmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.compat.mekanism.ChemicalAmountedIngredient;
+import de.bommels05.ctgui.compat.mekanism.MekanismEmiUtils;
 import de.bommels05.ctgui.compat.mekanism.MekanismRecipeUtils;
+import de.bommels05.ctgui.compat.minecraft.custom.FuelRecipe;
 import de.bommels05.ctgui.compat.minecraft.custom.TagRecipe;
 import de.bommels05.ctgui.registry.RecipeSerializers;
 import de.bommels05.ctgui.registry.RecipeTypes;
@@ -69,6 +71,16 @@ public class NeoLoaderUtils implements LoaderUtils {
     @Override
     public RecipeType<TagRecipe> getTagRecipeType() {
         return RecipeTypes.TAG.get();
+    }
+
+    @Override
+    public RecipeSerializer<FuelRecipe> getFuelRecipeSerializer() {
+        return RecipeSerializers.FUEL.get();
+    }
+
+    @Override
+    public RecipeType<FuelRecipe> getFuelRecipeType() {
+        return RecipeTypes.FUEL.get();
     }
 
     @Override
@@ -150,13 +162,9 @@ public class NeoLoaderUtils implements LoaderUtils {
     @Override
     public void emiInit(Object registry) {
         EmiInitRegistry reg = (EmiInitRegistry) registry;
-        //Mekanism currently doesn't support add them in 1.20.4
-        //This hopefully won't cause problems when they add support
         if (ModList.get().isLoaded("mekanism")) {
-            reg.addRegistryAdapter(EmiRegistryAdapter.simple(Gas.class, MekanismAPI.GAS_REGISTRY, (chemical, nbt, amount) -> new ChemicalEmiStack.GasEmiStack(chemical, amount)));
-            reg.addRegistryAdapter(EmiRegistryAdapter.simple(InfuseType.class, MekanismAPI.INFUSE_TYPE_REGISTRY, (chemical, nbt, amount) -> new ChemicalEmiStack.InfusionEmiStack(chemical, amount)));
-            reg.addRegistryAdapter(EmiRegistryAdapter.simple(Slurry.class, MekanismAPI.SLURRY_REGISTRY, (chemical, nbt, amount) -> new ChemicalEmiStack.SlurryEmiStack(chemical, amount)));
-            reg.addRegistryAdapter(EmiRegistryAdapter.simple(Pigment.class, MekanismAPI.PIGMENT_REGISTRY, (chemical, nbt, amount) -> new ChemicalEmiStack.PigmentEmiStack(chemical, amount)));
+            //Needs to be in a separate class because of class loading issues without emi
+            MekanismEmiUtils.init(reg);
         }
     }
 

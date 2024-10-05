@@ -1,6 +1,7 @@
 package de.bommels05.ctgui;
 
 import de.bommels05.ctgui.api.SpecialAmountedIngredient;
+import de.bommels05.ctgui.compat.minecraft.custom.FuelRecipe;
 import de.bommels05.ctgui.compat.minecraft.custom.TagRecipe;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.crafting.Recipe;
@@ -21,6 +22,10 @@ public interface LoaderUtils {
     public RecipeSerializer<TagRecipe> getTagRecipeSerializer();
 
     public RecipeType<TagRecipe> getTagRecipeType();
+
+    public RecipeSerializer<FuelRecipe> getFuelRecipeSerializer();
+
+    public RecipeType<FuelRecipe> getFuelRecipeType();
 
     public <T> Object stackFromType(T type);
 

@@ -22,6 +22,7 @@
   "ctgui.editing.options.secondary_output_chance": "Chance des sekundären Ergebnisses (Muss, wenn das Hauptergebnis leer ist, zwischen 0.01 und 0.99 sein)",
   "ctgui.editing.options.additional_required_energy": "Benötigte Energie zusätzlich zur grundlegend verbrauchten Energie",
   "ctgui.editing.options.duration": "Verarbeitungszeit (in ticks)",
+  "ctgui.editing.options.burn_time": "Brenndauer in ticks (200 = 1 Item)",
   "ctgui.editing.vanilla_smelting_recipe": "Dieses Rezept ist eigentlich ein vanilla Rezept und das originale Schmelzrezept muss bearbeitet werden",
   "ctgui.editing.unavailable": "Nur beim bearbeiten eines schon vorhandenen Rezeptes verfügbar",
   "ctgui.editing.recipe_id": "Id des Rezepts",

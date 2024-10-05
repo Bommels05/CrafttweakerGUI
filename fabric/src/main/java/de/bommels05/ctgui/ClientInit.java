@@ -1,5 +1,7 @@
 package de.bommels05.ctgui;
 
+import de.bommels05.ctgui.compat.minecraft.custom.FuelRecipe;
+import de.bommels05.ctgui.compat.minecraft.custom.FuelRecipeSerializer;
 import de.bommels05.ctgui.compat.minecraft.custom.TagRecipe;
 import de.bommels05.ctgui.compat.minecraft.custom.TagRecipeSerializer;
 import de.bommels05.ctgui.emi.EmiViewerUtils;
@@ -15,6 +17,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.neoforged.fml.config.ModConfig;
@@ -23,19 +26,18 @@ public class ClientInit implements ClientModInitializer {
 
     public static RecipeType<TagRecipe> tagRecipeType;
     public static RecipeSerializer<TagRecipe> tagRecipeSerializer;
+    public static RecipeType<FuelRecipe> fuelRecipeType;
+    public static RecipeSerializer<FuelRecipe> fuelRecipeSerializer;
 
     @Override
     public void onInitializeClient() {
         CraftTweakerGUI.viewerUtils = FabricLoader.getInstance().isModLoaded("emi") ? new EmiViewerUtils() : new JeiViewerUtils();
         CraftTweakerGUI.loaderUtils = new FabricLoaderUtils();
 
-        String id = new ResourceLocation(CraftTweakerGUI.MOD_ID, "tag").toString();
-        tagRecipeType = Registry.register(BuiltInRegistries.RECIPE_TYPE, id, new RecipeType<>() {
-            public String toString() {
-                return id;
-            }
-        });
+        tagRecipeType = registerRecipeType("tag");
         tagRecipeSerializer = Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, new ResourceLocation(CraftTweakerGUI.MOD_ID, "tag"), new TagRecipeSerializer());
+        fuelRecipeType = registerRecipeType("fuel");
+        fuelRecipeSerializer = Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, new ResourceLocation(CraftTweakerGUI.MOD_ID, "fuel"), new FuelRecipeSerializer());
 
         NeoForgeModConfigEvents.reloading(CraftTweakerGUI.MOD_ID).register(config -> FabricConfig.onLoad());
         NeoForgeModConfigEvents.loading(CraftTweakerGUI.MOD_ID).register(config -> FabricConfig.onLoad());
@@ -50,6 +52,15 @@ public class ClientInit implements ClientModInitializer {
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             if (Config.editMode && !Config.noWarning) {
                 handler.getPlayer().sendSystemMessage(Component.translatable("ctgui.editing.options_warning").withStyle(ChatFormatting.GOLD));
+            }
+        });
+    }
+
+    private <T extends Recipe<?>> RecipeType<T> registerRecipeType(String name) {
+        String id = new ResourceLocation(CraftTweakerGUI.MOD_ID, name).toString();
+        return Registry.register(BuiltInRegistries.RECIPE_TYPE, id, new RecipeType<>() {
+            public String toString() {
+                return id;
             }
         });
     }

@@ -104,6 +104,9 @@ public class ChangedRecipeManager {
                 RecipeSerializer<?> serializer = change.recipe.getSerializer();
                 changeTag.putString("serializer", BuiltInRegistries.RECIPE_SERIALIZER.getKey(serializer).toString());
                 changeTag.put("recipe", toTag(serializer, change.recipe));
+                if (change.type == ChangedRecipe.Type.CHANGED && change.originalRecipe != null) {
+                    changeTag.put("originalRecipe", toTag(serializer, change.originalRecipe));
+                }
                 changes.add(changeTag);
             } catch (Throwable t) {
                 LOGGER.error("Could not save recipe change, ignoring", t);
@@ -144,10 +147,12 @@ public class ChangedRecipeManager {
                         CompoundTag change = (CompoundTag) tag;
                         ChangedRecipe.Type type = ChangedRecipe.Type.valueOf(change.getString("type"));
                         SupportedRecipeType<?> recipeType = RecipeTypeManager.getType(new ResourceLocation(change.getString("recipeType")));;
+                        RecipeSerializer<?> serializer = BuiltInRegistries.RECIPE_SERIALIZER.get(new ResourceLocation(change.getString("serializer")));
                         changedRecipes.add(new ChangedRecipe<>(type, type != ChangedRecipe.Type.REMOVED ? change.getString("id") : null,
                                 type != ChangedRecipe.Type.ADDED ? new ResourceLocation(change.getString("originalId")) : null,
-                                fromTag(BuiltInRegistries.RECIPE_SERIALIZER.get(new ResourceLocation(change.getString("serializer"))),
-                                        change.get("recipe"), recipeType), recipeType, change.getBoolean("exported")));
+                                fromTag(serializer, change.get("recipe"), recipeType),
+                                type == ChangedRecipe.Type.CHANGED && change.contains("originalRecipe") ? fromTag(serializer, change.get("originalRecipe"), recipeType) : null,
+                                recipeType, change.getBoolean("exported")));
                         i++;
                     } catch (Throwable t) {
                         LOGGER.error("Could not load recipe change, ignoring", t);
@@ -198,13 +203,15 @@ public class ChangedRecipeManager {
             writer.append("/*CraftTweaker GUI generated script\n");
             writer.append("  Not intended for manual editing\n");
             writer.append("  Changes will be overridden when exporting again*/\n").append("\n");
-            writer.append("import crafttweaker.api.ingredient.type.IIngredientEmpty;\n\n");
+            writer.append("import crafttweaker.api.ingredient.type.IIngredientEmpty;\n");
+            writer.append("import crafttweaker.api.ingredient.IIngredient;\n\n");
             for (ChangedRecipe<?> change : changedRecipes) {
                 if (change.type == ChangedRecipe.Type.REMOVED) {
                     writer.append(change.getCraftTweakerRemoveString());
                     writer.append("\n");
                 } else if (change.type == ChangedRecipe.Type.CHANGED) {
-                    writer.append(change.getCraftTweakerRemoveString());
+                    //Todo: add a warning and maybe remove this backwards compat at some point
+                    writer.append((change.originalRecipe != null ? change.getOriginalRemoveChange() : change).getCraftTweakerRemoveString());
                     writer.append(change.getCraftTweakerString() + "\n");
                     writer.append("\n");
                 } else {
@@ -241,37 +248,39 @@ public class ChangedRecipeManager {
         private final String id;
         private final ResourceLocation originalId;
         private final T recipe;
+        private final T originalRecipe;
         private final SupportedRecipeType<T> recipeType;
         private boolean exported;
 
-        private ChangedRecipe(Type type, String id, ResourceLocation originalId, T recipe, SupportedRecipeType<T> recipeType) {
-            this(type, id, originalId, recipe, recipeType, false);
+        private ChangedRecipe(Type type, String id, ResourceLocation originalId, T recipe, T originalRecipe, SupportedRecipeType<T> recipeType) {
+            this(type, id, originalId, recipe, originalRecipe, recipeType, false);
         }
 
         @SuppressWarnings("unchecked")
-        private ChangedRecipe(Type type, String id, ResourceLocation originalId, T recipe, SupportedRecipeType<T> recipeType, boolean exported) {
+        private ChangedRecipe(Type type, String id, ResourceLocation originalId, T recipe, T originalRecipe, SupportedRecipeType<T> recipeType, boolean exported) {
             this.type = type;
             this.id = id;
             this.originalId = originalId;
             this.recipe = recipe;
+            this.originalRecipe = originalRecipe;
             this.recipeType = recipeType;
             this.exported = exported;
         }
 
         public static <T extends Recipe<?>> ChangedRecipe<T> added(String id, T recipe, SupportedRecipeType<T> recipeType) {
-            return new ChangedRecipe<>(Type.ADDED, id, null, recipe, recipeType);
+            return new ChangedRecipe<>(Type.ADDED, id, null, recipe, null, recipeType);
         }
 
-        public static <T extends Recipe<?>> ChangedRecipe<T> changed(String id, ResourceLocation originalId, T recipe, SupportedRecipeType<T> recipeType) {
-            return new ChangedRecipe<>(Type.CHANGED, id, originalId, recipe, recipeType);
+        public static <T extends Recipe<?>> ChangedRecipe<T> changed(String id, ResourceLocation originalId, T recipe, T originalRecipe, SupportedRecipeType<T> recipeType) {
+            return new ChangedRecipe<>(Type.CHANGED, id, originalId, recipe, originalRecipe, recipeType);
         }
 
         public static <T extends Recipe<?>> ChangedRecipe<T> removed(ResourceLocation id, T recipe, SupportedRecipeType<T> recipeType) {
-            return new ChangedRecipe<>(Type.REMOVED, null, id, recipe, recipeType);
+            return new ChangedRecipe<>(Type.REMOVED, null, id, recipe, null, recipeType);
         }
 
         public ChangedRecipe<T> withRecipe(T recipe) {
-            return new ChangedRecipe<>(this.type, this.id, this.originalId, recipe, this.recipeType);
+            return new ChangedRecipe<>(this.type, this.id, this.originalId, recipe, this.originalRecipe, this.recipeType);
         }
 
         public Component getTitle() {
@@ -333,6 +342,14 @@ public class ChangedRecipeManager {
 
         public T getRecipe() {
             return recipe;
+        }
+
+        public T getOriginalRecipe() {
+            return originalRecipe;
+        }
+
+        public ChangedRecipe<T> getOriginalRemoveChange() {
+            return removed(originalId, originalRecipe, recipeType);
         }
 
         public SupportedRecipeType<T> getRecipeType() {

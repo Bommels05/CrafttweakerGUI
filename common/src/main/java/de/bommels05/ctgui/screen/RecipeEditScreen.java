@@ -56,6 +56,7 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
     private UnsupportedViewerException exception;
     private String tagTypeString;
     private String tagString;
+    private R originalRecipe;
 
     public RecipeEditScreen(SupportedRecipe<R, ? extends SupportedRecipeType<R>> recipe, ResourceLocation recipeId) {
         super(Component.translatable("ctgui.editing.title", ""));
@@ -69,6 +70,7 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
             recipeIdChanged = true;
             this.originalRecipeId = recipeId;
             this.recipeId = getAutoRecipeId(CraftTweakerGUI.MOD_ID + "/new/" + recipeId.getNamespace() + "/" + recipeId.getPath());
+            this.originalRecipe = recipe.getRecipe();
         }
     }
 
@@ -125,7 +127,7 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
         save = new Button.Builder(Component.translatable("ctgui.editing.save"), button -> {
             minecraft.setScreen(null);
             if (action.isEdit()) {
-                ChangedRecipeManager.addChangedRecipe(ChangedRecipeManager.ChangedRecipe.changed(recipeId, originalRecipeId, recipe.getRecipe(), recipe.getType()));
+                ChangedRecipeManager.addChangedRecipe(ChangedRecipeManager.ChangedRecipe.changed(recipeId, originalRecipeId, recipe.getRecipe(), originalRecipe, recipe.getType()));
             } else {
                 ChangedRecipeManager.removeChangedRecipe(change);
                 ChangedRecipeManager.addChangedRecipe(change.withRecipe(recipe.getRecipe()));

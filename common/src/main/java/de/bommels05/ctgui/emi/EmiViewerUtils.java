@@ -5,6 +5,7 @@ import de.bommels05.ctgui.*;
 import de.bommels05.ctgui.api.SpecialAmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
+import de.bommels05.ctgui.compat.minecraft.custom.FuelRecipe;
 import de.bommels05.ctgui.jei.JeiViewerUtils;
 import dev.emi.emi.EmiPort;
 import dev.emi.emi.api.EmiApi;
@@ -13,8 +14,12 @@ import dev.emi.emi.api.recipe.EmiRecipeCategory;
 import dev.emi.emi.api.recipe.EmiRecipeManager;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
+import dev.emi.emi.api.stack.ListEmiIngredient;
+import dev.emi.emi.api.stack.TagEmiIngredient;
 import dev.emi.emi.api.widget.Widget;
 import dev.emi.emi.jemi.JemiRecipe;
+import dev.emi.emi.recipe.EmiBrewingRecipe;
+import dev.emi.emi.recipe.EmiFuelRecipe;
 import dev.emi.emi.recipe.EmiTagRecipe;
 import dev.emi.emi.registry.EmiRecipes;
 import dev.emi.emi.runtime.EmiDrawContext;
@@ -23,8 +28,11 @@ import dev.emi.emi.screen.WidgetGroup;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
@@ -32,6 +40,7 @@ import org.slf4j.Logger;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -266,5 +275,28 @@ public class EmiViewerUtils implements ViewerUtils<EmiRecipe> {
 
     public static EmiRecipeCategory getCategory(ResourceLocation id) {
         return EmiApi.getRecipeManager().getCategories().stream().filter(category -> category.getId().equals(id)).findFirst().orElseThrow();
+    }
+
+    public static Ingredient getElseEmpty(EmiIngredient ingredient) {
+        if (ingredient.isEmpty()) {
+            return Ingredient.EMPTY;
+        } else if (ingredient instanceof TagEmiIngredient tag) {
+            if (tag.key.isFor(Registries.ITEM)) {
+                return Ingredient.of((TagKey<Item>) tag.key);
+            }
+        } else if (ingredient instanceof EmiStack stack) {
+            return Ingredient.of(stack.getItemStack());
+        } else if (ingredient instanceof ListEmiIngredient list) {
+            List<ItemStack> stacks = new ArrayList<>();
+            for (Ingredient i : list.getEmiStacks().stream().map(EmiViewerUtils::getElseEmpty).toList()) {
+                stacks.addAll(Arrays.stream(i.getItems()).toList());
+            }
+            return Ingredient.of(stacks.toArray(ItemStack[]::new));
+        }
+        return Ingredient.EMPTY;
+    }
+
+    public static EmiFuelRecipe getFuelRecipe(FuelRecipe recipe, ResourceLocation id) {
+        return new EmiFuelRecipe(EmiIngredient.of(recipe.getIngredient()), recipe.getBurnTime(), id);
     }
 }

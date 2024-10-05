@@ -17,7 +17,8 @@
     "RecipesGuiMixin",
     "CraftingGridHelperMixin",
     "PauseScreenMixin",
-    "ServerLevelMixin"
+    "ServerLevelMixin",
+    "EmiFuelRecipeMixin"
   ],
   "injectors": {
     "defaultRequire": 1

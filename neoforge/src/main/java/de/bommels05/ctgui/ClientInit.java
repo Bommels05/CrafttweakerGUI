@@ -2,6 +2,7 @@ package de.bommels05.ctgui;
 
 import de.bommels05.ctgui.api.RecipeTypeManager;
 import de.bommels05.ctgui.compat.mekanism.*;
+import de.bommels05.ctgui.compat.minecraft.BrewingRecipeType;
 import de.bommels05.ctgui.emi.EmiViewerUtils;
 import de.bommels05.ctgui.jei.JeiViewerUtils;
 import de.bommels05.ctgui.registry.RecipeSerializers;
@@ -57,6 +58,9 @@ public class ClientInit {
         }
 
         CraftTweakerGUI.initVanillaRecipeTypes();
+        if (!CraftTweakerGUI.isJeiActive()) {
+            RecipeTypeManager.addType(new BrewingRecipeType());
+        }
         if (ModList.get().isLoaded("mekanism")) {
             RecipeTypeManager.addType(new CrushingRecipeType());
             RecipeTypeManager.addType(new EnrichingRecipeType());

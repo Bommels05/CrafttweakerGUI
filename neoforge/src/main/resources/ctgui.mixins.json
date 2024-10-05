@@ -16,7 +16,9 @@
     "EmiApiMixin",
     "RecipesGuiMixin",
     "CraftingGridHelperMixin",
-    "MekanismEmiRecipeMixin"
+    "MekanismEmiRecipeMixin",
+    "EmiBrewingRecipeMixin",
+    "EmiFuelRecipeMixin"
   ],
   "injectors": {
     "defaultRequire": 1

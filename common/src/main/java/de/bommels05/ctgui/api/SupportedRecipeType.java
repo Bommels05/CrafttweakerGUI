@@ -13,12 +13,15 @@ import dev.emi.emi.api.recipe.EmiRecipeCategory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.PotionItem;
+import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import org.jetbrains.annotations.Nullable;
@@ -108,11 +111,19 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
     }
 
     /**
-     * Can be used when the emi recipes does not have a backing recipe or the backing recipe is of the wrong type
+     * Can be used when the emi recipes do not have a backing recipe or the backing recipe is of the wrong type
      * @return A function that manually gets the recipe from the Emi recipe or returns null to use the backing recipe
      */
     public Function<EmiRecipe, R> getAlternativeEmiRecipeGetter() {
         return null;
+    }
+
+    /**
+     * Returns if this recipe type supports editing and deleting recipes or only adding new recipes (Should generally only be false for very special recipes)
+     * @return If this recipe type supports editing recipes
+     */
+    public boolean supportsEditing() {
+        return true;
     }
 
     /**
@@ -141,6 +152,18 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
      */
     protected String getCTString(ItemStack stack) {
         return ItemStackUtil.getCommandString(stack);
+    }
+
+    /**
+     * Returns the CraftTweaker representation of the potion stack
+     * @param stack The potion stack
+     * @return The CraftTweaker representation of the potion stack
+     */
+    protected String getPotionCTString(ItemStack stack) {
+        if (stack.getItem() instanceof PotionItem) {
+            return "<potion:" + BuiltInRegistries.POTION.getKey(PotionUtils.getPotion(stack)) + ">" + (stack.getCount() > 1 ? " * " + stack.getCount() : "");
+        }
+        throw new IllegalArgumentException("Stack is not a potion");
     }
 
     /**
