@@ -35,9 +35,9 @@ public class ClientInit implements ClientModInitializer {
         CraftTweakerGUI.loaderUtils = new FabricLoaderUtils();
 
         tagRecipeType = registerRecipeType("tag");
-        tagRecipeSerializer = Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, new ResourceLocation(CraftTweakerGUI.MOD_ID, "tag"), new TagRecipeSerializer());
+        tagRecipeSerializer = Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, "tag"), new TagRecipeSerializer());
         fuelRecipeType = registerRecipeType("fuel");
-        fuelRecipeSerializer = Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, new ResourceLocation(CraftTweakerGUI.MOD_ID, "fuel"), new FuelRecipeSerializer());
+        fuelRecipeSerializer = Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, "fuel"), new FuelRecipeSerializer());
 
         NeoForgeModConfigEvents.reloading(CraftTweakerGUI.MOD_ID).register(config -> FabricConfig.onLoad());
         NeoForgeModConfigEvents.loading(CraftTweakerGUI.MOD_ID).register(config -> FabricConfig.onLoad());
@@ -57,7 +57,7 @@ public class ClientInit implements ClientModInitializer {
     }
 
     private <T extends Recipe<?>> RecipeType<T> registerRecipeType(String name) {
-        String id = new ResourceLocation(CraftTweakerGUI.MOD_ID, name).toString();
+        String id = ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, name).toString();
         return Registry.register(BuiltInRegistries.RECIPE_TYPE, id, new RecipeType<>() {
             public String toString() {
                 return id;

@@ -4,62 +4,62 @@ import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
 import mekanism.api.MekanismAPI;
-import mekanism.api.chemical.pigment.PigmentStack;
-import mekanism.api.recipes.basic.BasicItemStackToPigmentRecipe;
+import mekanism.api.chemical.ChemicalStack;
+import mekanism.api.recipes.basic.BasicPigmentExtractingRecipe;
 import mekanism.api.recipes.ingredients.creator.IngredientCreatorAccess;
 import mekanism.api.text.EnumColor;
 import mekanism.client.recipe_viewer.emi.MekanismEmiRecipeCategory;
-import mekanism.client.recipe_viewer.emi.recipe.ItemStackToPigmentEmiRecipe;
-import mekanism.common.registries.MekanismPigments;
+import mekanism.client.recipe_viewer.emi.recipe.PigmentExtractingEmiRecipe;
+import mekanism.common.registries.MekanismChemicals;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import org.jetbrains.annotations.Nullable;
 
-public class PigmentExtractingRecipeType extends SupportedRecipeType<BasicItemStackToPigmentRecipe> {
+public class PigmentExtractingRecipeType extends SupportedRecipeType<BasicPigmentExtractingRecipe> {
 
     public PigmentExtractingRecipeType() {
-        super(new ResourceLocation(MekanismAPI.MEKANISM_MODID, "pigment_extracting"));
+        super(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "pigment_extracting"));
 
         addAreaScrollAmountEmptyRightClick(6, 24, 17, 17, (r, am) -> {
-            return new BasicItemStackToPigmentRecipe(MekanismRecipeUtils.of(convertToUnset(am)), r.getOutputRaw());
+            return new BasicPigmentExtractingRecipe(MekanismRecipeUtils.of(convertToUnset(am)), r.getOutputRaw());
         }, r -> {
             return convertUnset(MekanismRecipeUtils.of(r.getInput()));
         });
         addAreaScrollAmountEmptyRightClick(113, 1, 18, 60, (r, input) -> {
-            PigmentStack stack = input.toStack();
-            return new BasicItemStackToPigmentRecipe(r.getInput(), stack.getType() == r.getOutputRaw().getType() ? stack : new PigmentStack(stack, r.getOutputRaw().getAmount()));
+            ChemicalStack stack = input.toStack();
+            return new BasicPigmentExtractingRecipe(r.getInput(), stack.getChemical() == r.getOutputRaw().getChemical() ? stack : new ChemicalStack(stack.getChemical(), r.getOutputRaw().getAmount()));
         }, r -> {
-            return new ChemicalAmountedIngredient<>(r.getOutputRaw());
-        }, () -> new ChemicalAmountedIngredient<>(new PigmentStack(MekanismPigments.PIGMENT_COLOR_LOOKUP.get(EnumColor.RED), 100)), MekanismRecipeUtils::chemicalAmountSetter);
+            return new ChemicalAmountedIngredient(r.getOutputRaw());
+        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.PIGMENT_COLOR_LOOKUP.get(EnumColor.RED).getChemical(), 100)), MekanismRecipeUtils::chemicalAmountSetter);
     }
 
     @Override
-    public BasicItemStackToPigmentRecipe onInitialize(@Nullable BasicItemStackToPigmentRecipe recipe) throws UnsupportedRecipeException {
+    public BasicPigmentExtractingRecipe onInitialize(@Nullable BasicPigmentExtractingRecipe recipe) throws UnsupportedRecipeException {
         super.onInitialize(recipe);
         if (recipe == null) {
-            return new BasicItemStackToPigmentRecipe(IngredientCreatorAccess.item().from(UNSET), new PigmentStack(MekanismPigments.PIGMENT_COLOR_LOOKUP.get(EnumColor.RED), 100));
+            return new BasicPigmentExtractingRecipe(IngredientCreatorAccess.item().from(UNSET), new ChemicalStack(MekanismChemicals.PIGMENT_COLOR_LOOKUP.get(EnumColor.RED).getChemical(), 100));
         }
         return recipe;
     }
 
     @Override
-    public boolean isValid(BasicItemStackToPigmentRecipe recipe) {
+    public boolean isValid(BasicPigmentExtractingRecipe recipe) {
         return !recipe.getInput().test(UNSET);
     }
 
     @Override
-    public Object getEmiRecipe(BasicItemStackToPigmentRecipe recipe) throws UnsupportedViewerException {
-        return new ItemStackToPigmentEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(new ResourceLocation(MekanismAPI.MEKANISM_MODID, "pigment_extracting")), new RecipeHolder<>(nullRl(), recipe));
+    public Object getEmiRecipe(BasicPigmentExtractingRecipe recipe) throws UnsupportedViewerException {
+        return new PigmentExtractingEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "pigment_extracting")), new RecipeHolder<>(nullRl(), recipe));
     }
 
     @Override
-    public String getCraftTweakerString(BasicItemStackToPigmentRecipe recipe, String id) {
+    public String getCraftTweakerString(BasicPigmentExtractingRecipe recipe, String id) {
         return "<recipetype:mekanism:pigment_extracting>.addRecipe(\"" + id + "\", " + getCTString(MekanismRecipeUtils.of(recipe.getInput())) + ", " + MekanismRecipeUtils.getCTString(recipe.getOutputRaw()) + ");";
     }
 
     @Override
-    public ItemStack getMainOutput(BasicItemStackToPigmentRecipe recipe) {
+    public ItemStack getMainOutput(BasicPigmentExtractingRecipe recipe) {
         return convertUnset(MekanismRecipeUtils.of(recipe.getInput()).asStack());
     }
 }

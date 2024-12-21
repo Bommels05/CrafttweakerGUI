@@ -22,7 +22,7 @@ public class SawingRecipeType extends SupportedRecipeType<BasicSawmillRecipe> {
     private final DoubleRecipeOption<BasicSawmillRecipe> chance = new DoubleRecipeOption<>(Component.translatable("ctgui.editing.options.secondary_output_chance"), 0, 1);
 
     public SawingRecipeType() {
-        super(new ResourceLocation(MekanismAPI.MEKANISM_MODID, "sawing"));
+        super(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "sawing"));
 
         addAreaScrollAmountEmptyRightClick(27, 0, 17, 17, (r, am) -> {
             return new BasicSawmillRecipe(MekanismRecipeUtils.of(convertToUnset(am)), r.getMainOutputRaw().orElse(ItemStack.EMPTY),
@@ -63,12 +63,12 @@ public class SawingRecipeType extends SupportedRecipeType<BasicSawmillRecipe> {
 
     @Override
     public boolean isValid(BasicSawmillRecipe recipe) {
-        return !recipe.getInput().test(UNSET) && !ItemStack.isSameItemSameTags(recipe.getMainOutputRaw().isPresent() ? recipe.getMainOutputRaw().get() : recipe.getSecondaryOutputRaw().get(), UNSET);
+        return !recipe.getInput().test(UNSET) && !ItemStack.isSameItemSameComponents(recipe.getMainOutputRaw().isPresent() ? recipe.getMainOutputRaw().get() : recipe.getSecondaryOutputRaw().get(), UNSET);
     }
 
     @Override
     public Object getEmiRecipe(BasicSawmillRecipe recipe) throws UnsupportedViewerException {
-        return new SawmillEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(new ResourceLocation(MekanismAPI.MEKANISM_MODID, "sawing")), new RecipeHolder<>(nullRl(), recipe));
+        return new SawmillEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "sawing")), new RecipeHolder<>(nullRl(), recipe));
     }
 
     @Override

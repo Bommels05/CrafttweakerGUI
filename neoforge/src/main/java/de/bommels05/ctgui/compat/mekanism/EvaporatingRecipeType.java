@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 public class EvaporatingRecipeType extends SupportedRecipeType<BasicFluidToFluidRecipe> {
 
     public EvaporatingRecipeType() {
-        super(new ResourceLocation(MekanismAPI.MEKANISM_MODID, "evaporating"));
+        super(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "evaporating"));
 
         addAreaScrollAmountEmptyRightClick(3, 1, 18, 60, (r, stack) -> {
             return new BasicFluidToFluidRecipe(MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getInput()), r.getOutputRaw());
@@ -30,7 +30,7 @@ public class EvaporatingRecipeType extends SupportedRecipeType<BasicFluidToFluid
         }, () -> new FluidAmountedIngredient(new FluidStack(Fluids.WATER, 1)), NeoLoaderUtils::limitedFluidAmountSetter);
         addAreaScrollAmountEmptyRightClick(149, 1, 18, 60, (r, input) -> {
             FluidStack stack = input.toStack();
-            return new BasicFluidToFluidRecipe(r.getInput(), stack.getFluid() == r.getOutputRaw().getFluid() ? stack : new FluidStack(stack, r.getOutputRaw().getAmount()));
+            return new BasicFluidToFluidRecipe(r.getInput(), stack.getFluid() == r.getOutputRaw().getFluid() ? stack : stack.copyWithAmount(r.getOutputRaw().getAmount()));
         }, r -> {
             return new FluidAmountedIngredient(r.getOutputRaw());
         }, () -> new FluidAmountedIngredient(new FluidStack(Fluids.WATER, 1)), NeoLoaderUtils::limitedFluidAmountSetter);
@@ -52,7 +52,7 @@ public class EvaporatingRecipeType extends SupportedRecipeType<BasicFluidToFluid
 
     @Override
     public Object getEmiRecipe(BasicFluidToFluidRecipe recipe) throws UnsupportedViewerException {
-        return new FluidToFluidEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(new ResourceLocation(MekanismAPI.MEKANISM_MODID, "evaporating")), new RecipeHolder<>(nullRl(), recipe));
+        return new FluidToFluidEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "evaporating")), new RecipeHolder<>(nullRl(), recipe));
     }
 
     @Override

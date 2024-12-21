@@ -1,10 +1,13 @@
 package de.bommels05.ctgui.compat.minecraft.custom;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
@@ -14,10 +17,10 @@ import java.util.List;
 
 public class TagRecipeSerializer implements RecipeSerializer<TagRecipe> {
 
-    private final Codec<TagRecipe> codec;
+    private final MapCodec<TagRecipe> codec;
 
     public TagRecipeSerializer() {
-        this.codec = RecordCodecBuilder.create(
+        this.codec = RecordCodecBuilder.mapCodec(
                 recipe ->
                     recipe.group(
                             Codec.BOOL.fieldOf("item").forGetter(r -> r.item),
@@ -34,17 +37,12 @@ public class TagRecipeSerializer implements RecipeSerializer<TagRecipe> {
     }
 
     @Override
-    public Codec<TagRecipe> codec() {
+    public MapCodec<TagRecipe> codec() {
         return codec;
     }
 
     @Override
-    public TagRecipe fromNetwork(FriendlyByteBuf pBuffer) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void toNetwork(FriendlyByteBuf pBuffer, TagRecipe pRecipe) {
+    public StreamCodec<RegistryFriendlyByteBuf, TagRecipe> streamCodec() {
         throw new UnsupportedOperationException();
     }
 }

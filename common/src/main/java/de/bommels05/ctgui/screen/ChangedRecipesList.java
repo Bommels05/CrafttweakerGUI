@@ -72,15 +72,15 @@ public class ChangedRecipesList extends ObjectSelectionList<ChangedRecipesList.E
             int width = Math.max(recipe.getWidth(), 100) + 10;
             int left = this.width - width;
             graphics.setColor(0.25F, 0.25F, 0.25F, 1.0F);
-            graphics.blit(Screen.BACKGROUND_LOCATION, left, this.getY(), 0, 0, width, minecraft.screen.height - this.getY(), 32, 32);
+            graphics.blit(Screen.MENU_BACKGROUND, left, this.getY(), 0, 0, width, minecraft.screen.height - this.getY(), 32, 32);
             graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
             int buttonX = left + ((width / 2) - 50);
             if (Config.editMode) {
                 delete.setPosition(buttonX, this.getBottom() - 50);
-                delete.render(graphics, mouseX, mouseY, minecraft.getFrameTime());
+                delete.render(graphics, mouseX, mouseY, minecraft.getTimer().getRealtimeDeltaTicks());
                 if (getSelected().recipe.getType() != Type.REMOVED) {
                     edit.setPosition(buttonX, this.getBottom() - 25);
-                    edit.render(graphics, mouseX, mouseY, minecraft.getFrameTime());
+                    edit.render(graphics, mouseX, mouseY, minecraft.getTimer().getRealtimeDeltaTicks());
                 }
             }
             recipe.render(left + 5, this.getY() + 5, graphics, mouseX, mouseY, minecraft.screen);

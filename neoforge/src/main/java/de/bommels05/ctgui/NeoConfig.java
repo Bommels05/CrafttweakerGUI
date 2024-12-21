@@ -1,11 +1,11 @@
 package de.bommels05.ctgui;
 
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
-@Mod.EventBusSubscriber(modid = CraftTweakerGUI.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = CraftTweakerGUI.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class NeoConfig {
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
 

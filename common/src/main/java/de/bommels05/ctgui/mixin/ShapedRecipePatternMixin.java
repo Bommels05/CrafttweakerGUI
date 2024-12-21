@@ -8,10 +8,9 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.ShapedRecipePattern;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 
-import java.io.Serializable;
 import java.util.*;
 
 @Mixin(ShapedRecipePattern.class)
@@ -19,8 +18,7 @@ public class ShapedRecipePatternMixin {
 
     @ModifyReturnValue(method = "method_55081", at = @At(value = "RETURN"))
     private static DataResult<ShapedRecipePattern.Data> generatePattern(DataResult<ShapedRecipePattern.Data> original, ShapedRecipePattern pattern) {
-        //Our recipes are always 3x3, so we don't have to handle other sizes
-        if (original.error().isPresent() && pattern.width() == 3 && pattern.height() == 3) {
+        if (original.error().isPresent()) {
             List<String> patternString = new ArrayList<>();
             BiMap<Character, Ingredient> keys = HashBiMap.create();
             int i = 0;
@@ -29,10 +27,10 @@ public class ShapedRecipePatternMixin {
                 if (key != ' ') {
                     keys.put(key, ingredient);
                 }
-                if (i % 3 == 0) {
+                if (i % pattern.width() == 0) {
                     patternString.add(String.valueOf(key));
                 } else {
-                    patternString.set(i / 3, patternString.get(i / 3) + key);
+                    patternString.set(i / pattern.height(), patternString.get(i / pattern.height()) + key);
                 }
                 i++;
             }
@@ -41,6 +39,7 @@ public class ShapedRecipePatternMixin {
         return original;
     }
 
+    @Unique
     private static Character getKey(Ingredient ingredient, BiMap<Character, Ingredient> keys) {
         if (keys.containsValue(ingredient)) {
             return keys.inverse().get(ingredient);

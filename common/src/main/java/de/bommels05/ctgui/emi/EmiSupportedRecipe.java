@@ -93,7 +93,7 @@ public class EmiSupportedRecipe<R extends Recipe<?>, T extends SupportedRecipeTy
         int mY = mouseY - y;
         int mX = mouseX - x;
         for (Widget widget : widgets.widgets) {
-            widget.render(graphics, mX, mY, Minecraft.getInstance().getFrameTime());
+            widget.render(graphics, mX, mY, Minecraft.getInstance().getTimer().getRealtimeDeltaTicks());
         }
         graphics.pose().translate(-x, -y, 0);
         for (Widget widget : widgets.widgets) {

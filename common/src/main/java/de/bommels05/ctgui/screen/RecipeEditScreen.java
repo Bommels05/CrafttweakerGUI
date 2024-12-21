@@ -15,6 +15,7 @@ import net.minecraft.client.gui.components.*;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.*;
+import net.minecraft.client.gui.screens.options.OptionsScreen;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.CommonComponents;
@@ -35,7 +36,7 @@ import java.util.function.BiFunction;
 
 public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
 
-    private final static ResourceLocation HOT_BAR = new ResourceLocation(CraftTweakerGUI.MOD_ID, "textures/gui/hotbar.png");
+    private final static ResourceLocation HOT_BAR = ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, "textures/gui/hotbar.png");
     private SupportedRecipe<R, ? extends SupportedRecipeType<R>> recipe;
     private AmountedIngredient dragged = null;
     private SpecialAmountedIngredient<?, ?> draggedSpecial = null;
@@ -222,8 +223,8 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
 
     private void setTag(String type, String tag) {
         try {
-            if (BuiltInRegistries.REGISTRY.containsKey(new ResourceLocation(type))) {
-                this.tag = TagKey.create(ResourceKey.createRegistryKey(new ResourceLocation(type)), new ResourceLocation(tag));
+            if (BuiltInRegistries.REGISTRY.containsKey(ResourceLocation.parse(type))) {
+                this.tag = TagKey.create(ResourceKey.createRegistryKey(ResourceLocation.parse(type)), ResourceLocation.parse(tag));
             } else {
                 this.tag = null;
             }

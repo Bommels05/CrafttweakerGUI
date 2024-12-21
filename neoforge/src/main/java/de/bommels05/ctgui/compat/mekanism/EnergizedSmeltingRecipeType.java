@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 public class EnergizedSmeltingRecipeType extends SupportedRecipeType<BasicSmeltingRecipe> {
 
     public EnergizedSmeltingRecipeType() {
-        super(new ResourceLocation(MekanismAPI.MEKANISM_MODID, "smelting"));
+        super(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "smelting"));
 
         addAreaScrollAmountEmptyRightClick(35, 0, 17, 17, (r, am) -> {
             return new BasicSmeltingRecipe(MekanismRecipeUtils.of(convertToUnset(am)), r.getOutputRaw());
@@ -47,12 +47,12 @@ public class EnergizedSmeltingRecipeType extends SupportedRecipeType<BasicSmelti
 
     @Override
     public boolean isValid(BasicSmeltingRecipe recipe) {
-        return !recipe.getInput().test(UNSET) && !ItemStack.isSameItemSameTags(recipe.getOutputRaw(), UNSET);
+        return !recipe.getInput().test(UNSET) && !ItemStack.isSameItemSameComponents(recipe.getOutputRaw(), UNSET);
     }
 
     @Override
     public Object getEmiRecipe(BasicSmeltingRecipe recipe) throws UnsupportedViewerException {
-        return new ItemStackToItemStackEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(new ResourceLocation(MekanismAPI.MEKANISM_MODID, "smelting")), new RecipeHolder<>(nullRl(), recipe));
+        return new ItemStackToItemStackEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "smelting")), new RecipeHolder<>(nullRl(), recipe));
     }
 
     @Override

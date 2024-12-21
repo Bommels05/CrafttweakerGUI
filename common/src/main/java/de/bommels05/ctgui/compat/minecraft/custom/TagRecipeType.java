@@ -44,7 +44,7 @@ public class TagRecipeType extends SupportedRecipeType<TagRecipe> {
     });
 
     public TagRecipeType() {
-        super(new ResourceLocation("emi:tag"));
+        super(ResourceLocation.parse("emi:tag"));
 
         //todo enable this when fluids are supported
         /*addOption(item, (r, item) -> {
@@ -55,11 +55,11 @@ public class TagRecipeType extends SupportedRecipeType<TagRecipe> {
             }
         });*/
         addOption(name, (r, name) -> {
-            if (ResourceLocation.isValidResourceLocation(name) && !name.isEmpty()) {
+            if (ResourceLocation.tryParse(name) != null && !name.isEmpty()) {
                 if (r.item) {
-                    return new TagRecipe(TagKey.create(Registries.ITEM, new ResourceLocation(name)), r.items, r.itemTags);
+                    return new TagRecipe(TagKey.create(Registries.ITEM, ResourceLocation.parse(name)), r.items, r.itemTags);
                 } else {
-                    return new TagRecipe(r.fluidTags, r.fluids, TagKey.create(Registries.FLUID, new ResourceLocation(name)));
+                    return new TagRecipe(r.fluidTags, r.fluids, TagKey.create(Registries.FLUID, ResourceLocation.parse(name)));
                 }
             } else {
                 r.valid = false;
@@ -74,7 +74,7 @@ public class TagRecipeType extends SupportedRecipeType<TagRecipe> {
 
         if (recipe == null) {
             name.set("ctgui:example_tag");
-            return new TagRecipe(TagKey.create(Registries.ITEM, new ResourceLocation("ctgui:example_tag")), List.of(), List.of());
+            return new TagRecipe(TagKey.create(Registries.ITEM, ResourceLocation.parse("ctgui:example_tag")), List.of(), List.of());
         }
         name.set(recipe.id.toString());
         //We return the old recipe here so the custom emi recipe implementation is used and not the original

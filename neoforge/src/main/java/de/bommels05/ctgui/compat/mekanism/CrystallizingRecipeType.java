@@ -5,14 +5,12 @@ import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
 import mekanism.api.MekanismAPI;
-import mekanism.api.chemical.Chemical;
 import mekanism.api.chemical.ChemicalStack;
-import mekanism.api.chemical.gas.GasStack;
 import mekanism.api.recipes.basic.BasicChemicalCrystallizerRecipe;
 import mekanism.api.recipes.ingredients.creator.IngredientCreatorAccess;
 import mekanism.client.recipe_viewer.emi.MekanismEmiRecipeCategory;
 import mekanism.client.recipe_viewer.emi.recipe.ChemicalCrystallizerEmiRecipe;
-import mekanism.common.registries.MekanismGases;
+import mekanism.common.registries.MekanismChemicals;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -21,8 +19,8 @@ import org.jetbrains.annotations.Nullable;
 public class CrystallizingRecipeType extends SupportedRecipeType<BasicChemicalCrystallizerRecipe> {
 
     @SuppressWarnings("unchecked")
-    public <S extends ChemicalStack<T>, T extends Chemical<T>> CrystallizingRecipeType() {
-        super(new ResourceLocation(MekanismAPI.MEKANISM_MODID, "crystallizing"));
+    public CrystallizingRecipeType() {
+        super(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "crystallizing"));
 
         addAreaScrollAmountEmptyRightClick(124, 54, 17, 17, (r, am) -> {
             return new BasicChemicalCrystallizerRecipe(r.getInput(), convertToUnset(am.asStack()));
@@ -32,27 +30,27 @@ public class CrystallizingRecipeType extends SupportedRecipeType<BasicChemicalCr
         addAreaScrollAmountEmptyRightClick(2, 1, 18, 60, (r, stack) -> {
             return new BasicChemicalCrystallizerRecipe(MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getInput()), r.getOutputRaw());
         }, r -> {
-            return (ChemicalAmountedIngredient<S, T>) MekanismRecipeUtils.of(r.getInput());
-        }, () -> new ChemicalAmountedIngredient<>((S) new GasStack(MekanismGases.OXYGEN.get(), 100)), MekanismRecipeUtils::chemicalAmountSetter);
+            return MekanismRecipeUtils.of(r.getInput());
+        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN.get(), 100)), MekanismRecipeUtils::chemicalAmountSetter);
     }
 
     @Override
     public BasicChemicalCrystallizerRecipe onInitialize(@Nullable BasicChemicalCrystallizerRecipe recipe) throws UnsupportedRecipeException {
         super.onInitialize(recipe);
         if (recipe == null) {
-            return new BasicChemicalCrystallizerRecipe(IngredientCreatorAccess.gas().from(MekanismGases.OXYGEN, 100), UNSET);
+            return new BasicChemicalCrystallizerRecipe(IngredientCreatorAccess.chemicalStack().from(MekanismChemicals.OXYGEN, 100), UNSET);
         }
         return recipe;
     }
 
     @Override
     public boolean isValid(BasicChemicalCrystallizerRecipe recipe) {
-        return !ItemStack.isSameItemSameTags(recipe.getOutputRaw(), UNSET);
+        return !ItemStack.isSameItemSameComponents(recipe.getOutputRaw(), UNSET);
     }
 
     @Override
     public Object getEmiRecipe(BasicChemicalCrystallizerRecipe recipe) throws UnsupportedViewerException {
-        return new ChemicalCrystallizerEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(new ResourceLocation(MekanismAPI.MEKANISM_MODID, "crystallizing")), new RecipeHolder<>(nullRl(), recipe));
+        return new ChemicalCrystallizerEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "crystallizing")), new RecipeHolder<>(nullRl(), recipe));
     }
 
     @Override

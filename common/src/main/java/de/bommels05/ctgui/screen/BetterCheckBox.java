@@ -15,7 +15,7 @@ import java.util.function.Consumer;
 public class BetterCheckBox extends AbstractButton {
 
     public static final int SIZE = 20;
-    public static final ResourceLocation TEXTURE = new ResourceLocation(CraftTweakerGUI.MOD_ID, "textures/gui/checkbox.png");
+    public static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, "textures/gui/checkbox.png");
     private boolean selected;
     private Consumer<Boolean> handler;
 

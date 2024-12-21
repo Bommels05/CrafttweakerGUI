@@ -11,7 +11,7 @@ import net.minecraft.world.item.crafting.SmokingRecipe;
 public class CampfireCookingRecipeType extends CookingRecipeType<CampfireCookingRecipe> {
 
     public CampfireCookingRecipeType() {
-        super(new ResourceLocation("minecraft:campfire_cooking"), CampfireCookingRecipe::new, 100, "campfire");
+        super(ResourceLocation.parse("minecraft:campfire_cooking"), CampfireCookingRecipe::new, 100, "campfire");
     }
 
     @Override

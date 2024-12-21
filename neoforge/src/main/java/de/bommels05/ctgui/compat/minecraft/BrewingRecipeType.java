@@ -19,7 +19,7 @@ import java.util.function.Function;
 public class BrewingRecipeType extends SupportedRecipeType<BrewingRecipe> {
 
     public BrewingRecipeType() {
-        super(new ResourceLocation("minecraft:brewing"));
+        super(ResourceLocation.parse("minecraft:brewing"));
 
         addAreaEmptyRightClick(39, 36, 17, 17, (r, am) -> {
             return new BrewingRecipe(am.ensureAmount(1, 1).ingredient(), r.getReagent(), r.getOutput());

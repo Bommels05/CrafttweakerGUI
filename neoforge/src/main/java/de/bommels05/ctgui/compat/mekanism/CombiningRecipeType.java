@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 public class CombiningRecipeType extends SupportedRecipeType<BasicCombinerRecipe> {
 
     public CombiningRecipeType() {
-        super(new ResourceLocation(MekanismAPI.MEKANISM_MODID, "combining"));
+        super(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "combining"));
 
         addAreaScrollAmountEmptyRightClick(35, 0, 17, 17, (r, am) -> {
             return new BasicCombinerRecipe(MekanismRecipeUtils.of(convertToUnset(am)), r.getExtraInput(), r.getOutputRaw());
@@ -47,12 +47,12 @@ public class CombiningRecipeType extends SupportedRecipeType<BasicCombinerRecipe
 
     @Override
     public boolean isValid(BasicCombinerRecipe recipe) {
-        return !recipe.getMainInput().test(UNSET) && !recipe.getExtraInput().test(UNSET) && !ItemStack.isSameItemSameTags(recipe.getOutputRaw(), UNSET);
+        return !recipe.getMainInput().test(UNSET) && !recipe.getExtraInput().test(UNSET) && !ItemStack.isSameItemSameComponents(recipe.getOutputRaw(), UNSET);
     }
 
     @Override
     public Object getEmiRecipe(BasicCombinerRecipe recipe) throws UnsupportedViewerException {
-        return new CombinerEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(new ResourceLocation(MekanismAPI.MEKANISM_MODID, "combining")), new RecipeHolder<>(nullRl(), recipe));
+        return new CombinerEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "combining")), new RecipeHolder<>(nullRl(), recipe));
     }
 
     @Override

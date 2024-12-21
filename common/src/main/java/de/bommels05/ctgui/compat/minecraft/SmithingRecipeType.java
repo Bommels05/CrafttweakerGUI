@@ -17,7 +17,7 @@ import net.minecraft.world.item.crafting.SmithingTransformRecipe;
 public class SmithingRecipeType extends SupportedRecipeType<SmithingRecipe> {
 
     public SmithingRecipeType() {
-        super(new ResourceLocation("minecraft:smithing"));
+        super(ResourceLocation.parse("minecraft:smithing"));
         addAreaEmptyRightClick(0, 0, 17, 17, (r, am) -> {
             SmithingTransformRecipe recipe = ((SmithingTransformRecipe) r);
             return new SmithingTransformRecipe(am.ensureAmount(1, 1).ingredient(), recipe.base, recipe.addition, recipe.getResultItem(regAccess()));

@@ -65,7 +65,7 @@ public class EmiViewerUtils implements ViewerUtils<EmiRecipe> {
     public <T extends Recipe<?>> void inject(ChangedRecipeManager.ChangedRecipe<T> recipe) {
         try {
             initFields();
-            ResourceLocation id = new ResourceLocation(CraftTweakerGUI.MOD_ID, recipe.getId());
+            ResourceLocation id = ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, recipe.getId());
             EmiRecipes.recipeIds.put(recipe.getRecipe(), id);
             EmiRecipe r = getViewerRecipe(recipe.getRecipeType(), recipe.getRecipe());
             r.getInputs().stream().map(EmiIngredient::getEmiStacks).forEach(stacks -> {
@@ -94,7 +94,7 @@ public class EmiViewerUtils implements ViewerUtils<EmiRecipe> {
         try {
             initFields();
             EmiRecipe r = getViewerRecipe(recipe.getRecipeType(), recipe.getRecipe());
-            ResourceLocation id = new ResourceLocation(CraftTweakerGUI.MOD_ID, recipe.getId());
+            ResourceLocation id = ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, recipe.getId());
             r.getInputs().stream().map(EmiIngredient::getEmiStacks).forEach(stacks -> {
                 for (EmiStack input : stacks) {
                     List<EmiRecipe> recipes = new ArrayList<>(byInput.get(input).stream().filter(r2 -> !r2.getId().equals(id)).toList());

@@ -11,8 +11,6 @@ import de.bommels05.ctgui.mixin.EmiFuelRecipeMixin;
 import dev.emi.emi.api.recipe.EmiRecipe;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.Container;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,7 +20,7 @@ public class FuelRecipeType extends SupportedRecipeType<FuelRecipe> {
     private final IntegerRecipeOption<FuelRecipe> burnTime = new IntegerRecipeOption<>(Component.translatable("ctgui.editing.options.burn_time"), 1);
 
     public FuelRecipeType() {
-        super(new ResourceLocation(CraftTweakerGUI.isJeiActive() ? "minecraft:fuel" : "emi:fuel"));
+        super(ResourceLocation.parse(CraftTweakerGUI.isJeiActive() ? "minecraft:fuel" : "emi:fuel"));
         addAreaEmptyRightClick(18, 0, 17, 17, (r, am) -> {
             return new FuelRecipe(am.ensureAmount(1, 1).ingredient(), r.getBurnTime());
         }, r -> {

@@ -8,10 +8,10 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(EmiFuelRecipe.class)
 public interface EmiFuelRecipeMixin {
 
-    @Accessor(value = "stack")
+    @Accessor(value = "stack", remap = false)
     public EmiIngredient getStack();
 
-    @Accessor(value = "time")
+    @Accessor(value = "time", remap = false)
     public int getTime();
 
 }

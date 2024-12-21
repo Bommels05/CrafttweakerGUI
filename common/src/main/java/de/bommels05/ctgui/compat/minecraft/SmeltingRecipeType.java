@@ -10,7 +10,7 @@ import net.minecraft.world.item.crafting.SmeltingRecipe;
 public class SmeltingRecipeType extends CookingRecipeType<SmeltingRecipe> {
 
     public SmeltingRecipeType() {
-        super(new ResourceLocation("minecraft:smelting"), SmeltingRecipe::new, 200, "furnace");
+        super(ResourceLocation.parse("minecraft:smelting"), SmeltingRecipe::new, 200, "furnace");
     }
 
     @Override

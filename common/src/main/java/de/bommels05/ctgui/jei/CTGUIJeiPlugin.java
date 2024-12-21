@@ -4,14 +4,10 @@ import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.screen.RecipeEditScreen;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
-import mezz.jei.api.gui.drawable.IDrawableStatic;
-import mezz.jei.api.gui.handlers.IGuiProperties;
-import mezz.jei.api.gui.handlers.IScreenHandler;
 import mezz.jei.api.registration.IAdvancedRegistration;
 import mezz.jei.api.registration.IGuiHandlerRegistration;
 import mezz.jei.api.runtime.IJeiRuntime;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.Nullable;
 
 @JeiPlugin
 public class CTGUIJeiPlugin implements IModPlugin {
@@ -45,6 +41,6 @@ public class CTGUIJeiPlugin implements IModPlugin {
 
     @Override
     public ResourceLocation getPluginUid() {
-        return new ResourceLocation(CraftTweakerGUI.MOD_ID, "jei_plugin");
+        return ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, "jei_plugin");
     }
 }

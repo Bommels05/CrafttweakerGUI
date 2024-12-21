@@ -36,7 +36,7 @@ public class ChangeListScreen extends Screen {
                     text = text.append(Component.translatable("ctgui.list.export_server").withStyle(ChatFormatting.RED));
                     minecraft.setScreen(new DisconnectedScreen(this, Component.translatable("ctgui.list.export"), text, CommonComponents.GUI_OK));
                 } else {
-                    minecraft.setScreen(new ClosingConfirmScreen(b -> {
+                    minecraft.setScreen(new ClosingConfirmScreen(this, b -> {
                         if (b) {
                             minecraft.setScreen(null);
                             minecraft.player.connection.sendCommand("reload");
@@ -57,7 +57,7 @@ public class ChangeListScreen extends Screen {
             list = new ChangedRecipesList(minecraft, this.width, this.height - 60, 30, false);
             addRenderableWidget(list);
             addRenderableWidget(new ColoredButton(this.width - 25, this.height - (25), 20, 20, Component.literal("?"), 16762624, button -> {
-                minecraft.setScreen(new ConfirmScreen(b -> {
+                minecraft.setScreen(new ClosingConfirmScreen(this, b -> {
                     if (b) {
                         Util.getPlatform().openUri("https://www.curseforge.com/minecraft/mc-mods/crafttweaker-gui");
                         Minecraft.getInstance().setScreen(this);
@@ -77,7 +77,7 @@ public class ChangeListScreen extends Screen {
         SpriteIconButton button = SpriteIconButton.builder(Component.empty(), b -> {
             Config.setEditMode(!Config.editMode);
             minecraft.setScreen(new ChangeListScreen());
-        }, true).size(20, 20).sprite(new ResourceLocation(CraftTweakerGUI.MOD_ID, path), 16, 16).build();
+        }, true).size(20, 20).sprite(ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, path), 16, 16).build();
         button.setX(5);
         button.setY(this.height - 25);
         button.setTooltip(Tooltip.create(Component.translatable("ctgui.list.edit_mode_" + Config.editMode)));
@@ -111,6 +111,7 @@ public class ChangeListScreen extends Screen {
 
     @Override
     public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        this.renderDirtBackground(graphics);
+        this.renderBlurredBackground(partialTick);
+        this.renderMenuBackground(graphics);
     }
 }

@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 public class CrushingRecipeType extends SupportedRecipeType<BasicCrushingRecipe> {
 
     public CrushingRecipeType() {
-        super(new ResourceLocation(MekanismAPI.MEKANISM_MODID, "crushing"));
+        super(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "crushing"));
 
         addAreaScrollAmountEmptyRightClick(35, 0, 17, 17, (r, am) -> {
             return new BasicCrushingRecipe(MekanismRecipeUtils.of(convertToUnset(am)), r.getOutputRaw());
@@ -42,12 +42,12 @@ public class CrushingRecipeType extends SupportedRecipeType<BasicCrushingRecipe>
 
     @Override
     public boolean isValid(BasicCrushingRecipe recipe) {
-        return !recipe.getInput().test(UNSET) && !ItemStack.isSameItemSameTags(recipe.getOutputRaw(), UNSET);
+        return !recipe.getInput().test(UNSET) && !ItemStack.isSameItemSameComponents(recipe.getOutputRaw(), UNSET);
     }
 
     @Override
     public Object getEmiRecipe(BasicCrushingRecipe recipe) throws UnsupportedViewerException {
-        return new ItemStackToItemStackEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(new ResourceLocation(MekanismAPI.MEKANISM_MODID, "crushing")), new RecipeHolder<>(nullRl(), recipe));
+        return new ItemStackToItemStackEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "crushing")), new RecipeHolder<>(nullRl(), recipe));
     }
 
     @Override

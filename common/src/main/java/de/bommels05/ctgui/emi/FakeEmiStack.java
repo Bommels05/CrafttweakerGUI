@@ -4,6 +4,7 @@ import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -54,8 +55,8 @@ public class FakeEmiStack extends EmiStack {
     }
 
     @Override
-    public CompoundTag getNbt() {
-        return new CompoundTag();
+    public DataComponentPatch getComponentChanges() {
+        return DataComponentPatch.EMPTY;
     }
 
     @Override

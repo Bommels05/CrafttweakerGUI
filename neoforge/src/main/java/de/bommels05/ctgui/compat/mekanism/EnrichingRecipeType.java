@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 public class EnrichingRecipeType extends SupportedRecipeType<BasicEnrichingRecipe> {
 
     public EnrichingRecipeType() {
-        super(new ResourceLocation(MekanismAPI.MEKANISM_MODID, "enriching"));
+        super(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "enriching"));
 
         addAreaScrollAmountEmptyRightClick(35, 0, 17, 17, (r, am) -> {
             return new BasicEnrichingRecipe(MekanismRecipeUtils.of(convertToUnset(am)), r.getOutputRaw());
@@ -42,12 +42,12 @@ public class EnrichingRecipeType extends SupportedRecipeType<BasicEnrichingRecip
 
     @Override
     public boolean isValid(BasicEnrichingRecipe recipe) {
-        return !recipe.getInput().test(UNSET) && !ItemStack.isSameItemSameTags(recipe.getOutputRaw(), UNSET);
+        return !recipe.getInput().test(UNSET) && !ItemStack.isSameItemSameComponents(recipe.getOutputRaw(), UNSET);
     }
 
     @Override
     public Object getEmiRecipe(BasicEnrichingRecipe recipe) throws UnsupportedViewerException {
-        return new ItemStackToItemStackEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(new ResourceLocation(MekanismAPI.MEKANISM_MODID, "enriching")), new RecipeHolder<>(nullRl(), recipe));
+        return new ItemStackToItemStackEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "enriching")), new RecipeHolder<>(nullRl(), recipe));
     }
 
     @Override

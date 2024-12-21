@@ -22,21 +22,21 @@ import java.util.Map;
 @Mixin(RecipeScreen.class)
 public class RecipeScreenMixin {
 
-    @Shadow
+    @Shadow(remap = false)
     private List<SizedButtonWidget> arrows;
-    @Shadow
+    @Shadow(remap = false)
     int backgroundHeight;
-    @Shadow
+    @Shadow(remap = false)
     int x;
-    @Shadow
+    @Shadow(remap = false)
     int y;
-    @Shadow
+    @Shadow(remap = false)
     private List<RecipeTab> tabs;
-    @Shadow
+    @Shadow(remap = false)
     private int tab;
-    @Shadow
+    @Shadow(remap = false)
     private int minimumWidth;
-    @Shadow
+    @Shadow(remap = false)
     private int buttonOff;
 
     @Inject(method = "<init>", at = @At(value = "RETURN"))

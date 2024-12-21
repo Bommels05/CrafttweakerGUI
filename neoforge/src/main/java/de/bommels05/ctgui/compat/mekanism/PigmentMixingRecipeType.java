@@ -4,14 +4,14 @@ import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
 import mekanism.api.MekanismAPI;
-import mekanism.api.chemical.pigment.PigmentStack;
+import mekanism.api.chemical.ChemicalStack;
 import mekanism.api.recipes.basic.BasicPigmentMixingRecipe;
 import mekanism.api.recipes.ingredients.creator.IngredientCreatorAccess;
 import mekanism.api.text.EnumColor;
 import mekanism.client.recipe_viewer.emi.MekanismEmiRecipeCategory;
 import mekanism.client.recipe_viewer.emi.recipe.PigmentMixerEmiRecipe;
 import mekanism.common.registries.MekanismBlocks;
-import mekanism.common.registries.MekanismPigments;
+import mekanism.common.registries.MekanismChemicals;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -20,33 +20,33 @@ import org.jetbrains.annotations.Nullable;
 public class PigmentMixingRecipeType extends SupportedRecipeType<BasicPigmentMixingRecipe> {
 
     public PigmentMixingRecipeType() {
-        super(new ResourceLocation(MekanismAPI.MEKANISM_MODID, "pigment_mixing"));
+        super(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "pigment_mixing"));
 
         addAreaScrollAmountEmptyRightClick(22, 10, 18, 60, (r, stack) -> {
             return new BasicPigmentMixingRecipe(MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getLeftInput()), r.getRightInput(), r.getOutputRaw());
         }, r -> {
             return MekanismRecipeUtils.of(r.getLeftInput());
-        }, () -> new ChemicalAmountedIngredient<>(new PigmentStack(MekanismPigments.PIGMENT_COLOR_LOOKUP.get(EnumColor.RED), 1)), MekanismRecipeUtils::limitedChemicalAmountSetter);
+        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.PIGMENT_COLOR_LOOKUP.get(EnumColor.RED).getChemical(), 1)), MekanismRecipeUtils::limitedChemicalAmountSetter);
         addAreaScrollAmountEmptyRightClick(130, 10, 18, 60, (r, stack) -> {
             return new BasicPigmentMixingRecipe(r.getLeftInput(), MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getRightInput()), r.getOutputRaw());
         }, r -> {
             return MekanismRecipeUtils.of(r.getRightInput());
-        }, () -> new ChemicalAmountedIngredient<>(new PigmentStack(MekanismPigments.PIGMENT_COLOR_LOOKUP.get(EnumColor.RED), 1)), MekanismRecipeUtils::limitedChemicalAmountSetter);
+        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.PIGMENT_COLOR_LOOKUP.get(EnumColor.RED).getChemical(), 1)), MekanismRecipeUtils::limitedChemicalAmountSetter);
         addAreaScrollAmountEmptyRightClick(76, 1, 18, 60, (r, input) -> {
-            PigmentStack stack = input.toStack();
-            return new BasicPigmentMixingRecipe(r.getLeftInput(), r.getRightInput(), stack.getType() == r.getOutputRaw().getType() ? stack : new PigmentStack(stack, r.getOutputRaw().getAmount()));
+            ChemicalStack stack = input.toStack();
+            return new BasicPigmentMixingRecipe(r.getLeftInput(), r.getRightInput(), stack.getChemical() == r.getOutputRaw().getChemical() ? stack : new ChemicalStack(stack.getChemical(), r.getOutputRaw().getAmount()));
         }, r -> {
-            return new ChemicalAmountedIngredient<>(r.getOutputRaw());
-        }, () -> new ChemicalAmountedIngredient<>(new PigmentStack(MekanismPigments.PIGMENT_COLOR_LOOKUP.get(EnumColor.RED), 2)), MekanismRecipeUtils::limitedChemicalAmountSetter);
+            return new ChemicalAmountedIngredient(r.getOutputRaw());
+        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.PIGMENT_COLOR_LOOKUP.get(EnumColor.RED).getChemical(), 2)), MekanismRecipeUtils::limitedChemicalAmountSetter);
     }
 
     @Override
     public BasicPigmentMixingRecipe onInitialize(@Nullable BasicPigmentMixingRecipe recipe) throws UnsupportedRecipeException {
         super.onInitialize(recipe);
         if (recipe == null) {
-            return new BasicPigmentMixingRecipe(IngredientCreatorAccess.pigment().from(MekanismPigments.PIGMENT_COLOR_LOOKUP.get(EnumColor.RED), 1),
-                    IngredientCreatorAccess.pigment().from(MekanismPigments.PIGMENT_COLOR_LOOKUP.get(EnumColor.RED), 1),
-                    new PigmentStack(MekanismPigments.PIGMENT_COLOR_LOOKUP.get(EnumColor.RED), 2));
+            return new BasicPigmentMixingRecipe(IngredientCreatorAccess.chemicalStack().from(MekanismChemicals.PIGMENT_COLOR_LOOKUP.get(EnumColor.RED), 1),
+                    IngredientCreatorAccess.chemicalStack().from(MekanismChemicals.PIGMENT_COLOR_LOOKUP.get(EnumColor.RED), 1),
+                    new ChemicalStack(MekanismChemicals.PIGMENT_COLOR_LOOKUP.get(EnumColor.RED).getChemical(), 2));
         }
         return recipe;
     }
@@ -58,7 +58,7 @@ public class PigmentMixingRecipeType extends SupportedRecipeType<BasicPigmentMix
 
     @Override
     public Object getEmiRecipe(BasicPigmentMixingRecipe recipe) throws UnsupportedViewerException {
-        return new PigmentMixerEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(new ResourceLocation(MekanismAPI.MEKANISM_MODID, "pigment_mixing")), new RecipeHolder<>(nullRl(), recipe));
+        return new PigmentMixerEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "pigment_mixing")), new RecipeHolder<>(nullRl(), recipe));
     }
 
     @Override

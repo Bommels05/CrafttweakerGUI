@@ -17,16 +17,11 @@ import de.bommels05.ctgui.compat.minecraft.custom.TagRecipe;
 import de.bommels05.ctgui.registry.RecipeSerializers;
 import de.bommels05.ctgui.registry.RecipeTypes;
 import dev.emi.emi.api.EmiInitRegistry;
-import dev.emi.emi.api.stack.EmiRegistryAdapter;
 import dev.emi.emi.api.stack.EmiStack;
 import dev.emi.emi.api.stack.FluidEmiStack;
 import mekanism.api.MekanismAPI;
 import mekanism.api.chemical.Chemical;
 import mekanism.api.chemical.ChemicalStack;
-import mekanism.api.chemical.gas.Gas;
-import mekanism.api.chemical.infuse.InfuseType;
-import mekanism.api.chemical.pigment.Pigment;
-import mekanism.api.chemical.slurry.Slurry;
 import mekanism.client.recipe_viewer.emi.ChemicalEmiStack;
 import mekanism.common.recipe.upgrade.MekanismShapedRecipe;
 import mekanism.common.registries.MekanismRecipeSerializersInternal;
@@ -87,7 +82,7 @@ public class NeoLoaderUtils implements LoaderUtils {
     public <T> Object stackFromType(T type) {
         if (type instanceof Fluid fluid) {
             return new FluidStack(fluid, 1);
-        } else if (ModList.get().isLoaded("mekanism") && type instanceof Chemical<?> chemical) {
+        } else if (ModList.get().isLoaded("mekanism") && type instanceof Chemical chemical) {
             return MekanismRecipeUtils.from(chemical, 1);
         }
         return type;
@@ -98,19 +93,15 @@ public class NeoLoaderUtils implements LoaderUtils {
         if (ingredient.isStack()) {
             if (ingredient.getStack() instanceof FluidStack stack) {
                 return new FluidAmountedIngredient(stack, ingredient.shouldUseAmount() ? ingredient.getAmount() : stack.getAmount());
-            } else if (ModList.get().isLoaded("mekanism") && ingredient.getStack() instanceof ChemicalStack<?> stack) {
-                return new ChemicalAmountedIngredient<>(stack, ingredient.shouldUseAmount() ? ingredient.getAmount() : (int) stack.getAmount());
+            } else if (ModList.get().isLoaded("mekanism") && ingredient.getStack() instanceof ChemicalStack stack) {
+                return new ChemicalAmountedIngredient(stack, ingredient.shouldUseAmount() ? ingredient.getAmount() : (int) stack.getAmount());
             }
         } else {
             TagKey<?> tag = ingredient.getTag();
             if (tag.isFor(Registries.FLUID)) {
                 return new FluidAmountedIngredient((TagKey<Fluid>) tag, ingredient.getAmount());
-            } else if (ModList.get().isLoaded("mekanism") && (
-                    tag.isFor(MekanismAPI.GAS_REGISTRY_NAME) ||
-                            tag.isFor(MekanismAPI.INFUSE_TYPE_REGISTRY_NAME) ||
-                            tag.isFor(MekanismAPI.SLURRY_REGISTRY_NAME) ||
-                            tag.isFor(MekanismAPI.PIGMENT_REGISTRY_NAME))) {
-                return new ChemicalAmountedIngredient(tag, ingredient.getAmount());
+            } else if (ModList.get().isLoaded("mekanism") && tag.isFor(MekanismAPI.CHEMICAL_REGISTRY_NAME)) {
+                return new ChemicalAmountedIngredient((TagKey<Chemical>) tag, ingredient.getAmount());
             }
         }
         return ingredient;
@@ -133,7 +124,7 @@ public class NeoLoaderUtils implements LoaderUtils {
 
     @Override
     public String getDefaultTag() {
-        return "forge:ingots/iron";
+        return "c:ingots/iron";
     }
 
     @Override
@@ -141,7 +132,7 @@ public class NeoLoaderUtils implements LoaderUtils {
         if (stack instanceof FluidStack fluidStack) {
             return EmiStack.of(fluidStack.getFluid(), fluidStack.getAmount());
         } else if (ModList.get().isLoaded("mekanism")) {
-            if (stack instanceof ChemicalStack<?> chemicalStack) {
+            if (stack instanceof ChemicalStack chemicalStack) {
                 return ChemicalEmiStack.create(chemicalStack);
             }
         }
@@ -153,7 +144,7 @@ public class NeoLoaderUtils implements LoaderUtils {
         if (stack instanceof FluidEmiStack fluidStack) {
             return new FluidStack((Fluid) fluidStack.getKey(), fluidStack.getAmount() == 0 ? 1 : (int) fluidStack.getAmount());
         }
-        if (ModList.get().isLoaded("mekanism") && stack instanceof ChemicalEmiStack<?> emiStack) {
+        if (ModList.get().isLoaded("mekanism") && stack instanceof ChemicalEmiStack emiStack) {
             return MekanismRecipeUtils.from(emiStack.getKey(), emiStack.getAmount());
         }
         return null;
@@ -178,7 +169,7 @@ public class NeoLoaderUtils implements LoaderUtils {
 
     @Override
     public String getMekanismCraftTweakerString(ShapedRecipe recipe, String id) {
-        JsonElement json = MekanismRecipeSerializersInternal.MEK_DATA.get().codec().encode(new MekanismShapedRecipe(recipe), JsonOps.INSTANCE, null).getOrThrow(false, s -> {});
+        JsonElement json = MekanismRecipeSerializersInternal.MEK_DATA.get().codec().encode(new MekanismShapedRecipe(recipe), JsonOps.INSTANCE, JsonOps.INSTANCE.mapBuilder()).build((JsonElement) null).getOrThrow();
         json.getAsJsonObject().add("type", new JsonPrimitive("mekanism:mek_data"));
         return "<recipetype:minecraft:crafting>.addJsonRecipe(\"" + id + "\", " + json + ");";
     }

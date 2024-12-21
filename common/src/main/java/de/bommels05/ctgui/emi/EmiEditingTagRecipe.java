@@ -85,7 +85,7 @@ public class EmiEditingTagRecipe extends EmiTagRecipe {
 
     @Override
     public ResourceLocation getId() {
-        return new ResourceLocation(CraftTweakerGUI.MOD_ID, super.getId().getPath());
+        return ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, super.getId().getPath());
     }
 
     public List<EmiIngredient> getIngredients() {

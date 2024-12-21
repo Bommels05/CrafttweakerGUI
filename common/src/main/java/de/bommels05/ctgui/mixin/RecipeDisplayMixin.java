@@ -25,15 +25,15 @@ import java.util.List;
 @Mixin(RecipeDisplay.class)
 public class RecipeDisplayMixin {
 
-    @Shadow
+    @Shadow(remap = false)
     private List<Object> rightButtons;
-    @Shadow
+    @Shadow(remap = false)
     @Final
     public EmiRecipe recipe ;
     @Unique
     private int buttonIndex = 0;
 
-    @Inject(method = "<init>(Ldev/emi/emi/api/recipe/EmiRecipe;)V", at = @At(value = "INVOKE", target = "Ldev/emi/emi/api/recipe/EmiRecipe;supportsRecipeTree()Z"))
+    @Inject(method = "<init>(Ldev/emi/emi/api/recipe/EmiRecipe;)V", at = @At(value = "INVOKE", target = "Ldev/emi/emi/api/recipe/EmiRecipe;supportsRecipeTree()Z"), remap = false)
     protected void addButtons(EmiRecipe recipe, CallbackInfo ci) {
         if (CraftTweakerGUI.shouldShowEditButton(recipe.getCategory().getId(), recipe.getId(), recipe)) {
             try {

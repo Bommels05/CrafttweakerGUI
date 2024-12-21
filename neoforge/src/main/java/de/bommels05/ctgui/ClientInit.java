@@ -18,8 +18,8 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.*;
 import net.neoforged.fml.config.ModConfig;
-import net.neoforged.neoforge.client.ConfigScreenHandler;
 import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.client.loading.ClientModLoader;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -41,18 +41,18 @@ public class ClientInit {
         RecipeTypes.RECIPE_TYPES.register(modBus);
         RecipeSerializers.RECIPE_SERIALIZERS.register(modBus);
 
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, NeoConfig.SPEC);
-        ModLoadingContext.get().registerExtensionPoint(ConfigScreenHandler.ConfigScreenFactory.class,
-                () -> new ConfigScreenHandler.ConfigScreenFactory((mc, screen) -> new ChangeListScreen()));
+        ModLoadingContext.get().getActiveContainer().registerConfig(ModConfig.Type.COMMON, NeoConfig.SPEC);
+        ModLoadingContext.get().registerExtensionPoint(IConfigScreenFactory.class,
+                () -> (mc, screen) -> new ChangeListScreen());
 
         if (!ModList.get().isLoaded("emi") && !ModList.get().isLoaded("jei")) {
             try {
                 Field field = ClientModLoader.class.getDeclaredField("error");
                 field.setAccessible(true);
-                field.set(null, new LoadingFailedException(List.of(new ModLoadingException(
-                        ModLoadingContext.get().getActiveContainer().getModInfo(), ModLoadingStage.VALIDATE, "fml.modloading.missingdependency", null, "jei or emi",
-                        CraftTweakerGUI.MOD_ID, MavenVersionAdapter.createFromVersionSpec("[17.3.0.49,)[1.1.6+1.20.4+neoforge,)"),
-                        new DefaultArtifactVersion("null"), Optional.empty()))));
+                field.set(null, new ModLoadingException(List.of(new ModLoadingIssue(
+                        ModLoadingIssue.Severity.ERROR, "fml.modloadingissue.missingdependency", List.of("jei or emi",
+                        CraftTweakerGUI.MOD_ID, MavenVersionAdapter.createFromVersionSpec("[17.3.0.49,)[1.1.6+1.20.4+neoforge,)"), new DefaultArtifactVersion("null")),
+                        null, null, null, ModLoadingContext.get().getActiveContainer().getModInfo()))));
             } catch (Throwable ignored) {}
             throw new IllegalStateException("Either Emi or Jei is required for CraftTweaker GUI to work");
         }
@@ -80,8 +80,7 @@ public class ClientInit {
             RecipeTypeManager.addType(new CentrifugingRecipeType());
             RecipeTypeManager.addType(new NeutronActivatingRecipeType());
             RecipeTypeManager.addType(new OxidizingRecipeType());
-            RecipeTypeManager.addType(new GasConvertingRecipeType());
-            RecipeTypeManager.addType(new InfuseTypeConvertingRecipeType());
+            RecipeTypeManager.addType(new ChemicalConvertingRecipeType());
             RecipeTypeManager.addType(new EnergyConvertingRecipeType());
             RecipeTypeManager.addType(new PigmentExtractingRecipeType());
             RecipeTypeManager.addType(new PigmentMixingRecipeType());

@@ -1,13 +1,13 @@
 package de.bommels05.ctgui.jei;
 
-import de.bommels05.ctgui.CraftTweakerGUI;
+/*import de.bommels05.ctgui.CraftTweakerGUI;
 import mezz.jei.api.gui.drawable.IDrawable;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 
 public class EditIconDrawable implements IDrawable {
 
-    private static final ResourceLocation ICON = new ResourceLocation(CraftTweakerGUI.MOD_ID, "textures/gui/edit_icon.png");
+    private static final ResourceLocation ICON = ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, "textures/gui/edit_icon.png");
 
     @Override
     public int getWidth() {
@@ -30,4 +30,4 @@ public class EditIconDrawable implements IDrawable {
         graphics.pose().translate(1, 1, 0);
         graphics.blit(ICON, xOffset , yOffset, 0, 0, 9, 9, 9, 9);
     }
-}
+}*/

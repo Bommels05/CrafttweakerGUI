@@ -2,16 +2,14 @@ package de.bommels05.ctgui.compat.minecraft;
 
 import de.bommels05.ctgui.registry.RecipeSerializers;
 import de.bommels05.ctgui.registry.RecipeTypes;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BrewingStandBlockEntity;
 
-public class BrewingRecipe extends net.neoforged.neoforge.common.brewing.BrewingRecipe implements Recipe<BrewingStandBlockEntity> {
+public class BrewingRecipe extends net.neoforged.neoforge.common.brewing.BrewingRecipe implements Recipe<RecipeInput> {
 
     public BrewingRecipe(Ingredient input, Ingredient reagent, ItemStack output) {
         super(input, reagent, output);
@@ -22,12 +20,12 @@ public class BrewingRecipe extends net.neoforged.neoforge.common.brewing.Brewing
     }
 
     @Override
-    public boolean matches(BrewingStandBlockEntity arg, Level arg2) {
+    public boolean matches(RecipeInput recipeInput, Level level) {
         return false;
     }
 
     @Override
-    public ItemStack assemble(BrewingStandBlockEntity arg, RegistryAccess arg2) {
+    public ItemStack assemble(RecipeInput recipeInput, HolderLookup.Provider provider) {
         return null;
     }
 
@@ -37,7 +35,7 @@ public class BrewingRecipe extends net.neoforged.neoforge.common.brewing.Brewing
     }
 
     @Override
-    public ItemStack getResultItem(RegistryAccess arg) {
+    public ItemStack getResultItem(HolderLookup.Provider provider) {
         return getOutput();
     }
 

@@ -6,26 +6,26 @@ import mekanism.api.chemical.Chemical;
 import mekanism.api.chemical.ChemicalStack;
 import net.minecraft.tags.TagKey;
 
-public class ChemicalAmountedIngredient<S extends ChemicalStack<T>, T extends Chemical<T>> extends SpecialAmountedIngredient<S, T> {
+public class ChemicalAmountedIngredient extends SpecialAmountedIngredient<ChemicalStack, Chemical> {
 
-    protected ChemicalAmountedIngredient(S stack, TagKey<T> tag, int amount) {
+    protected ChemicalAmountedIngredient(ChemicalStack stack, TagKey<Chemical> tag, int amount) {
         super(stack, tag, amount);
     }
 
-    public ChemicalAmountedIngredient(S stack, int amount) {
+    public ChemicalAmountedIngredient(ChemicalStack stack, int amount) {
         super(stack, amount);
     }
 
-    public ChemicalAmountedIngredient(S stack) {
+    public ChemicalAmountedIngredient(ChemicalStack stack) {
         super(stack);
     }
 
-    public ChemicalAmountedIngredient(TagKey<T> tag, int amount) {
+    public ChemicalAmountedIngredient(TagKey<Chemical> tag, int amount) {
         super(tag, amount);
     }
 
-    public boolean shouldChangeAmount(ChemicalAmountedIngredient<S, T> other) {
-        return (this.isStack() && other.isStack() && this.getStack().getType() == other.getStack().getType()) ||
+    public boolean shouldChangeAmount(ChemicalAmountedIngredient other) {
+        return (this.isStack() && other.isStack() && this.getStack().getChemical() == other.getStack().getChemical()) ||
                 (this.isTag() && other.isTag() && this.getTag().equals(other.getTag()));
     }
 
@@ -34,17 +34,14 @@ public class ChemicalAmountedIngredient<S extends ChemicalStack<T>, T extends Ch
     }
 
     @Override
-    public ChemicalAmountedIngredient<S, T> withAmount(int amount) {
+    public ChemicalAmountedIngredient withAmount(int amount) {
         Preconditions.checkArgument(amount > 0, "Amount must be greater than 0");
-        return new ChemicalAmountedIngredient<>(getStack(), getTag(), amount);
+        return new ChemicalAmountedIngredient(getStack(), getTag(), amount);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public S toStack() {
-        ChemicalStack<T> withAmount = super.toStack().copy();
-        withAmount.setAmount(getRightAmount());
-        return (S) withAmount;
+    public ChemicalStack toStack() {
+        return super.toStack().copyWithAmount(getRightAmount());
     }
 
     @Override

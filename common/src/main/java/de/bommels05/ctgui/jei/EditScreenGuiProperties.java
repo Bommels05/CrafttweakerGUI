@@ -24,36 +24,36 @@ public class EditScreenGuiProperties implements IGuiProperties {
     }
 
     @Override
-    public Class<? extends Screen> getScreenClass() {
+    public Class<? extends Screen> screenClass() {
         return RecipeEditScreen.class;
     }
 
     @Override
-    public int getGuiLeft() {
+    public int guiLeft() {
         return minX;
     }
 
-    @Override public int getGuiTop() {
+    @Override public int guiTop() {
         return minY;
     }
 
     @Override
-    public int getGuiXSize() {
+    public int guiXSize() {
         return xSize;
     }
 
     @Override
-    public int getGuiYSize() {
+    public int guiYSize() {
         return ySize;
     }
 
     @Override
-    public int getScreenWidth() {
+    public int screenWidth() {
         return width;
     }
 
     @Override
-    public int getScreenHeight() {
+    public int screenHeight() {
         return height;
     }
 }

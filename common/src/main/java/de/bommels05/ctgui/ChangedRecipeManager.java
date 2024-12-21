@@ -31,6 +31,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ChangedRecipeManager {
 
@@ -146,10 +148,10 @@ public class ChangedRecipeManager {
                     try {
                         CompoundTag change = (CompoundTag) tag;
                         ChangedRecipe.Type type = ChangedRecipe.Type.valueOf(change.getString("type"));
-                        SupportedRecipeType<?> recipeType = RecipeTypeManager.getType(new ResourceLocation(change.getString("recipeType")));;
-                        RecipeSerializer<?> serializer = BuiltInRegistries.RECIPE_SERIALIZER.get(new ResourceLocation(change.getString("serializer")));
+                        SupportedRecipeType<?> recipeType = RecipeTypeManager.getType(ResourceLocation.parse(change.getString("recipeType")));;
+                        RecipeSerializer<?> serializer = BuiltInRegistries.RECIPE_SERIALIZER.get(ResourceLocation.parse(change.getString("serializer")));
                         changedRecipes.add(new ChangedRecipe<>(type, type != ChangedRecipe.Type.REMOVED ? change.getString("id") : null,
-                                type != ChangedRecipe.Type.ADDED ? new ResourceLocation(change.getString("originalId")) : null,
+                                type != ChangedRecipe.Type.ADDED ? ResourceLocation.parse(change.getString("originalId")) : null,
                                 fromTag(serializer, change.get("recipe"), recipeType),
                                 type == ChangedRecipe.Type.CHANGED && change.contains("originalRecipe") ? fromTag(serializer, change.get("originalRecipe"), recipeType) : null,
                                 recipeType, change.getBoolean("exported")));
@@ -172,27 +174,28 @@ public class ChangedRecipeManager {
 
     @SuppressWarnings("unchecked")
     private static <T extends Recipe<?>> Tag toTag(RecipeSerializer<?> serializer, Recipe<?> recipe) {
-        Either<Tag, DataResult.PartialResult<Tag>> result = ((RecipeSerializer<T>) serializer).codec().encode((T) recipe, NbtOps.INSTANCE, null).get();
-        if (result.left().isPresent()) {
-            return result.left().get();
+        DataResult<Tag> result = ((RecipeSerializer<T>) serializer).codec().encode((T) recipe, NbtOps.INSTANCE, NbtOps.INSTANCE.mapBuilder()).build((Tag) null);
+        if (result.isSuccess()) {
+            return result.getOrThrow();
         }
-        throw new RuntimeException("Recipe could not be serialized: " + result.right().map(DataResult.PartialResult::message).orElse(recipe.toString()));
+        throw new RuntimeException("Recipe could not be serialized: " + result.error().map(DataResult.Error::message).orElse(recipe.toString()));
     }
 
     @SuppressWarnings("unchecked")
     private static <T extends Recipe<?>> T fromTag(RecipeSerializer<?> serializer, Tag tag, SupportedRecipeType<?> recipeType) {
-        Either<Pair<T, Tag>, DataResult.PartialResult<Pair<T, Tag>>> result = ((RecipeSerializer<T>) serializer).codec().decode(NbtOps.INSTANCE, tag).get();
-        if (result.left().isPresent()) {
+        AtomicReference<String> error = new AtomicReference<>(tag.toString());
+        Optional<T> result = ((RecipeSerializer<T>) serializer).codec().decode(NbtOps.INSTANCE, NbtOps.INSTANCE.getMap(tag).getOrThrow()).resultOrPartial(error::set);
+        if (result.isPresent()) {
             try {
-                T recipe = result.left().get().getFirst();
+                T recipe = result.get();
                 T processedRecipe = ((SupportedRecipeType<T>) recipeType).onInitialize(recipe);
                 return processedRecipe == null ? recipe : processedRecipe;
             } catch (UnsupportedRecipeException e) {
-                //Unsupported recipes shouldn't be able to get save, so we ignore it
+                //Unsupported recipes shouldn't be able to get saved, so we ignore it
                 throw new RuntimeException(e);
             }
         }
-        throw new RuntimeException("Recipe could not be deserialized: " + result.right().map(DataResult.PartialResult::message).orElse(tag.toString()));
+        throw new RuntimeException("Recipe could not be deserialized: " + error.get());
     }
 
     public static void export() {

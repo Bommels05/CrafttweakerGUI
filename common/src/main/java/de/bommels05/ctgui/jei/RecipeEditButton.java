@@ -1,6 +1,6 @@
 package de.bommels05.ctgui.jei;
 
-import de.bommels05.ctgui.CraftTweakerGUI;
+/*import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.screen.RecipeEditScreen;
 import mezz.jei.api.gui.IRecipeLayoutDrawable;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -26,7 +26,7 @@ public class RecipeEditButton<T> extends RecipeTransferButton {
     private final int index;
 
     public RecipeEditButton(IRecipeLayoutDrawable<T> recipeLayout, Textures textures, Runnable onClose, int index) {
-        super(new EditIconDrawable(), recipeLayout, textures, onClose);
+        super(new EditIconDrawable(), recipeLayout, onClose);
         this.index = index;
         this.clickHandler = (mouseX, mouseY) -> {
             onClose.run();
@@ -59,4 +59,4 @@ public class RecipeEditButton<T> extends RecipeTransferButton {
     public int getIndex() {
         return index;
     }
-}
+}*/
