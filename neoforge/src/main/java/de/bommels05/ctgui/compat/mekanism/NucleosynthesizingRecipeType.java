@@ -42,7 +42,9 @@ public class NucleosynthesizingRecipeType extends SupportedRecipeType<BasicNucle
             return new BasicNucleosynthesizingRecipe(r.getItemInput(), MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getChemicalInput()), r.getOutputRaw(), r.getDuration(), r.perTickUsage());
         }, r -> {
             return MekanismRecipeUtils.of(r.getChemicalInput());
-        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.ANTIMATTER.get(), 2)), (stack, up) -> MekanismRecipeUtils.chemicalAmountSetter(stack, up, 1, 10));
+        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.ANTIMATTER.get(), 2)), (stack, up) ->
+                perTickUsage.get() ? MekanismRecipeUtils.limitedChemicalAmountSetter(stack, up) :
+                        MekanismRecipeUtils.chemicalAmountSetter(stack, up, 1, 10));
 
         addOption(duration, (r, duration) -> {
             return new BasicNucleosynthesizingRecipe(r.getItemInput(), r.getChemicalInput(), r.getOutputRaw(), duration, r.perTickUsage());

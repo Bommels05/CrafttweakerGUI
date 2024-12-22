@@ -40,7 +40,8 @@ public class DissolutingRecipeType extends SupportedRecipeType<BasicChemicalDiss
             return new BasicChemicalDissolutionRecipe(r.getItemInput(), r.getChemicalInput(), stack.getChemical() == r.getOutputRaw().getChemical() ? stack : stack.copyWithAmount(r.getOutputRaw().getAmount()), r.perTickUsage());
         }, r -> {
             return new ChemicalAmountedIngredient(r.getOutputRaw());
-        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN.get(), 1000)), MekanismRecipeUtils::chemicalAmountSetter);
+        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN.get(), 1000)), (stack, up) ->
+                perTickUsage.get() ? MekanismRecipeUtils.limitedChemicalAmountSetter(stack, up) : MekanismRecipeUtils.chemicalAmountSetter(stack, up));
         addOption(perTickUsage, (r, value) -> {
             return new BasicChemicalDissolutionRecipe(r.getItemInput(), r.getChemicalInput(), r.getOutputRaw(), value);
         });

@@ -30,7 +30,7 @@ public class ShapedRecipePatternMixin {
                 if (i % pattern.width() == 0) {
                     patternString.add(String.valueOf(key));
                 } else {
-                    patternString.set(i / pattern.height(), patternString.get(i / pattern.height()) + key);
+                    patternString.set(Math.floorDiv(i, pattern.width()), patternString.get(Math.floorDiv(i, pattern.width())) + key);
                 }
                 i++;
             }

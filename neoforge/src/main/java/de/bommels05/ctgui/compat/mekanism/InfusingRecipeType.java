@@ -40,7 +40,8 @@ public class InfusingRecipeType extends SupportedRecipeType<BasicMetallurgicInfu
         }, r -> {
             return MekanismRecipeUtils.of(r.getChemicalInput());
         }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.REDSTONE.get(), 10)), (stack, up) ->
-                MekanismRecipeUtils.chemicalAmountSetter(stack, up, 1, 10, 100));
+                perTickUsage.get() ? MekanismRecipeUtils.limitedChemicalAmountSetter(stack, up) :
+                        MekanismRecipeUtils.chemicalAmountSetter(stack, up, 1, 10, 100));
         addOption(perTickUsage, (r, value) -> {
             return new BasicMetallurgicInfuserRecipe(r.getItemInput(), r.getChemicalInput(), r.getOutputRaw(), value);
         });
