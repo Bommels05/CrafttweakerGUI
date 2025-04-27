@@ -1,9 +1,6 @@
 package de.bommels05.ctgui;
 
-import de.bommels05.ctgui.compat.minecraft.custom.FuelRecipe;
-import de.bommels05.ctgui.compat.minecraft.custom.FuelRecipeSerializer;
-import de.bommels05.ctgui.compat.minecraft.custom.TagRecipe;
-import de.bommels05.ctgui.compat.minecraft.custom.TagRecipeSerializer;
+import de.bommels05.ctgui.compat.minecraft.custom.*;
 import de.bommels05.ctgui.emi.EmiViewerUtils;
 import de.bommels05.ctgui.jei.JeiViewerUtils;
 import de.bommels05.ctgui.screen.ChangeListScreen;
@@ -28,6 +25,8 @@ public class ClientInit implements ClientModInitializer {
     public static RecipeSerializer<TagRecipe> tagRecipeSerializer;
     public static RecipeType<FuelRecipe> fuelRecipeType;
     public static RecipeSerializer<FuelRecipe> fuelRecipeSerializer;
+    public static RecipeType<CompostingRecipe> compostingRecipeType;
+    public static RecipeSerializer<CompostingRecipe> compostingRecipeSerializer;
 
     @Override
     public void onInitializeClient() {
@@ -38,6 +37,8 @@ public class ClientInit implements ClientModInitializer {
         tagRecipeSerializer = Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, "tag"), new TagRecipeSerializer());
         fuelRecipeType = registerRecipeType("fuel");
         fuelRecipeSerializer = Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, "fuel"), new FuelRecipeSerializer());
+        compostingRecipeType = registerRecipeType("composting");
+        compostingRecipeSerializer = Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, "composting"), new CompostingRecipeSerializer());
 
         NeoForgeModConfigEvents.reloading(CraftTweakerGUI.MOD_ID).register(config -> FabricConfig.onLoad());
         NeoForgeModConfigEvents.loading(CraftTweakerGUI.MOD_ID).register(config -> FabricConfig.onLoad());

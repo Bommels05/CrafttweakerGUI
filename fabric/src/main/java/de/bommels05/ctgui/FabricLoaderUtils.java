@@ -1,6 +1,7 @@
 package de.bommels05.ctgui;
 
 import de.bommels05.ctgui.api.SpecialAmountedIngredient;
+import de.bommels05.ctgui.compat.minecraft.custom.CompostingRecipe;
 import de.bommels05.ctgui.compat.minecraft.custom.FuelRecipe;
 import de.bommels05.ctgui.compat.minecraft.custom.TagRecipe;
 import dev.emi.emi.api.EmiInitRegistry;
@@ -49,6 +50,16 @@ public class FabricLoaderUtils implements LoaderUtils {
     @Override
     public RecipeType<FuelRecipe> getFuelRecipeType() {
         return ClientInit.fuelRecipeType;
+    }
+
+    @Override
+    public RecipeSerializer<CompostingRecipe> getCompostingRecipeSerializer() {
+        return ClientInit.compostingRecipeSerializer;
+    }
+
+    @Override
+    public RecipeType<CompostingRecipe> getCompostingRecipeType() {
+        return ClientInit.compostingRecipeType;
     }
 
     @Override

@@ -18,7 +18,8 @@
     "CraftingGridHelperMixin",
     "MekanismEmiRecipeMixin",
     "EmiBrewingRecipeMixin",
-    "EmiFuelRecipeMixin",
+    "EmiFuelRecipeAccessor",
+    "EmiCompostingRecipeAccessor",
     "RecipeGuiLayoutsAccessor"
   ],
   "injectors": {

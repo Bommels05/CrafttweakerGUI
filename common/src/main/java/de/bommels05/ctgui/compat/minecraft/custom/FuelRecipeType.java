@@ -7,7 +7,7 @@ import de.bommels05.ctgui.api.UnsupportedRecipeException;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
 import de.bommels05.ctgui.api.option.IntegerRecipeOption;
 import de.bommels05.ctgui.emi.EmiViewerUtils;
-import de.bommels05.ctgui.mixin.EmiFuelRecipeMixin;
+import de.bommels05.ctgui.mixin.EmiFuelRecipeAccessor;
 import dev.emi.emi.api.recipe.EmiRecipe;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -55,7 +55,7 @@ public class FuelRecipeType extends SupportedRecipeType<FuelRecipe> {
 
     @Override
     public Function<EmiRecipe, FuelRecipe> getAlternativeEmiRecipeGetter() {
-        return recipe -> recipe instanceof EmiFuelRecipeMixin r ? new FuelRecipe(EmiViewerUtils.getElseEmpty(r.getStack()), r.getTime()) : null;
+        return recipe -> recipe instanceof EmiFuelRecipeAccessor r ? new FuelRecipe(EmiViewerUtils.getElseEmpty(r.getStack()), r.getTime()) : null;
     }
 
     @Override

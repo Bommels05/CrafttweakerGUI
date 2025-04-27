@@ -12,6 +12,7 @@ import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.compat.mekanism.ChemicalAmountedIngredient;
 import de.bommels05.ctgui.compat.mekanism.MekanismEmiUtils;
 import de.bommels05.ctgui.compat.mekanism.MekanismRecipeUtils;
+import de.bommels05.ctgui.compat.minecraft.custom.CompostingRecipe;
 import de.bommels05.ctgui.compat.minecraft.custom.FuelRecipe;
 import de.bommels05.ctgui.compat.minecraft.custom.TagRecipe;
 import de.bommels05.ctgui.registry.RecipeSerializers;
@@ -76,6 +77,16 @@ public class NeoLoaderUtils implements LoaderUtils {
     @Override
     public RecipeType<FuelRecipe> getFuelRecipeType() {
         return RecipeTypes.FUEL.get();
+    }
+
+    @Override
+    public RecipeSerializer<CompostingRecipe> getCompostingRecipeSerializer() {
+        return RecipeSerializers.COMPOSTING.get();
+    }
+
+    @Override
+    public RecipeType<CompostingRecipe> getCompostingRecipeType() {
+        return RecipeTypes.COMPOSTING.get();
     }
 
     @Override

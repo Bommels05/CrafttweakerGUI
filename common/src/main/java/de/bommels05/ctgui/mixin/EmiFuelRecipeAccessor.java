@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(EmiFuelRecipe.class)
-public interface EmiFuelRecipeMixin {
+public interface EmiFuelRecipeAccessor {
 
     @Accessor(value = "stack", remap = false)
     public EmiIngredient getStack();

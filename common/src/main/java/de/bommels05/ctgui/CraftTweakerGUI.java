@@ -3,6 +3,7 @@ package de.bommels05.ctgui;
 import com.blamejared.crafttweaker.api.CraftTweakerConstants;
 import de.bommels05.ctgui.api.RecipeTypeManager;
 import de.bommels05.ctgui.compat.minecraft.*;
+import de.bommels05.ctgui.compat.minecraft.custom.CompostingRecipeType;
 import de.bommels05.ctgui.compat.minecraft.custom.FuelRecipeType;
 import de.bommels05.ctgui.compat.minecraft.custom.TagRecipeType;
 import net.minecraft.resources.ResourceLocation;
@@ -44,6 +45,7 @@ public class CraftTweakerGUI {
         RecipeTypeManager.addType(new TagRecipeType());
         if (!isJeiActive()) {
             RecipeTypeManager.addType(new FuelRecipeType());
+            RecipeTypeManager.addType(new CompostingRecipeType());
         }
     }
 

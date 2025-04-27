@@ -18,7 +18,8 @@
     "CraftingGridHelperMixin",
     "PauseScreenMixin",
     "ServerLevelMixin",
-    "EmiFuelRecipeMixin",
+    "EmiFuelRecipeAccessor",
+    "EmiCompostingRecipeAccessor",
     "RecipeGuiLayoutsAccessor"
   ],
   "injectors": {
