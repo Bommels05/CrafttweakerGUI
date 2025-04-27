@@ -4,6 +4,7 @@ import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.compat.minecraft.BrewingRecipe;
 import de.bommels05.ctgui.compat.minecraft.custom.CompostingRecipe;
 import de.bommels05.ctgui.compat.minecraft.custom.FuelRecipe;
+import de.bommels05.ctgui.compat.minecraft.custom.InfoRecipe;
 import de.bommels05.ctgui.compat.minecraft.custom.TagRecipe;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -17,6 +18,7 @@ public class RecipeTypes {
     public static final DeferredHolder<RecipeType<?>, RecipeType<TagRecipe>> TAG = RECIPE_TYPES.register("tag", () -> RecipeType.simple(ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, "tag")));
     public static final DeferredHolder<RecipeType<?>, RecipeType<FuelRecipe>> FUEL = RECIPE_TYPES.register("fuel", () -> RecipeType.simple(ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, "fuel")));
     public static final DeferredHolder<RecipeType<?>, RecipeType<CompostingRecipe>> COMPOSTING = RECIPE_TYPES.register("composting", () -> RecipeType.simple(ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, "composting")));
+    public static final DeferredHolder<RecipeType<?>, RecipeType<InfoRecipe>> INFO = RECIPE_TYPES.register("info", () -> RecipeType.simple(ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, "info")));
     public static final DeferredHolder<RecipeType<?>, RecipeType<BrewingRecipe>> BREWING = RECIPE_TYPES.register("brewing", () -> RecipeType.simple(ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, "brewing")));
 
 }

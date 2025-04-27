@@ -5,6 +5,7 @@ import de.bommels05.ctgui.api.RecipeTypeManager;
 import de.bommels05.ctgui.compat.minecraft.*;
 import de.bommels05.ctgui.compat.minecraft.custom.CompostingRecipeType;
 import de.bommels05.ctgui.compat.minecraft.custom.FuelRecipeType;
+import de.bommels05.ctgui.compat.minecraft.custom.InfoRecipeType;
 import de.bommels05.ctgui.compat.minecraft.custom.TagRecipeType;
 import net.minecraft.resources.ResourceLocation;
 
@@ -46,6 +47,9 @@ public class CraftTweakerGUI {
         if (!isJeiActive()) {
             RecipeTypeManager.addType(new FuelRecipeType());
             RecipeTypeManager.addType(new CompostingRecipeType());
+        }
+        if (loaderUtils.isModLoaded("jeitweaker")) { //Emi also shows the jei info recipes
+            RecipeTypeManager.addType(new InfoRecipeType());
         }
     }
 

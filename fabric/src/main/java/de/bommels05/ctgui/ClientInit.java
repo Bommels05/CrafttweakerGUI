@@ -27,6 +27,8 @@ public class ClientInit implements ClientModInitializer {
     public static RecipeSerializer<FuelRecipe> fuelRecipeSerializer;
     public static RecipeType<CompostingRecipe> compostingRecipeType;
     public static RecipeSerializer<CompostingRecipe> compostingRecipeSerializer;
+    public static RecipeType<InfoRecipe> infoRecipeType;
+    public static RecipeSerializer<InfoRecipe> infoRecipeSerializer;
 
     @Override
     public void onInitializeClient() {
@@ -39,6 +41,8 @@ public class ClientInit implements ClientModInitializer {
         fuelRecipeSerializer = Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, "fuel"), new FuelRecipeSerializer());
         compostingRecipeType = registerRecipeType("composting");
         compostingRecipeSerializer = Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, "composting"), new CompostingRecipeSerializer());
+        infoRecipeType = registerRecipeType("info");
+        infoRecipeSerializer = Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, "info"), new InfoRecipeSerializer());
 
         NeoForgeModConfigEvents.reloading(CraftTweakerGUI.MOD_ID).register(config -> FabricConfig.onLoad());
         NeoForgeModConfigEvents.loading(CraftTweakerGUI.MOD_ID).register(config -> FabricConfig.onLoad());

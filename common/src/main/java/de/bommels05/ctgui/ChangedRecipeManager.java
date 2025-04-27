@@ -208,6 +208,16 @@ public class ChangedRecipeManager {
             writer.append("  Changes will be overridden when exporting again*/\n").append("\n");
             writer.append("import crafttweaker.api.ingredient.type.IIngredientEmpty;\n");
             writer.append("import crafttweaker.api.ingredient.IIngredient;\n\n");
+            List<Class<?>> found = new ArrayList<>();
+            for (ChangedRecipe<?> change : changedRecipes) {
+                if (!found.contains(change.getRecipeType().getClass())) {
+                    if (change.getCraftTweakerImportsString() != null) {
+                        writer.append(change.getCraftTweakerImportsString() + "\n\n");
+                    }
+                    found.add(change.getRecipeType().getClass());
+                }
+            }
+
             for (ChangedRecipe<?> change : changedRecipes) {
                 if (change.type == ChangedRecipe.Type.REMOVED) {
                     writer.append(change.getCraftTweakerRemoveString());
@@ -329,6 +339,10 @@ public class ChangedRecipeManager {
 
         public String getCraftTweakerRemoveString() {
             return recipeType.getCraftTweakerRemoveString(recipe, originalId);
+        }
+
+        public String getCraftTweakerImportsString() {
+            return recipeType.getCraftTweakerImportsString();
         }
 
         public Type getType() {

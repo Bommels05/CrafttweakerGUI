@@ -100,6 +100,14 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
     }
 
     /**
+     * Returns the imports that should be added to the CraftTweaker script if this recipe type is used
+     * @return The imports or other statements to put at the beginning of the script once for this recipe type or null if none are required
+     */
+    public String getCraftTweakerImportsString() {
+        return null;
+    }
+
+    /**
      * Not required, only used for auto generating recipe ids and the icon in the changed recipes list
      * Returns the recipe result item by default
      * @param recipe The recipe
@@ -111,7 +119,7 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
 
     /**
      * Can be used when the emi recipes do not have a backing recipe or the backing recipe is of the wrong type
-     * @return A function that manually gets the recipe from the Emi recipe or returns null to use the backing recipe
+     * @return A function that manually gets the recipe from the Emi recipe or null to use the backing recipe
      */
     public Function<EmiRecipe, R> getAlternativeEmiRecipeGetter() {
         return null;

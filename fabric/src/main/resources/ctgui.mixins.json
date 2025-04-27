@@ -20,7 +20,8 @@
     "ServerLevelMixin",
     "EmiFuelRecipeAccessor",
     "EmiCompostingRecipeAccessor",
-    "RecipeGuiLayoutsAccessor"
+    "RecipeGuiLayoutsAccessor",
+    "EmiInfoRecipeAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

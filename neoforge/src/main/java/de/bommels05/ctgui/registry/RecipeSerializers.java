@@ -15,6 +15,7 @@ public class RecipeSerializers {
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<TagRecipe>> TAG = RECIPE_SERIALIZERS.register("tag", TagRecipeSerializer::new);
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<FuelRecipe>> FUEL = RECIPE_SERIALIZERS.register("fuel", FuelRecipeSerializer::new);
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<CompostingRecipe>> COMPOSTING = RECIPE_SERIALIZERS.register("composting", CompostingRecipeSerializer::new);
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<InfoRecipe>> INFO = RECIPE_SERIALIZERS.register("info", InfoRecipeSerializer::new);
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<BrewingRecipe>> BREWING = RECIPE_SERIALIZERS.register("brewing", BrewingRecipeSerializer::new);
 
 }
