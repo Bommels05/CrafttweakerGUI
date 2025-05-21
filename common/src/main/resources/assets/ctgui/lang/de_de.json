@@ -33,6 +33,7 @@
   "ctgui.editing.unavailable": "Nur beim bearbeiten eines schon vorhandenen Rezeptes verfügbar",
   "ctgui.editing.recipe_id": "Id des Rezepts",
   "ctgui.editing.recipe_id_editing": "Id des Rezepts. Wird beim ändern eines schon vorhandenen Rezeptes nicht benutzt!",
+  "ctgui.editing.no_recipe_id": "Keine Rezept-Id benötigt",
   "ctgui.editing.to_small": "GUI-Größe zu groß",
   "ctgui.editing.to_small_description": "Verringere deine GUI-Größe um ein Rezept zu bearbeiten",
   "ctgui.list.title": "Geänderte Rezepte",

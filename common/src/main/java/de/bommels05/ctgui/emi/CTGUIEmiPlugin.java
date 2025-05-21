@@ -46,7 +46,7 @@ public class CTGUIEmiPlugin implements EmiPlugin {
         });
         registry.addRecipeDecorator((recipe, widgets) -> {
             ChangedRecipeManager.ChangedRecipe<?> change = ChangedRecipeManager.getAffectingChange(recipe.getId());
-            if (change != null && !(change.getRecipe() instanceof TagRecipe && change.wasExported())) {
+            if (change != null && !((change.getRecipe() instanceof TagRecipe || !change.getRecipeType().needsRecipeId()) && change.wasExported())) {
                 widgets.addDrawable(0, 0, recipe.getDisplayWidth(), recipe.getDisplayHeight(), (graphics, mouseX, mouseY, delta) -> {
                     graphics.fill(0, 0, recipe.getDisplayWidth(), recipe.getDisplayHeight(), FastColor.ARGB32.color(157, 148, 60, 60));
                 });

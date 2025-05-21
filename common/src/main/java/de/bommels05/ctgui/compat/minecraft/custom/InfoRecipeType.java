@@ -78,4 +78,9 @@ public class InfoRecipeType extends SupportedRecipeType<InfoRecipe> {
     public boolean supportsEditing() {
         return false; //Not supported by JeiTweaker
     }
+
+    @Override
+    public boolean needsRecipeId() {
+        return false;
+    }
 }

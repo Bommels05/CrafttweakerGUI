@@ -67,4 +67,9 @@ public class FuelRecipeType extends SupportedRecipeType<FuelRecipe> {
     public String getCraftTweakerRemoveString(FuelRecipe recipe, ResourceLocation id) {
         return "(" + getCTString(recipe.getIngredient()) + " as IIngredient).burnTime = 0;";
     }
+
+    @Override
+    public boolean needsRecipeId() {
+        return false;
+    }
 }

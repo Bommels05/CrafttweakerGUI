@@ -47,7 +47,7 @@ public class CompostingRecipeType extends SupportedRecipeType<CompostingRecipe> 
 
     @Override
     public boolean isValid(CompostingRecipe recipe) {
-        return !recipe.getIngredient().isEmpty();
+        return !recipe.getIngredient().isEmpty() && recipe.getChance() > 0;
     }
 
     @Override
@@ -68,5 +68,10 @@ public class CompostingRecipeType extends SupportedRecipeType<CompostingRecipe> 
     @Override
     public String getCraftTweakerRemoveString(CompostingRecipe recipe, ResourceLocation id) {
         return "composter.setValue(" + getCTString(recipe.getIngredient()) + ", 0);";
+    }
+
+    @Override
+    public boolean needsRecipeId() {
+        return false;
     }
 }

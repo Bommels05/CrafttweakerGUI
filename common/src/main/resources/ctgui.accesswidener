@@ -9,3 +9,4 @@ accessible field net/minecraft/world/item/crafting/Ingredient values [Lnet/minec
 accessible class net/minecraft/world/item/crafting/Ingredient$TagValue
 accessible class net/minecraft/world/item/crafting/Ingredient$ItemValue
 accessible class net/minecraft/world/item/crafting/Ingredient$Value
+extendable method net/minecraft/client/gui/components/SpriteIconButton <init> (IILnet/minecraft/network/chat/Component;IILnet/minecraft/resources/ResourceLocation;Lnet/minecraft/client/gui/components/Button$OnPress;Lnet/minecraft/client/gui/components/Button$CreateNarration;)V

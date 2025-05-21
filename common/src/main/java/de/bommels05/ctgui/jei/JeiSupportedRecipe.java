@@ -58,6 +58,11 @@ public class JeiSupportedRecipe<R extends Recipe<?>, T extends SupportedRecipeTy
     public void mouseClicked(int x, int y, int mouseX, int mouseY, int button) {}
 
     @Override
+    public void tick() {
+        getUnknown().tick();
+    }
+
+    @Override
     public T getType() {
         return type;
     }

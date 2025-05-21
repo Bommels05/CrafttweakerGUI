@@ -159,18 +159,26 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
         } else {
             idBox.setTooltip(Tooltip.create(Component.translatable(action.isEdit() ?  "ctgui.editing.recipe_id_editing" : "ctgui.editing.recipe_id")));
             idBox.setMaxLength(256);
-            idBox.setValue(recipeId);
-            idBox.setFilter(input -> {
-                return input.startsWith(CraftTweakerGUI.MOD_ID + "/new/") && ResourceLocation.isValidPath(input.replaceAll(" ", "_"));
-            });
-            idBox.setResponder(input -> {
-                recipeId = input.replaceAll(" ", "_");
-                if (!input.equals(recipeId)) {
-                    idBox.setValue(recipeId);
-                }
-                recipeIdChanged = true;
-                validate(null);
-            });
+            if (recipe.getType().needsRecipeId()) {
+                idBox.setValue(recipeId);
+                idBox.setFilter(input -> {
+                    return input.startsWith(CraftTweakerGUI.MOD_ID + "/new/") && ResourceLocation.isValidPath(input.replaceAll(" ", "_"));
+                });
+                idBox.setResponder(input -> {
+                    recipeId = input.replaceAll(" ", "_");
+                    if (!input.equals(recipeId)) {
+                        idBox.setValue(recipeId);
+                    }
+                    recipeIdChanged = true;
+                    validate(null);
+                });
+            } else {
+                idBox.setEditable(false);
+                idBox.active = false;
+                Component placeholder = Component.translatable("ctgui.editing.no_recipe_id");
+                idBox.setHint(placeholder);
+                recipeId = placeholder.getString();
+            }
         }
         addRenderableWidget(idBox);
 
@@ -312,6 +320,11 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
     }
 
     @Override
+    public void tick() {
+        recipe.tick();
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
         recipe.mouseClicked(getRecipeX(), getRecipeY(), (int) mouseX, (int) mouseY, mouseButton);
@@ -386,7 +399,7 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
 
     private boolean changeRecipe(R newRecipe) {
         if (newRecipe != null) {
-            if (idBox != null && !recipeIdChanged && !recipe.getType().getMainOutput(newRecipe).isEmpty()) {
+            if (recipe.getType().needsRecipeId() && idBox != null && !recipeIdChanged && !recipe.getType().getMainOutput(newRecipe).isEmpty()) {
                 recipeId = getAutoRecipeId(recipeId + BuiltInRegistries.ITEM.getKey(recipe.getType().getMainOutput(newRecipe).getItem()).getPath());
                 idBox.setValue(recipeId);
                 recipeIdChanged = true;
@@ -420,7 +433,7 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
 
     public void validate(R recipe) {
         boolean valid = this.recipe.getType().isValid(recipe != null ? recipe : this.recipe.getRecipe());
-        boolean validId = valid && !ChangedRecipeManager.idAlreadyUsed(recipeId) && !recipeId.endsWith("/");
+        boolean validId = valid && (!this.recipe.getType().needsRecipeId() || (!ChangedRecipeManager.idAlreadyUsed(recipeId) && !recipeId.endsWith("/")));
         saveNew.active = validId;
         save.active = valid && ((action.isEdit() && validId) || action.isEditChange());
     }

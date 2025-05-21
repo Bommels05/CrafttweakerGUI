@@ -5,6 +5,7 @@ import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.api.RecipeTypeManager;
 import de.bommels05.ctgui.jei.JeiSupportedRecipe;
 import de.bommels05.ctgui.jei.JeiViewerUtils;
+import de.bommels05.ctgui.screen.BetterIconButton;
 import de.bommels05.ctgui.screen.RecipeEditScreen;
 import de.bommels05.ctgui.screen.ScreenUtils;
 import mezz.jei.api.gui.IRecipeLayoutDrawable;
@@ -19,7 +20,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.SpriteIconButton;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.Rect2i;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -28,26 +28,19 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Mixin(RecipesGui.class)
 public abstract class RecipesGuiMixin extends Screen {
 
-    /*@Shadow
-    @Final
-    private Textures textures;*/
     @Shadow(remap = false)
     @Final
     private IRecipeGuiLogic logic;
     @Shadow(remap = false)
     @Final
     private GuiIconButton nextPage;
-    /*@Shadow
-    @Final
-    private List<RecipeTransferButton> recipeTransferButtons;
-    @Shadow
-    @Final
-    private IRecipeTransferManager recipeTransferManager;*/
     @Shadow
     public abstract void init();
     @Shadow
@@ -58,10 +51,8 @@ public abstract class RecipesGuiMixin extends Screen {
     private RecipeGuiLayouts layouts;
     @Unique
     private SpriteIconButton newRecipeButton;
-    /*@Unique
-    private int index = 0;
     @Unique
-    private int index2 = 0;*/
+    private List<SpriteIconButton> editButtons;
 
     private RecipesGuiMixin() {
         super(null);
@@ -70,10 +61,11 @@ public abstract class RecipesGuiMixin extends Screen {
     @Inject(method = "<init>", at = @At(value = "RETURN"), remap = false)
     protected void addButton(CallbackInfo ci) {
         if (Config.editMode) {
-            newRecipeButton = SpriteIconButton.builder(Component.empty(), button -> {
+            newRecipeButton = new BetterIconButton(13, 13, ResourceLocation.parse("jei:textures/jei/atlas/gui/icons/recipe_transfer.png"), 7, 7, button -> {
                 Minecraft.getInstance().setScreen(new RecipeEditScreen<>(new JeiSupportedRecipe<>(logic.getSelectedRecipeCategory().getRecipeType().getUid()), null));
-            }, true).size(13, 13).sprite(ResourceLocation.parse("jei:icons/recipe_transfer"), 7, 7).build();
+            });
             newRecipeButton.active = false;
+            editButtons = new ArrayList<>();
         }
     }
 
@@ -86,55 +78,38 @@ public abstract class RecipesGuiMixin extends Screen {
         }
     }
 
-    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lmezz/jei/gui/recipes/RecipeGuiLayouts;draw(Lnet/minecraft/client/gui/GuiGraphics;II)Ljava/util/Optional;"))
+    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lmezz/jei/gui/recipes/RecipeGuiLayouts;draw(Lnet/minecraft/client/gui/GuiGraphics;II)Ljava/util/Optional;", shift = At.Shift.AFTER))
     protected void renderButton(GuiGraphics graphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
         if (newRecipeButton != null) {
             newRecipeButton.render(graphics, mouseX, mouseY, partialTick);
+            editButtons.forEach(b -> b.render(graphics, mouseX, mouseY, partialTick));
         }
     }
 
-    @Inject(method = "updateLayout", at = @At(value = "RETURN"), remap = false)
-    protected void updateButton(CallbackInfo ci) {
+    @Inject(method = "updateLayout", at = @At(value = "RETURN", ordinal = 1), remap = false)
+    protected void addEditButtons(CallbackInfo ci) {
         if (newRecipeButton != null) {
             newRecipeButton.active = RecipeTypeManager.isTypeSupported(logic.getSelectedRecipeCategory().getRecipeType().getUid());
-        }
-    }
 
-    @Inject(method = "updateLayout", at = @At(value = "RETURN"), remap = false)
-    protected void addEditButtons(CallbackInfo ci) {
-        for (RecipeLayoutWithButtons<?> layoutWithButtons : ((RecipeGuiLayoutsAccessor) this.layouts).getRecipeLayoutsWithButtons()) {
-            IRecipeLayoutDrawable<?> recipeLayout = layoutWithButtons.recipeLayout();
-            if (CraftTweakerGUI.shouldShowEditButton(recipeLayout.getRecipeCategory().getRecipeType().getUid(),
-                    ((IRecipeCategory<Object>) recipeLayout.getRecipeCategory()).getRegistryName(recipeLayout.getRecipe()), JeiViewerUtils.rightEither(recipeLayout))) {
-                Rect2i area = recipeLayout.getRecipeTransferButtonArea();
-                SpriteIconButton button = SpriteIconButton.builder(Component.empty(), b -> {
-                    this.onClose();
-                    Minecraft.getInstance().setScreen(new RecipeEditScreen<>(CraftTweakerGUI.getViewerUtils().toSupportedRecipe(JeiViewerUtils.rightEither(recipeLayout)), ((IRecipeCategory<Object>) recipeLayout.getRecipeCategory()).getRegistryName(recipeLayout.getRecipe())));
-                }, true).size(area.getWidth(), area.getHeight()).sprite(ScreenUtils.EDIT_ICON_TEXTURE, 9, 9).build();
-                button.setX(area.getX());
-                button.setY(area.getY() - 15);
-                addRenderableWidget(button);
+            for (SpriteIconButton b : editButtons) {//Foreach breaks the mixin here for some reason...
+                removeWidget(b);
+            }
+            editButtons.clear();
+            for (RecipeLayoutWithButtons<?> layoutWithButtons : ((RecipeGuiLayoutsAccessor) this.layouts).getRecipeLayoutsWithButtons()) {
+                IRecipeLayoutDrawable<?> recipeLayout = layoutWithButtons.recipeLayout();
+                if (CraftTweakerGUI.shouldShowEditButton(recipeLayout.getRecipeCategory().getRecipeType().getUid(),
+                        ((IRecipeCategory<Object>) recipeLayout.getRecipeCategory()).getRegistryName(recipeLayout.getRecipe()), JeiViewerUtils.rightEither(recipeLayout))) {
+                    Rect2i area = recipeLayout.getRecipeTransferButtonArea();
+                    SpriteIconButton button = new BetterIconButton(area.getWidth(), area.getHeight(), ScreenUtils.EDIT_ICON_TEXTURE, 9, 9, b -> {
+                        this.onClose();
+                        Minecraft.getInstance().setScreen(new RecipeEditScreen<>(CraftTweakerGUI.getViewerUtils().toSupportedRecipe(JeiViewerUtils.rightEither(recipeLayout)), ((IRecipeCategory<Object>) recipeLayout.getRecipeCategory()).getRegistryName(recipeLayout.getRecipe())));
+                    });
+                    button.setX(recipeLayout.getRect().getX() + area.getX());
+                    button.setY(recipeLayout.getRect().getY() + area.getY() - 30);
+                    addRenderableWidget(button);
+                    editButtons.add(button);
+                }
             }
         }
-        //index++;
     }
-
-    /*@Inject(method = "addRecipeTransferButtons", at = @At(value = "HEAD"), remap = false)
-    protected void resetIndex(CallbackInfo ci) {
-        index = 0;
-    }
-
-    @ModifyArg(method = "lambda$tick$9", at = @At(value = "INVOKE", target = "Ljava/util/List;get(I)Ljava/lang/Object;"))
-    protected int ignoreEditButtons(int original) {
-        if (index2 == 0) {
-            index2++;
-            if (this.recipeTransferButtons.get(original) instanceof RecipeEditButton<?> button) {
-                return button.getIndex();
-            }
-            return this.recipeTransferButtons.stream().filter(b -> !(b instanceof RecipeEditButton<?>)).toList().indexOf(this.recipeTransferButtons.get(original));
-        }
-        index2 = 0;
-        return original;
-    }*/
-
 }

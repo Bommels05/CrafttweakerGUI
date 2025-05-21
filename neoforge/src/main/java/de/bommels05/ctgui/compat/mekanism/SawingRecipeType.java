@@ -24,13 +24,13 @@ public class SawingRecipeType extends SupportedRecipeType<BasicSawmillRecipe> {
     public SawingRecipeType() {
         super(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "sawing"));
 
-        addAreaScrollAmountEmptyRightClick(27, 0, 17, 17, (r, am) -> {
+        addAreaScrollAmountEmptyRightClick(27, 0, 16, 17, (r, am) -> {
             return new BasicSawmillRecipe(MekanismRecipeUtils.of(convertToUnset(am)), r.getMainOutputRaw().orElse(ItemStack.EMPTY),
                     r.getSecondaryOutputRaw().orElse(ItemStack.EMPTY), verifyChance(chance.get(), r));
         }, r -> {
             return convertUnset(MekanismRecipeUtils.of(r.getInput()));
         });
-        addAreaScrollAmountEmptyRightClick(87, 18, 17, 17, (r, am) -> {
+        addAreaScrollAmountEmptyRightClick(87, 18, 16, 17, (r, am) -> {
             ItemStack output = (r.getSecondaryOutputRaw().isEmpty() || convertUnset(r.getSecondaryOutputRaw().get()).isEmpty()) && am.isEmpty() ? UNSET : am.asStack();
             ItemStack secondaryOutput = convertUnset(r.getSecondaryOutputRaw().orElse(ItemStack.EMPTY));
             return new BasicSawmillRecipe(r.getInput(), output,
@@ -73,7 +73,8 @@ public class SawingRecipeType extends SupportedRecipeType<BasicSawmillRecipe> {
 
     @Override
     public String getCraftTweakerString(BasicSawmillRecipe recipe, String id) {
-        return "<recipetype:mekanism:sawing>.addRecipe(\"" + id + "\", " + getCTString(MekanismRecipeUtils.of(recipe.getInput())) + ", " + getCTString(recipe.getMainOutputRaw().orElse(ItemStack.EMPTY)) + ", " + getCTString(recipe.getSecondaryOutputRaw().orElse(ItemStack.EMPTY)) + ", " + recipe.getSecondaryChance() + ");";
+        return "<recipetype:mekanism:sawing>.addRecipe(\"" + id + "\", " + getCTString(MekanismRecipeUtils.of(recipe.getInput())) + ", " + getCTString(recipe.getMainOutputRaw().orElse(ItemStack.EMPTY)) +
+                (recipe.getSecondaryOutputRaw().isEmpty() ? "" : ", " + getCTString(recipe.getSecondaryOutputRaw().orElseThrow()) + ", " + recipe.getSecondaryChance()) + ");";
     }
 
     @Override

@@ -44,9 +44,13 @@ public class JeiViewerSlot implements ViewerSlot {
     @SuppressWarnings("unchecked")
     public <S, T> JeiViewerSlot(SpecialAmountedIngredient<S, T> ingredient, int x, int y) {
         List<S> stacks = ingredient.getStacks();
-        this.slot = (RecipeSlot) ((RecipeSlotBuilder) new RecipeSlotBuilder(RUNTIME.getIngredientManager(), 0, RecipeIngredientRole.RENDER_ONLY).setPosition(x, y).addIngredients(
-                (IIngredientType<S>) (stack.isEmpty() ? VanillaTypes.ITEM_STACK : RUNTIME.getIngredientManager().getIngredientTypeChecked(stacks.get(0)).orElseThrow()),
-                stacks)).build(Set.of(), CycleTicker.createWithRandomOffset()).second();
+        if (stacks.isEmpty()) {
+            this.slot = (RecipeSlot) ((RecipeSlotBuilder) new RecipeSlotBuilder(RUNTIME.getIngredientManager(), 0, RecipeIngredientRole.RENDER_ONLY).setPosition(x, y)).build(Set.of(), CycleTicker.createWithRandomOffset()).second();
+        } else {
+            this.slot = (RecipeSlot) ((RecipeSlotBuilder) new RecipeSlotBuilder(RUNTIME.getIngredientManager(), 0, RecipeIngredientRole.RENDER_ONLY).setPosition(x, y).addIngredients(
+                    RUNTIME.getIngredientManager().getIngredientTypeChecked(stacks.get(0)).orElseThrow(),
+                    stacks)).build(Set.of(), CycleTicker.createWithRandomOffset()).second();
+        }
     }
 
     @SuppressWarnings("unchecked")

@@ -20,6 +20,8 @@ public interface SupportedRecipe<R extends Recipe<?>, T extends SupportedRecipeT
 
     public void mouseClicked(int x, int y, int mouseX, int mouseY, int button);
 
+    public default void tick() {}
+
     public T getType();
 
     public R getRecipe();

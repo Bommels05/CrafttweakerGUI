@@ -84,7 +84,7 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
     /**
      * Returns the CrafTweaker command to add an recipe of this type with the given id
      * @param recipe The recipe to add
-     * @param id The id of the recipe to add
+     * @param id The id of the recipe to add. If this is not used {@link #needsRecipeId()} should return false
      * @return The CraftTweaker command to add the recipe
      */
     public abstract String getCraftTweakerString(R recipe, String id);
@@ -130,6 +130,14 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
      * @return If this recipe type supports editing recipes
      */
     public boolean supportsEditing() {
+        return true;
+    }
+
+    /**
+     * Returns if this recipe type requires the user to specify a recipe id (Should generally only be false for special recipes that don't use the vanilla recipe system)
+     * @return If this recipe type needs recipe ids
+     */
+    public boolean needsRecipeId() {
         return true;
     }
 

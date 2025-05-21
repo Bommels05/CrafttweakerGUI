@@ -28,9 +28,9 @@ public class JeiDragAndDropHandler implements IGhostIngredientHandler<RecipeEdit
                 @Override
                 public void accept(I ingredient) {
                     if (ingredient instanceof ItemStack stack) {
-                        screen.handleDragAndDrop(screen.getRecipeX() + area.x(), screen.getRecipeY() + area.y(), AmountedIngredient.of(stack));
+                        screen.handleDragAndDrop(screen.getRecipeX() + area.x() + 1, screen.getRecipeY() + area.y() + 1, AmountedIngredient.of(stack));
                     } else {
-                        screen.handleDragAndDropSpecial(screen.getRecipeX() + area.x(), screen.getRecipeY() + area.y(), ingredient);
+                        screen.handleDragAndDropSpecial(screen.getRecipeX() + area.x() + 1, screen.getRecipeY() + area.y() + 1, ingredient);
                     }
                 }
             });

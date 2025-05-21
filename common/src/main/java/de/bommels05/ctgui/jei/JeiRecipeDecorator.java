@@ -27,7 +27,7 @@ public class JeiRecipeDecorator<T> implements IRecipeCategoryDecorator<T> {
         int mY = (int) mouseY;
         ResourceLocation id = category.getRegistryName(recipe);
         ChangedRecipeManager.ChangedRecipe<?> change = ChangedRecipeManager.getAffectingChange(id);
-        if (change != null /*&& !(change.getRecipe() instanceof TagRecipe && change.wasExported())*/) {
+        if (change != null && !(!change.getRecipeType().needsRecipeId() && change.wasExported())) {
             graphics.fill(0, 0, category.getWidth(), category.getHeight(), FastColor.ARGB32.color(157, 148, 60, 60));
             if (new Rect2i(0, 0, category.getWidth(), category.getHeight()).contains(mX, mY)) {
                 graphics.renderTooltip(Minecraft.getInstance().font, List.of(Component.translatable(change.getType() == ChangedRecipeManager.ChangedRecipe.Type.CHANGED ? "ctgui.recipe_changed" : "ctgui.recipe_removed")), Optional.empty(), mX, mY);

@@ -80,4 +80,9 @@ public class BrewingRecipeType extends SupportedRecipeType<BrewingRecipe> {
     public Function<EmiRecipe, BrewingRecipe> getAlternativeEmiRecipeGetter() {
         return recipe -> recipe instanceof EmiBrewingRecipeMixin r ? new BrewingRecipe(EmiViewerUtils.getElseEmpty(r.getInput()), EmiViewerUtils.getElseEmpty(r.getIngredient()), r.getOutput().getItemStack()) : null;
     }
+
+    @Override
+    public boolean needsRecipeId() {
+        return false;
+    }
 }
