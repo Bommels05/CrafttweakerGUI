@@ -73,7 +73,7 @@ public class TagRecipe implements Recipe<RecipeInput> {
         }
 
         //Tag editing is cursed in general...
-        Map<ResourceLocation, List<TagLoader.EntryWithSource>> tags = new TagLoader<>(null, Registries.tagsDirPath(tag.registry().registryKey()))
+        Map<ResourceLocation, List<TagLoader.EntryWithSource>> tags = new TagLoader<>(null, Registries.tagsDirPath(tag.registry()))
                 .load(CraftTweakerGUI.getLoaderUtils().getServer().getResourceManager());
         List<TagLoader.EntryWithSource> entries = tags.get(tag.location());
         if (entries != null) {

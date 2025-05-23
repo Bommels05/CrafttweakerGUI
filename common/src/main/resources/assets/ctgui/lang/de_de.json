@@ -36,6 +36,7 @@
   "ctgui.editing.no_recipe_id": "Keine Rezept-Id benötigt",
   "ctgui.editing.to_small": "GUI-Größe zu groß",
   "ctgui.editing.to_small_description": "Verringere deine GUI-Größe um ein Rezept zu bearbeiten",
+  "ctgui.editing.no_server": "CraftTweaker GUI funktioniert im Moment nicht im Mehrspieler Modus. Das testen deiner Rezepte im Einzelspieler sorgt auch dafür, dass du keine Skripte auf den Server hochladen musst und vereinfacht so das Testen deiner Rezepte.",
   "ctgui.list.title": "Geänderte Rezepte",
   "ctgui.list.export": "Zu CraftTweaker exportieren",
   "ctgui.list.export_server": " Du musst das exportierte Skript manuell zum Server hochladen!",
@@ -48,6 +49,7 @@
   "ctgui.list.filter_new": "Neue Änderungen",
   "ctgui.list.unavailable": "Nicht Verfügbar",
   "ctgui.list.only_ingame": "Betrete eine Welt um dieses Menü zu öffnen",
+  "ctgui.list.rejoin_warning": "Du musst vielleicht die Welt neu betreten (oder /reload benutzen), damit alle Änderungen wirksam werden",
   "ctgui.list.edit": "Bearbeiten",
   "ctgui.help.title": "Hilfe",
   "ctgui.help.choose": "Wie man CraftTweaker GUI benutzt steht in der Beschreibung auf Curseforge und Modrinth.",
@@ -66,5 +68,6 @@
   "ctgui.loading_error_title": "Fehler beim laden der Rezept Änderungen",
   "ctgui.export_error_title": "Fehler beim exportieren der Rezept Änderungen",
   "ctgui.error_message": "Schau im log für mehr Details nach",
-  "ctgui.unsupported": "Nicht Unterstütztes"
+  "ctgui.unsupported": "Nicht Unterstütztes",
+  "ctgui.warning": "Warnung"
 }

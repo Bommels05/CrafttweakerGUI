@@ -37,7 +37,6 @@ public class RecipeIdFieldRecipeOption<R extends Recipe<?>> implements RecipeOpt
 
     public void supplyEditBox(EditBox box, Consumer<String> recipeIdSetter) {
         this.box = box;
-        box.setValue(value);
         box.setMaxLength(256);
         box.setTooltip(Tooltip.create(tooltip));
         box.setFilter(filter);
@@ -45,6 +44,7 @@ public class RecipeIdFieldRecipeOption<R extends Recipe<?>> implements RecipeOpt
             screen.handleRecipeOption(value, listener);
             recipeIdSetter.accept(value);
         });
+        box.setValue(value);
     }
 
     @Override

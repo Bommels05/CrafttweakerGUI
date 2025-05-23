@@ -96,7 +96,7 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
      * @return The CraftTweaker command to remove the recipe
      */
     public String getCraftTweakerRemoveString(R recipe, ResourceLocation id) {
-        return "<recipetype:" + this.id + ">.removeByName(\"" + id + "\");\n";
+        return "<recipetype:" + this.id + ">.removeByName(\"" + id + "\");";
     }
 
     /**

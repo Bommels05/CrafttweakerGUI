@@ -220,11 +220,11 @@ public class ChangedRecipeManager {
 
             for (ChangedRecipe<?> change : changedRecipes) {
                 if (change.type == ChangedRecipe.Type.REMOVED) {
-                    writer.append(change.getCraftTweakerRemoveString());
+                    writer.append(change.getCraftTweakerRemoveString() + "\n");
                     writer.append("\n");
                 } else if (change.type == ChangedRecipe.Type.CHANGED) {
                     //Todo: add a warning and maybe remove this backwards compat at some point
-                    writer.append((change.originalRecipe != null ? change.getOriginalRemoveChange() : change).getCraftTweakerRemoveString());
+                    writer.append((change.originalRecipe != null ? change.getOriginalRemoveChange() : change).getCraftTweakerRemoveString() + "\n");
                     writer.append(change.getCraftTweakerString() + "\n");
                     writer.append("\n");
                 } else {

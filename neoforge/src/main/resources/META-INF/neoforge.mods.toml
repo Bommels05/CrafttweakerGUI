@@ -6,13 +6,15 @@ license="MIT"
 modId="${mod_id}"
 version="${mod_version}"
 displayName="CraftTweaker GUI"
-logoFile="logo.png"
+logoFile="assets/ctgui/logo.png"
 authors="Bommels05"
 displayTest="IGNORE_ALL_VERSION"
 description='''Recipe editing GUI for CraftTweaker'''
 
 [[mixins]]
 config="ctgui.mixins.json"
+[[mixins]]
+config="ctgui.neoforge.mixins.json"
 
 [[dependencies."${mod_id}"]]
     modId="neoforge"

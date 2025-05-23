@@ -12,7 +12,7 @@
     "issues": "https://github.com/Bommels05/CrafttweakerGUI/issues"
   },
   "license": "MIT",
-  "icon": "logo.png",
+  "icon": "assets/ctgui/logo.png",
   "environment": "client",
   "entrypoints": {
     "client": [
@@ -20,6 +20,9 @@
     ],
     "emi": [
       "de.bommels05.ctgui.emi.CTGUIEmiPlugin"
+    ],
+    "jei_mod_plugin": [
+      "de.bommels05.ctgui.jei.CTGUIJeiPlugin"
     ],
     "modmenu": [
       "de.bommels05.ctgui.compat.ModMenuCompat"
@@ -29,15 +32,22 @@
     {
       "config": "ctgui.mixins.json",
       "environment": "client"
+    },
+    {
+      "config": "ctgui.fabric.mixins.json",
+      "environment": "client"
     }
   ],
+  "accessWidener" : "ctgui.accesswidener",
   "depends": {
     "fabricloader": ">=${min_fabric_loader_version}",
     "fabric": ">=${min_fabric_api_version}",
     "minecraft": "=${minecraft_version}",
-    "emi": ">=${min_emi_fabric_version}",
-    "jei": ">=${min_jei_version}",
     "crafttweaker": ">=${min_crafttweaker_version}",
     "forgeconfigapiport": ">=${min_fabric_config_version}"
+  },
+  "suggests": {
+    "emi": ">=${min_emi_fabric_version}",
+    "jei": ">=${min_jei_version}"
   }
 }

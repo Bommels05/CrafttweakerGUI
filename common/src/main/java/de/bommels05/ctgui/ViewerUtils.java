@@ -3,6 +3,7 @@ package de.bommels05.ctgui;
 import de.bommels05.ctgui.api.SpecialAmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Holder;
@@ -70,6 +71,14 @@ public interface ViewerUtils<R> {
     @SuppressWarnings("unchecked")
     public static <S, T, RT extends Registry<?>, RT2 extends Registry<T>> List<S> of(TagKey<T> tag) {
         return (List<S>) Streams.of(((RT2) ((Registry<RT>) BuiltInRegistries.REGISTRY).get((ResourceKey<RT>) tag.registry())).getTagOrEmpty(tag)).map(Holder::value).map(ViewerUtils::stackFromType).toList();
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T getRealRecipe(T recipe, ResourceLocation id) {
+        if (Minecraft.getInstance().hasSingleplayerServer()) {
+            return Minecraft.getInstance().getSingleplayerServer().getRecipeManager().byKey(id).map(h -> (T) h.value()).orElse(recipe);
+        }
+        return recipe;
     }
 
     public static <T> Object stackFromType(T type) {

@@ -2,6 +2,7 @@ package de.bommels05.ctgui.jei;
 
 import com.mojang.datafixers.util.Either;
 import de.bommels05.ctgui.SupportedRecipe;
+import de.bommels05.ctgui.ViewerUtils;
 import de.bommels05.ctgui.api.RecipeTypeManager;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
@@ -23,7 +24,7 @@ public class JeiSupportedRecipe<R extends Recipe<?>, T extends SupportedRecipeTy
     public JeiSupportedRecipe(Either<IRecipeLayoutDrawable<RecipeHolder<R>>, IRecipeLayoutDrawable<R>> recipe) {
         this.recipe = recipe;
         this.type = (T) RecipeTypeManager.getType(getUnknown().getRecipeCategory().getRecipeType().getUid());
-        this.mcRecipe = this.recipe.map(r -> r.getRecipe().value(), IRecipeLayoutDrawable::getRecipe);
+        this.mcRecipe = this.recipe.map(r -> ViewerUtils.getRealRecipe(r.getRecipe().value(), r.getRecipe().id()), IRecipeLayoutDrawable::getRecipe);
     }
 
 

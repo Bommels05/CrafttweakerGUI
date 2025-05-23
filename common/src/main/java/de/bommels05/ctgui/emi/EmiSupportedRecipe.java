@@ -1,10 +1,8 @@
 package de.bommels05.ctgui.emi;
 
 import com.mojang.logging.LogUtils;
-import de.bommels05.ctgui.CraftTweakerGUI;
+import de.bommels05.ctgui.ViewerUtils;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
-import de.bommels05.ctgui.compat.minecraft.custom.TagRecipe;
-import de.bommels05.ctgui.screen.RecipeEditScreen;
 import de.bommels05.ctgui.SupportedRecipe;
 import de.bommels05.ctgui.api.RecipeTypeManager;
 import de.bommels05.ctgui.api.SupportedRecipeType;
@@ -12,8 +10,6 @@ import dev.emi.emi.EmiRenderHelper;
 import dev.emi.emi.api.recipe.EmiRecipe;
 import dev.emi.emi.api.widget.SlotWidget;
 import dev.emi.emi.api.widget.Widget;
-import dev.emi.emi.recipe.EmiShapedRecipe;
-import dev.emi.emi.recipe.EmiTagRecipe;
 import dev.emi.emi.runtime.EmiDrawContext;
 import dev.emi.emi.screen.WidgetGroup;
 import net.minecraft.client.Minecraft;
@@ -23,7 +19,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.ShapedRecipe;
 import org.slf4j.Logger;
 
 public class EmiSupportedRecipe<R extends Recipe<?>, T extends SupportedRecipeType<R>> implements SupportedRecipe<R, T> {
@@ -39,7 +34,7 @@ public class EmiSupportedRecipe<R extends Recipe<?>, T extends SupportedRecipeTy
         this.recipe = recipe;
         RecipeHolder<R> holder = ((RecipeHolder<R>) recipe.getBackingRecipe());
         type = (T) RecipeTypeManager.getType(recipe.getCategory().getId());
-        mcRecipe = type.getAlternativeEmiRecipeGetter() != null ? type.getAlternativeEmiRecipeGetter().apply(recipe) : (holder != null ? holder.value() : null);
+        mcRecipe = type.getAlternativeEmiRecipeGetter() != null ? type.getAlternativeEmiRecipeGetter().apply(recipe) : (holder != null ? ViewerUtils.getRealRecipe(holder.value(), holder.id()) : null);
     }
 
     @SuppressWarnings("unchecked")

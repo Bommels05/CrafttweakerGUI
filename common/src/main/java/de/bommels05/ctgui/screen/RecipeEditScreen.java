@@ -9,6 +9,7 @@ import de.bommels05.ctgui.api.*;
 import de.bommels05.ctgui.api.option.RecipeIdFieldRecipeOption;
 import de.bommels05.ctgui.api.option.RecipeOption;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.*;
@@ -93,6 +94,10 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
     protected void init() {
         if (exception != null) {
             exception.display();
+            return;
+        }
+        if (!Minecraft.getInstance().hasSingleplayerServer()) {
+            Minecraft.getInstance().setScreen(new DisconnectedScreen(null, Component.translatable("ctgui.list.unavailable"), Component.translatable("ctgui.editing.no_server"), CommonComponents.GUI_OK));
             return;
         }
 

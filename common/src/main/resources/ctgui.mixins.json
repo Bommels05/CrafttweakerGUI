@@ -16,8 +16,6 @@
     "EmiApiMixin",
     "RecipesGuiMixin",
     "CraftingGridHelperMixin",
-    "PauseScreenMixin",
-    "ServerLevelMixin",
     "EmiFuelRecipeAccessor",
     "EmiCompostingRecipeAccessor",
     "RecipeGuiLayoutsAccessor",

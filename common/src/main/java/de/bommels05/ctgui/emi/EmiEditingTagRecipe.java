@@ -9,6 +9,7 @@ import dev.emi.emi.api.stack.EmiStack;
 import dev.emi.emi.api.stack.TagEmiIngredient;
 import dev.emi.emi.api.widget.WidgetHolder;
 import dev.emi.emi.recipe.EmiTagRecipe;
+import dev.emi.emi.registry.EmiTags;
 import dev.emi.emi.screen.WidgetGroup;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -30,7 +31,8 @@ public class EmiEditingTagRecipe extends EmiTagRecipe {
         super(key);
         this.type = type;
         for (TagKey<?> tag : tags) {
-            ingredients.add(new TagEmiIngredient(tag, 1));
+            List<EmiStack> values = EmiTags.getRawValues(tag);
+            ingredients.add(new TagEmiIngredient(tag, values.size() >= 1 ? values : List.of(EmiStack.of(Items.BARRIER)), 1));
         }
     }
 

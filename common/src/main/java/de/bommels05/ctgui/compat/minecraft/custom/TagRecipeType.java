@@ -7,23 +7,21 @@ import de.bommels05.ctgui.api.UnsupportedViewerException;
 import de.bommels05.ctgui.api.option.BooleanRecipeOption;
 import de.bommels05.ctgui.api.option.RecipeIdFieldRecipeOption;
 import de.bommels05.ctgui.emi.EmiEditingTagRecipe;
-import dev.emi.emi.api.recipe.EmiIngredientRecipe;
 import dev.emi.emi.api.recipe.EmiRecipe;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.recipe.EmiTagRecipe;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.level.material.Fluid;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.function.Function;
 
 public class TagRecipeType extends SupportedRecipeType<TagRecipe> {
@@ -156,17 +154,18 @@ public class TagRecipeType extends SupportedRecipeType<TagRecipe> {
 
     @Override
     public String getCraftTweakerRemoveString(TagRecipe recipe, ResourceLocation id) {
-        return "<tag:items:" + recipe.id + ">.clear();";
+        return "<tag:item:" + recipe.id + ">.clear();";
     }
 
     @Override
     public String getCraftTweakerString(TagRecipe recipe, String id) {
-        StringBuilder builder = new StringBuilder();
+        StringJoiner builder = new StringJoiner("\n");
         for (TagKey<Item> tag : recipe.itemTags) {
-            builder.append("<tag:items:" + recipe.id + ">.add(<tag:items:" + tag.location() + ">);");
+            String tagName = "<tag:item:" + tag.location() + ">";
+            builder.add("if (" + tagName + ".exists) { <tag:item:" + recipe.id + ">.add(" + tagName + "); }");
         }
         for (ItemStack item : recipe.items) {
-            builder.append("<tag:items:" + recipe.id + ">.add(" + getCTString(item) + ");");
+            builder.add("<tag:item:" + recipe.id + ">.add(" + getCTString(item) + ");");
         }
         return builder.toString();
     }
