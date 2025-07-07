@@ -4,7 +4,6 @@ import de.bommels05.ctgui.Config;
 import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.api.RecipeTypeManager;
 import de.bommels05.ctgui.jei.JeiSupportedRecipe;
-import de.bommels05.ctgui.jei.JeiViewerUtils;
 import de.bommels05.ctgui.screen.BetterIconButton;
 import de.bommels05.ctgui.screen.RecipeEditScreen;
 import de.bommels05.ctgui.screen.ScreenUtils;
@@ -17,7 +16,6 @@ import mezz.jei.gui.recipes.RecipeLayoutWithButtons;
 import mezz.jei.gui.recipes.RecipesGui;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.SpriteIconButton;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.resources.ResourceLocation;
@@ -41,18 +39,14 @@ public abstract class RecipesGuiMixin extends Screen {
     @Shadow(remap = false)
     @Final
     private GuiIconButton nextPage;
-    @Shadow
-    public abstract void init();
-    @Shadow
-    public abstract void onClose();
 
     @Shadow(remap = false)
     @Final
     private RecipeGuiLayouts layouts;
     @Unique
-    private SpriteIconButton newRecipeButton;
+    private BetterIconButton newRecipeButton;
     @Unique
-    private List<SpriteIconButton> editButtons;
+    private List<BetterIconButton> editButtons;
 
     private RecipesGuiMixin() {
         super(null);
@@ -61,7 +55,7 @@ public abstract class RecipesGuiMixin extends Screen {
     @Inject(method = "<init>", at = @At(value = "RETURN"), remap = false)
     protected void addButton(CallbackInfo ci) {
         if (Config.editMode) {
-            newRecipeButton = new BetterIconButton(13, 13, ResourceLocation.parse("jei:textures/jei/atlas/gui/icons/recipe_transfer.png"), 7, 7, button -> {
+            newRecipeButton = new BetterIconButton(13, 13, new ResourceLocation("jei:textures/jei/atlas/gui/icons/recipe_transfer.png"), 7, 7, button -> {
                 Minecraft.getInstance().setScreen(new RecipeEditScreen<>(new JeiSupportedRecipe<>(logic.getSelectedRecipeCategory().getRecipeType().getUid()), null));
             });
             newRecipeButton.active = false;
@@ -91,18 +85,18 @@ public abstract class RecipesGuiMixin extends Screen {
         if (newRecipeButton != null) {
             newRecipeButton.active = RecipeTypeManager.isTypeSupported(logic.getSelectedRecipeCategory().getRecipeType().getUid());
 
-            for (SpriteIconButton b : editButtons) {//Foreach breaks the mixin here for some reason...
+            for (BetterIconButton b : editButtons) {//Foreach breaks the mixin here for some reason...
                 removeWidget(b);
             }
             editButtons.clear();
             for (RecipeLayoutWithButtons<?> layoutWithButtons : ((RecipeGuiLayoutsAccessor) this.layouts).getRecipeLayoutsWithButtons()) {
                 IRecipeLayoutDrawable<?> recipeLayout = layoutWithButtons.recipeLayout();
                 if (CraftTweakerGUI.shouldShowEditButton(recipeLayout.getRecipeCategory().getRecipeType().getUid(),
-                        ((IRecipeCategory<Object>) recipeLayout.getRecipeCategory()).getRegistryName(recipeLayout.getRecipe()), JeiViewerUtils.rightEither(recipeLayout))) {
+                        ((IRecipeCategory<Object>) recipeLayout.getRecipeCategory()).getRegistryName(recipeLayout.getRecipe()), recipeLayout)) {
                     Rect2i area = recipeLayout.getRecipeTransferButtonArea();
-                    SpriteIconButton button = new BetterIconButton(area.getWidth(), area.getHeight(), ScreenUtils.EDIT_ICON_TEXTURE, 9, 9, b -> {
+                    BetterIconButton button = new BetterIconButton(area.getWidth(), area.getHeight(), ScreenUtils.EDIT_ICON_TEXTURE, 9, 9, b -> {
                         this.onClose();
-                        Minecraft.getInstance().setScreen(new RecipeEditScreen<>(CraftTweakerGUI.getViewerUtils().toSupportedRecipe(JeiViewerUtils.rightEither(recipeLayout)), ((IRecipeCategory<Object>) recipeLayout.getRecipeCategory()).getRegistryName(recipeLayout.getRecipe())));
+                        Minecraft.getInstance().setScreen(new RecipeEditScreen<>(CraftTweakerGUI.getViewerUtils().toSupportedRecipe(recipeLayout), ((IRecipeCategory<Object>) recipeLayout.getRecipeCategory()).getRegistryName(recipeLayout.getRecipe())));
                     });
                     button.setX(recipeLayout.getRect().getX() + area.getX());
                     button.setY(recipeLayout.getRect().getY() + area.getY() - 30);

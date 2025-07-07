@@ -72,12 +72,12 @@ public class ChangeListScreen extends Screen {
         }
     }
 
-    private SpriteIconButton getEditModeButton() {
-        String path = "icon/edit_mode_" + Config.editMode;
-        SpriteIconButton button = SpriteIconButton.builder(Component.empty(), b -> {
+    private BetterIconButton getEditModeButton() {
+        String path = "textures/gui/icon/edit_mode_" + Config.editMode + ".png";
+        BetterIconButton button = new BetterIconButton(20, 20, new ResourceLocation(CraftTweakerGUI.MOD_ID, path), 16, 16, b -> {
             Config.setEditMode(!Config.editMode);
             minecraft.setScreen(new DisconnectedScreen(new ChangeListScreen(), Component.translatable("ctgui.warning"), Component.translatable("ctgui.list.rejoin_warning"), CommonComponents.GUI_BACK));
-        }, true).size(20, 20).sprite(ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, path), 16, 16).build();
+        });
         button.setX(5);
         button.setY(this.height - 25);
         button.setTooltip(Tooltip.create(Component.translatable("ctgui.list.edit_mode_" + Config.editMode)));
@@ -110,8 +110,13 @@ public class ChangeListScreen extends Screen {
     }
 
     @Override
-    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBlurredBackground(partialTick);
-        this.renderMenuBackground(graphics);
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        this.renderDirtBackground(graphics);
+        super.render(graphics, mouseX, mouseY, partialTick);
+    }
+
+    @Override
+    public boolean mouseClicked(double d, double e, int i) {
+        return super.mouseClicked(d, e, i);
     }
 }

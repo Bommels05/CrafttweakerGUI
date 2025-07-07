@@ -1,27 +1,31 @@
 package de.bommels05.ctgui.compat.minecraft.custom;
 
 import de.bommels05.ctgui.CraftTweakerGUI;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 
-public class InfoRecipe implements Recipe<RecipeInput> {
+public class InfoRecipe implements Recipe<Container> {
+    private final ResourceLocation id;
     private final Ingredient ingredient;
     private final String text;
 
-    public InfoRecipe(Ingredient ingredient, String text) {
+    public InfoRecipe(ResourceLocation id, Ingredient ingredient, String text) {
+        this.id = id;
         this.ingredient = ingredient;
         this.text = text;
     }
 
     @Override
-    public boolean matches(RecipeInput recipeInput, Level level) {
+    public boolean matches(Container Container, Level level) {
         return false;
     }
 
     @Override
-    public ItemStack assemble(RecipeInput recipeInput, HolderLookup.Provider provider) {
+    public ItemStack assemble(Container Container, RegistryAccess access) {
         return null;
     }
 
@@ -31,7 +35,7 @@ public class InfoRecipe implements Recipe<RecipeInput> {
     }
 
     @Override
-    public ItemStack getResultItem(HolderLookup.Provider provider) {
+    public ItemStack getResultItem(RegistryAccess access) {
         return ingredient.isEmpty() ? ItemStack.EMPTY : ingredient.getItems()[0];
     }
 
@@ -43,6 +47,11 @@ public class InfoRecipe implements Recipe<RecipeInput> {
     @Override
     public RecipeType<?> getType() {
         return CraftTweakerGUI.getLoaderUtils().getInfoRecipeType();
+    }
+
+    @Override
+    public ResourceLocation getId() {
+        return id;
     }
 
     public Ingredient getIngredient() {

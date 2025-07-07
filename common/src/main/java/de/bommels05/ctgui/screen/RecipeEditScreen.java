@@ -16,7 +16,6 @@ import net.minecraft.client.gui.components.*;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.*;
-import net.minecraft.client.gui.screens.options.OptionsScreen;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.CommonComponents;
@@ -37,7 +36,7 @@ import java.util.function.BiFunction;
 
 public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
 
-    private final static ResourceLocation HOT_BAR = ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, "textures/gui/hotbar.png");
+    private final static ResourceLocation HOT_BAR = new ResourceLocation(CraftTweakerGUI.MOD_ID, "textures/gui/hotbar.png");
     private SupportedRecipe<R, ? extends SupportedRecipeType<R>> recipe;
     private AmountedIngredient dragged = null;
     private SpecialAmountedIngredient<?, ?> draggedSpecial = null;
@@ -159,8 +158,8 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
         if (idOption.isPresent()) {
             RecipeIdFieldRecipeOption<R> option = (RecipeIdFieldRecipeOption<R>) idOption.get();
             option.addToScreen(this, 0, 0);
-            option.supplyEditBox(idBox, (id) -> recipeId = id);
             recipeIdChanged = true;
+            option.supplyEditBox(idBox, (id) -> recipeId = id);
         } else {
             idBox.setTooltip(Tooltip.create(Component.translatable(action.isEdit() ?  "ctgui.editing.recipe_id_editing" : "ctgui.editing.recipe_id")));
             idBox.setMaxLength(256);
@@ -236,8 +235,8 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
 
     private void setTag(String type, String tag) {
         try {
-            if (BuiltInRegistries.REGISTRY.containsKey(ResourceLocation.parse(type))) {
-                this.tag = TagKey.create(ResourceKey.createRegistryKey(ResourceLocation.parse(type)), ResourceLocation.parse(tag));
+            if (BuiltInRegistries.REGISTRY.containsKey(new ResourceLocation(type))) {
+                this.tag = TagKey.create(ResourceKey.createRegistryKey(new ResourceLocation(type)), new ResourceLocation(tag));
             } else {
                 this.tag = null;
             }
@@ -248,8 +247,8 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
     }
 
     @Override
-    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        super.renderBackground(graphics, mouseX, mouseY, partialTick);
+    public void renderBackground(GuiGraphics graphics) {
+        super.renderBackground(graphics);
 
         ScreenUtils.renderContainerBackground(graphics, getMinX(), getMinY() - 4, getMaxX() - getMinX(), getMaxY() - (getMinY() - 4));
         ScreenUtils.renderContainerBackground(graphics, getTagMinX() - 5, getTagMinY() - 3, getTagMaxX() - (getTagMinX() - 8), getTagMaxY() - (getTagMinY() - 5));
@@ -258,11 +257,12 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
         }
         graphics.blit(HOT_BAR, getHotBarX(), getMaxY() - 4, 0, 0, 0, 176, 28, 256, 32);
 
-        CraftTweakerGUI.getViewerUtils().renderBackground(graphics, mouseX, mouseY, partialTick);
+        CraftTweakerGUI.getViewerUtils().renderBackground(graphics, (int) minecraft.mouseHandler.xpos(), (int) minecraft.mouseHandler.ypos(), minecraft.getFrameTime());
     }
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        renderBackground(graphics);
         super.render(graphics, mouseX, mouseY, partialTick);
 
         CraftTweakerGUI.getViewerUtils().renderStart(graphics, mouseX, mouseY, partialTick);
@@ -359,13 +359,13 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double p_94687_, double amount) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
         R newRecipe = recipe.getType().onScroll(recipe.getRecipe(), (int) mouseX - getRecipeX(), (int) mouseY - getRecipeY(), amount > 0);
         if (changeRecipe(newRecipe)) return true;
         if (CraftTweakerGUI.getViewerUtils().mouseScrolled(mouseX, mouseY, amount)) {
             return true;
         }
-        return super.mouseScrolled(mouseX, mouseY, p_94687_, amount);
+        return super.mouseScrolled(mouseX, mouseY, amount);
     }
 
     @Override

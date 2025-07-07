@@ -1,30 +1,25 @@
 package de.bommels05.ctgui.compat.minecraft.custom;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
+import com.google.gson.JsonObject;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 
 public class InfoRecipeSerializer implements RecipeSerializer<InfoRecipe> {
-    private final MapCodec<InfoRecipe> codec;
 
-    public InfoRecipeSerializer() {
-        codec = RecordCodecBuilder.mapCodec(instance -> instance.group(
-                Ingredient.CODEC.fieldOf("ingredient").forGetter(InfoRecipe::getIngredient),
-                Codec.STRING.fieldOf("text").forGetter(InfoRecipe::getText)
-        ).apply(instance, InfoRecipe::new));
+    @Override
+    public InfoRecipe fromJson(ResourceLocation id, JsonObject json) {
+        return new InfoRecipe(id, Ingredient.fromJson(json.get("ingredient")), json.get("text").getAsString());
     }
 
     @Override
-    public MapCodec<InfoRecipe> codec() {
-        return codec;
+    public InfoRecipe fromNetwork(ResourceLocation resourceLocation, FriendlyByteBuf friendlyByteBuf) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public StreamCodec<RegistryFriendlyByteBuf, InfoRecipe> streamCodec() {
+    public void toNetwork(FriendlyByteBuf friendlyByteBuf, InfoRecipe recipe) {
         throw new UnsupportedOperationException();
     }
 }

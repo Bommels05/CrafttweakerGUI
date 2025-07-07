@@ -100,7 +100,7 @@ public class FabricLoaderUtils implements LoaderUtils {
 
     @Override
     public String getDefaultTag() {
-        return "c:ingots/iron";
+        return "c:iron_ingots";
     }
 
     @Override

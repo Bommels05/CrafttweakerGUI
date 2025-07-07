@@ -38,9 +38,9 @@ public class FlexibleNBTIngredient {
         } else {
             Ingredient.Value value = ingredient.values[0];
             if (value instanceof Ingredient.ItemValue item) {
-                return Either.left(item.item());
+                return Either.left(item.item);
             } else if (value instanceof Ingredient.TagValue tag) {
-                return Either.right(tag.tag());
+                return Either.right(tag.tag);
             }
             throw new IllegalArgumentException("Invalid ingredient value: " + value);
         }

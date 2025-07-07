@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.minecraft;
 
+import com.google.gson.JsonObject;
 import de.bommels05.ctgui.api.AmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
@@ -8,6 +9,8 @@ import dev.emi.emi.EmiPort;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
 import dev.emi.emi.recipe.EmiSmithingRecipe;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.data.recipes.SmithingTransformRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -17,28 +20,28 @@ import net.minecraft.world.item.crafting.SmithingTransformRecipe;
 public class SmithingRecipeType extends SupportedRecipeType<SmithingRecipe> {
 
     public SmithingRecipeType() {
-        super(ResourceLocation.parse("minecraft:smithing"));
+        super(new ResourceLocation("minecraft:smithing"));
         addAreaEmptyRightClick(0, 0, 17, 17, (r, am) -> {
             SmithingTransformRecipe recipe = ((SmithingTransformRecipe) r);
-            return new SmithingTransformRecipe(am.ensureAmount(1, 1).ingredient(), recipe.base, recipe.addition, recipe.getResultItem(regAccess()));
+            return new SmithingTransformRecipe(r.getId(), am.ensureAmount(1, 1).ingredient(), recipe.base, recipe.addition, recipe.getResultItem(regAccess()));
         }, r -> {
             return new AmountedIngredient(((SmithingTransformRecipe) r).template, 1);
         });
         addAreaEmptyRightClick(18, 0, 17, 17, (r, am) -> {
             SmithingTransformRecipe recipe = ((SmithingTransformRecipe) r);
-            return new SmithingTransformRecipe(recipe.template, am.ensureAmount(1, 1).ingredient(), recipe.addition, recipe.getResultItem(regAccess()));
+            return new SmithingTransformRecipe(r.getId(), recipe.template, am.ensureAmount(1, 1).ingredient(), recipe.addition, recipe.getResultItem(regAccess()));
         }, r -> {
             return new AmountedIngredient(((SmithingTransformRecipe) r).base, 1);
         });
         addAreaEmptyRightClick(36, 0, 17, 17, (r, am) -> {
             SmithingTransformRecipe recipe = ((SmithingTransformRecipe) r);
-            return new SmithingTransformRecipe(recipe.template, recipe.base, am.ensureAmount(1, 1).ingredient(), recipe.getResultItem(regAccess()));
+            return new SmithingTransformRecipe(r.getId(), recipe.template, recipe.base, am.ensureAmount(1, 1).ingredient(), recipe.getResultItem(regAccess()));
         }, r -> {
             return new AmountedIngredient(((SmithingTransformRecipe) r).addition, 1);
         });
         addAreaScrollAmountEmptyRightClick(94, 0, 17, 17, (r, am) -> {
             SmithingTransformRecipe recipe = ((SmithingTransformRecipe) r);
-            return new SmithingTransformRecipe(recipe.template, recipe.base, recipe.addition, am.asStack());
+            return new SmithingTransformRecipe(r.getId(), recipe.template, recipe.base, recipe.addition, am.asStack());
         }, r -> {
             return AmountedIngredient.of(r.getResultItem(regAccess()));
         });
@@ -48,7 +51,7 @@ public class SmithingRecipeType extends SupportedRecipeType<SmithingRecipe> {
     public SmithingRecipe onInitialize(SmithingRecipe recipe) throws UnsupportedRecipeException {
         super.onInitialize(recipe);
         if (recipe == null) {
-            return new SmithingTransformRecipe(Ingredient.EMPTY, Ingredient.EMPTY, Ingredient.EMPTY, ItemStack.EMPTY);
+            return new SmithingTransformRecipe(nullRl(), Ingredient.EMPTY, Ingredient.EMPTY, Ingredient.EMPTY, ItemStack.EMPTY);
         }
         if (!(recipe instanceof SmithingTransformRecipe)) {
             throw new UnsupportedRecipeException();
@@ -72,5 +75,22 @@ public class SmithingRecipeType extends SupportedRecipeType<SmithingRecipe> {
     public String getCraftTweakerString(SmithingRecipe r, String id) {
         SmithingTransformRecipe recipe = ((SmithingTransformRecipe) r);
         return "smithing.addTransformRecipe(\"" + id + "\", " + getCTString(recipe.getResultItem(regAccess())) + ", " + getCTString(recipe.template) + ", " + getCTString(recipe.base) + ", " + getCTString(recipe.addition) + ");";
+    }
+
+    @Override
+    public JsonObject getRecipeJson(SmithingRecipe r) {
+        SmithingTransformRecipe recipe = ((SmithingTransformRecipe) r);
+        JsonObject json = new JsonObject();
+        json.add("template", recipe.template.toJson());
+        json.add("base", recipe.base.toJson());
+        json.add("addition", recipe.addition.toJson());
+        json.add("result", getJson(recipe.getResultItem(regAccess())));
+        return json;
+    }
+
+    @Override
+    public SmithingRecipe getWithId(SmithingRecipe r, ResourceLocation id) {
+        SmithingTransformRecipe recipe = ((SmithingTransformRecipe) r);
+        return new SmithingTransformRecipe(id, recipe.template, recipe.base, recipe.addition, recipe.getResultItem(regAccess()));
     }
 }

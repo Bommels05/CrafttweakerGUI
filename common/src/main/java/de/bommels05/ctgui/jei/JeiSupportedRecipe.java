@@ -1,6 +1,5 @@
 package de.bommels05.ctgui.jei;
 
-import com.mojang.datafixers.util.Either;
 import de.bommels05.ctgui.SupportedRecipe;
 import de.bommels05.ctgui.ViewerUtils;
 import de.bommels05.ctgui.api.RecipeTypeManager;
@@ -12,19 +11,18 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeHolder;
 
 public class JeiSupportedRecipe<R extends Recipe<?>, T extends SupportedRecipeType<R>> implements SupportedRecipe<R, T> {
 
-    private Either<IRecipeLayoutDrawable<RecipeHolder<R>>, IRecipeLayoutDrawable<R>> recipe;
+    private IRecipeLayoutDrawable<R> recipe;
     private R mcRecipe;
     private final T type;
 
     @SuppressWarnings("unchecked")
-    public JeiSupportedRecipe(Either<IRecipeLayoutDrawable<RecipeHolder<R>>, IRecipeLayoutDrawable<R>> recipe) {
+    public JeiSupportedRecipe(IRecipeLayoutDrawable<R> recipe) {
         this.recipe = recipe;
         this.type = (T) RecipeTypeManager.getType(getUnknown().getRecipeCategory().getRecipeType().getUid());
-        this.mcRecipe = this.recipe.map(r -> ViewerUtils.getRealRecipe(r.getRecipe().value(), r.getRecipe().id()), IRecipeLayoutDrawable::getRecipe);
+        this.mcRecipe = ViewerUtils.getRealRecipe(recipe.getRecipe(), recipe.getRecipe().getId());
     }
 
 
@@ -77,10 +75,10 @@ public class JeiSupportedRecipe<R extends Recipe<?>, T extends SupportedRecipeTy
     @SuppressWarnings("unchecked")
     public void setRecipe(R recipe) throws UnsupportedViewerException {
         this.mcRecipe = recipe;
-        this.recipe = (Either<IRecipeLayoutDrawable<RecipeHolder<R>>, IRecipeLayoutDrawable<R>>) (Either<?, ?>) JeiViewerUtils.INSTANCE.getViewerRecipe(type, recipe);
+        this.recipe = (IRecipeLayoutDrawable<R>) JeiViewerUtils.INSTANCE.getViewerRecipe(type, recipe);
     }
 
     private IRecipeLayoutDrawable<?> getUnknown() {
-        return recipe.map(r -> r, r -> r);
+        return recipe;
     }
 }

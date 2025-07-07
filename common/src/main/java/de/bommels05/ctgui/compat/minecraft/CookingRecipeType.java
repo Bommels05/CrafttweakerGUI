@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.minecraft;
 
+import com.google.gson.JsonObject;
 import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.api.AmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
@@ -28,20 +29,20 @@ public abstract class CookingRecipeType<R extends AbstractCookingRecipe> extends
         this.craftTweakerPrefix = craftTweakerPrefix;
 
         addAreaEmptyRightClick(0, 4, 17, 17, (r, am) -> {
-            return constructor.construct(r.getGroup(), r.category(), am.ingredient(), r.getResultItem(regAccess()), r.getExperience(), r.getCookingTime());
+            return constructor.construct(r.getId(), r.getGroup(), r.category(), am.ingredient(), r.getResultItem(regAccess()), r.getExperience(), r.getCookingTime());
         }, r -> {
             return new AmountedIngredient(r.getIngredients().get(0), 1);
         });
         addAreaScrollAmountEmptyRightClick(CraftTweakerGUI.isJeiActive() ? 61 : 56, CraftTweakerGUI.isJeiActive() ? 19 : 0, 25, 25, (r, am) -> {
-            return constructor.construct(r.getGroup(), r.category(), r.getIngredients().get(0), am.asStack(), r.getExperience(), r.getCookingTime());
+            return constructor.construct(r.getId(), r.getGroup(), r.category(), r.getIngredients().get(0), am.asStack(), r.getExperience(), r.getCookingTime());
         }, r -> {
             return AmountedIngredient.of(r.getResultItem(regAccess()));
         });
         addOption(cookingTime, (r, cookingTime) -> {
-            return constructor.construct(r.getGroup(), r.category(), r.getIngredients().get(0), r.getResultItem(regAccess()), r.getExperience(), cookingTime);
+            return constructor.construct(r.getId(), r.getGroup(), r.category(), r.getIngredients().get(0), r.getResultItem(regAccess()), r.getExperience(), cookingTime);
         });
         addOption(experience, (r, experience) -> {
-            return constructor.construct(r.getGroup(), r.category(), r.getIngredients().get(0), r.getResultItem(regAccess()), experience, r.getCookingTime());
+            return constructor.construct(r.getId(), r.getGroup(), r.category(), r.getIngredients().get(0), r.getResultItem(regAccess()), experience, r.getCookingTime());
         });
     }
 
@@ -54,7 +55,7 @@ public abstract class CookingRecipeType<R extends AbstractCookingRecipe> extends
             return null;
         } else {
             cookingTime.set(defaultCookingTime);
-            return constructor.construct("", CookingBookCategory.MISC, Ingredient.EMPTY, ItemStack.EMPTY, 0.0F, defaultCookingTime);
+            return constructor.construct(nullRl(), "", CookingBookCategory.MISC, Ingredient.EMPTY, ItemStack.EMPTY, 0.0F, defaultCookingTime);
         }
     }
 
@@ -68,8 +69,23 @@ public abstract class CookingRecipeType<R extends AbstractCookingRecipe> extends
         return craftTweakerPrefix + ".addRecipe(\"" + id +"\", " + getCTString(recipe.getResultItem(regAccess())) + ", " + getCTString(recipe.getIngredients().get(0)) + ", " + recipe.getExperience() + ", " + recipe.getCookingTime() + ");";
     }
 
+    @Override
+    public JsonObject getRecipeJson(R recipe) {
+        JsonObject json = new JsonObject();
+        json.addProperty("experience", recipe.getExperience());
+        json.addProperty("cookingtime", recipe.getCookingTime());
+        json.add("ingredient", recipe.getIngredients().get(0).toJson());
+        json.add("result", getJson(recipe.getResultItem(regAccess())));
+        return json;
+    }
+
+    @Override
+    public R getWithId(R r, ResourceLocation id) {
+        return constructor.construct(id, r.getGroup(), r.category(), r.getIngredients().get(0), r.getResultItem(regAccess()), r.getExperience(), r.getCookingTime());
+    }
+
     @FunctionalInterface
     public static interface Constructor<R extends AbstractCookingRecipe> {
-        public R construct(String group, CookingBookCategory category, Ingredient ingredient, ItemStack result, float experience, int cookingTime);
+        public R construct(ResourceLocation id, String group, CookingBookCategory category, Ingredient ingredient, ItemStack result, float experience, int cookingTime);
     }
 }

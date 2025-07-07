@@ -1,8 +1,10 @@
 package de.bommels05.ctgui.compat.minecraft;
 
-import com.google.gson.JsonElement;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import com.mojang.serialization.JsonOps;
 import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.api.AmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
@@ -18,15 +20,14 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 
-import java.util.ArrayList;
-import java.util.Optional;
+import java.util.*;
 
 public class CraftingRecipeType extends SupportedRecipeType<CraftingRecipe> {
 
     private final BooleanRecipeOption<CraftingRecipe> shapeless = new BooleanRecipeOption<>(Component.translatable("ctgui.editing.options.shapeless"));
 
     public CraftingRecipeType() {
-        super(ResourceLocation.parse("minecraft:crafting"));
+        super(new ResourceLocation("minecraft:crafting"));
         for (int row = 0; row < 3; row++) {
             for (int i = 0; i < 3; i++) {
                 int index = i + row * 3;
@@ -64,11 +65,11 @@ public class CraftingRecipeType extends SupportedRecipeType<CraftingRecipe> {
         addOption(shapeless, (r, value) -> {
             if (value) {
                 if (r instanceof ShapedRecipe recipe) {
-                    return new ShapelessRecipe(recipe.getGroup(), recipe.category(), recipe.getResultItem(regAccess()), NonNullList.of(null, recipe.getIngredients().stream().filter(ingredient -> !ingredient.isEmpty()).toArray(Ingredient[]::new)));
+                    return new ShapelessRecipe(recipe.getId(), recipe.getGroup(), recipe.category(), recipe.getResultItem(regAccess()), NonNullList.of(null, recipe.getIngredients().stream().filter(ingredient -> !ingredient.isEmpty()).toArray(Ingredient[]::new)));
                 }
             } else {
                 if (r instanceof ShapelessRecipe recipe) {
-                    return new ShapedRecipe(recipe.getGroup(), recipe.category(), new ShapedRecipePattern(3, 3, expandIngredients(recipe.getIngredients(), 3, 3), Optional.empty()), recipe.getResultItem(regAccess()));
+                    return new ShapedRecipe(recipe.getId(), recipe.getGroup(), recipe.category(), 3, 3, expandIngredients(recipe.getIngredients(), 3, 3), recipe.getResultItem(regAccess()));
                 }
             }
             return null;
@@ -79,10 +80,10 @@ public class CraftingRecipeType extends SupportedRecipeType<CraftingRecipe> {
     public CraftingRecipe onInitialize(CraftingRecipe r) throws UnsupportedRecipeException {
         super.onInitialize(r);
         if (r == null) {
-            return new ShapedRecipe("", CraftingBookCategory.MISC, new ShapedRecipePattern(3, 3, NonNullList.withSize(9, Ingredient.EMPTY), Optional.empty()), ItemStack.EMPTY);
+            return new ShapedRecipe(nullRl(), "", CraftingBookCategory.MISC, 3, 3,NonNullList.withSize(9, Ingredient.EMPTY), ItemStack.EMPTY);
         }
         if (r instanceof ShapedRecipe recipe) {
-            return new ShapedRecipe(recipe.getGroup(), recipe.category(), new ShapedRecipePattern(3, 3, expandIngredients(recipe.getIngredients(), recipe.getWidth(), recipe.getHeight()), Optional.empty()), recipe.getResultItem(regAccess()));
+            return new ShapedRecipe(recipe.getId(), recipe.getGroup(), recipe.category(), 3, 3, expandIngredients(recipe.getIngredients(), recipe.getWidth(), recipe.getHeight()), recipe.getResultItem(regAccess()));
         }
         if (r instanceof ShapelessRecipe) {
             shapeless.set(true);
@@ -128,6 +129,78 @@ public class CraftingRecipeType extends SupportedRecipeType<CraftingRecipe> {
         throw new IllegalStateException("Unsupported recipe implementation was not caught by onInitialize");
     }
 
+    @Override
+    public JsonObject getRecipeJson(CraftingRecipe r) {
+        JsonObject json = new JsonObject();
+        if (r instanceof ShapelessRecipe recipe) {
+            JsonArray ingredients = new JsonArray();
+            recipe.getIngredients().stream().map(Ingredient::toJson).forEach(ingredients::add);
+            json.add("ingredients", ingredients);
+        } else if (r instanceof ShapedRecipe recipe) {
+            JsonArray patternString = new JsonArray();
+            BiMap<Character, Ingredient> keys = HashBiMap.create();
+            int i = 0;
+            for (Ingredient ingredient : recipe.getIngredients()) {
+                Character key = getKey(ingredient, keys);
+                if (key != ' ') {
+                    keys.put(key, ingredient);
+                }
+                if (i % recipe.getWidth() == 0) {
+                    patternString.add(String.valueOf(key));
+                } else {
+                    patternString.set(Math.floorDiv(i,  recipe.getWidth()), new JsonPrimitive(patternString.get(Math.floorDiv(i,  recipe.getWidth())).getAsString() + key));
+                }
+                i++;
+            }
+
+            json.add("pattern", patternString);
+            JsonObject jsonKeys = new JsonObject();
+            keys.forEach((k, v) -> jsonKeys.add(String.valueOf(k), v.toJson()));
+            json.add("key", jsonKeys);
+        } else {
+            ShapedRecipe recipe = CraftTweakerGUI.getLoaderUtils().tryGetFromMekanismRecipe(r); //This is also called with the original recipe
+            if (recipe != null) {
+                return getRecipeJson(recipe);
+            }
+        }
+        json.add("result", getJson(r.getResultItem(regAccess())));
+        return json;
+    }
+
+    private static Character getKey(Ingredient ingredient, BiMap<Character, Ingredient> keys) {
+        if (keys.containsValue(ingredient)) {
+            return keys.inverse().get(ingredient);
+        }
+        if (ingredient.isEmpty()) {
+            return ' ';
+        }
+        Set<Character> blacklist = keys.keySet();
+        if (ingredient.getItems().length > 0) {
+            char c = BuiltInRegistries.ITEM.getKey(ingredient.getItems()[0].getItem()).getPath().charAt(0);
+            if (!blacklist.contains(c)) {
+                return c;
+            }
+        }
+        while (blacklist.size() < 26) {
+            char c = (char) new Random().nextInt('a', 'z' + 1);
+            if (!blacklist.contains(c)) {
+                return c;
+            }
+        }
+        throw new IllegalStateException("Crafting recipe somehow has more than 26 different ingredients!?");
+    }
+
+    @Override
+    public CraftingRecipe getWithId(CraftingRecipe r, ResourceLocation id) {
+        if (r instanceof ShapedRecipe recipe) {
+            return new ShapedRecipe(id, recipe.getGroup(), recipe.category(), recipe.getWidth(), recipe.getHeight(), recipe.getIngredients(), recipe.getResultItem(regAccess()));
+        }
+        if (r instanceof ShapelessRecipe recipe) {
+            return new ShapelessRecipe(id, recipe.getGroup(), recipe.category(), recipe.getResultItem(regAccess()), recipe.getIngredients());
+        }
+        return null;
+    }
+
     private String getGrid(ShapedRecipe recipe) {
         int width = 0, height = 0, i = 0;
         for (Ingredient ingredient : recipe.getIngredients()) {
@@ -161,8 +234,7 @@ public class CraftingRecipeType extends SupportedRecipeType<CraftingRecipe> {
         }
         ingredients.set(index, ingredient);
         //Size is always 3x3 and shrunk down when converting to ZenScript
-        return new ShapedRecipe(recipe.getGroup(), recipe.category(), new ShapedRecipePattern(3, 3, ingredients,
-                Optional.empty()), recipe.getResultItem(regAccess()));
+        return new ShapedRecipe(recipe.getId(), recipe.getGroup(), recipe.category(), 3, 3, ingredients, recipe.getResultItem(regAccess()));
     }
 
     private ShapelessRecipe setIngredient(ShapelessRecipe recipe, int index, Ingredient ingredient) {
@@ -176,15 +248,15 @@ public class CraftingRecipeType extends SupportedRecipeType<CraftingRecipe> {
                 ingredients.add(ingredient);
             }
         }
-        return new ShapelessRecipe(recipe.getGroup(), recipe.category(), recipe.getResultItem(regAccess()), NonNullList.of(null, ingredients.toArray(Ingredient[]::new)));
+        return new ShapelessRecipe(recipe.getId(), recipe.getGroup(), recipe.category(), recipe.getResultItem(regAccess()), NonNullList.of(null, ingredients.toArray(Ingredient[]::new)));
     }
 
     private ShapedRecipe setOutput(ShapedRecipe recipe, ItemStack stack) {
-        return new ShapedRecipe(recipe.getGroup(), recipe.category(), new ShapedRecipePattern(recipe.getWidth(), recipe.getHeight(), recipe.getIngredients(), Optional.empty()), stack);
+        return new ShapedRecipe(recipe.getId(), recipe.getGroup(), recipe.category(), recipe.getWidth(), recipe.getHeight(), recipe.getIngredients(), stack);
     }
 
     private ShapelessRecipe setOutput(ShapelessRecipe recipe, ItemStack stack) {
-        return new ShapelessRecipe(recipe.getGroup(), recipe.category(), stack, recipe.getIngredients());
+        return new ShapelessRecipe(recipe.getId(), recipe.getGroup(), recipe.category(), stack, recipe.getIngredients());
     }
 
     private NonNullList<Ingredient> expandIngredients(NonNullList<Ingredient> ingredients, int width, int height) {

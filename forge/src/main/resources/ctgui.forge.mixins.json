@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "de.bommels05.ctgui.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "EmiBrewingRecipeAccessor",
+    "TaggedChemicalStackIngredientAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

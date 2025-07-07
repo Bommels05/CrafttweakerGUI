@@ -2,7 +2,7 @@
   "required": true,
   "minVersion": "0.8",
   "package": "de.bommels05.ctgui.mixin",
-  "compatibilityLevel": "JAVA_21",
+  "compatibilityLevel": "JAVA_17",
   "client": [
     "EmiCraftingRecipeMixin",
     "RecipeDisplayMixin",
@@ -11,7 +11,6 @@
     "EmiIngredientMixin",
     "EmiScreenBaseMixin",
     "RecipeScreenMixin",
-    "ShapedRecipePatternMixin",
     "EmiRecipesMixin",
     "EmiApiMixin",
     "RecipesGuiMixin",

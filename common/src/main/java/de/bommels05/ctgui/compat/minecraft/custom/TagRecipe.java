@@ -1,7 +1,6 @@
 package de.bommels05.ctgui.compat.minecraft.custom;
 
 import de.bommels05.ctgui.CraftTweakerGUI;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -14,7 +13,6 @@ import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
@@ -25,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class TagRecipe implements Recipe<RecipeInput> {
+public class TagRecipe implements Recipe<Container> {
 
     protected final ResourceLocation id;
     protected final boolean item;
@@ -73,7 +71,7 @@ public class TagRecipe implements Recipe<RecipeInput> {
         }
 
         //Tag editing is cursed in general...
-        Map<ResourceLocation, List<TagLoader.EntryWithSource>> tags = new TagLoader<>(null, Registries.tagsDirPath(tag.registry()))
+        Map<ResourceLocation, List<TagLoader.EntryWithSource>> tags = new TagLoader<>(null, TagManager.getTagDir(tag.registry()))
                 .load(CraftTweakerGUI.getLoaderUtils().getServer().getResourceManager());
         List<TagLoader.EntryWithSource> entries = tags.get(tag.location());
         if (entries != null) {
@@ -99,12 +97,12 @@ public class TagRecipe implements Recipe<RecipeInput> {
     }
 
     @Override
-    public boolean matches(RecipeInput recipeInput, Level level) {
+    public boolean matches(Container Container, Level level) {
         return false;
     }
 
     @Override
-    public ItemStack assemble(RecipeInput recipeInput, HolderLookup.Provider provider) {
+    public ItemStack assemble(Container Container, RegistryAccess access) {
         return null;
     }
 
@@ -114,7 +112,7 @@ public class TagRecipe implements Recipe<RecipeInput> {
     }
 
     @Override
-    public ItemStack getResultItem(HolderLookup.Provider provider) {
+    public ItemStack getResultItem(RegistryAccess access) {
         return ItemStack.EMPTY;
     }
 
@@ -126,6 +124,11 @@ public class TagRecipe implements Recipe<RecipeInput> {
     @Override
     public RecipeType<?> getType() {
         return CraftTweakerGUI.getLoaderUtils().getTagRecipeType();
+    }
+
+    @Override
+    public ResourceLocation getId() {
+        return new ResourceLocation(CraftTweakerGUI.MOD_ID, "null");
     }
 
 }

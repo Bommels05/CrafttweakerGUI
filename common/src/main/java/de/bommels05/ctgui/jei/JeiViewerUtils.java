@@ -1,7 +1,6 @@
 package de.bommels05.ctgui.jei;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.datafixers.util.Either;
 import de.bommels05.ctgui.ChangedRecipeManager;
 import de.bommels05.ctgui.SupportedRecipe;
 import de.bommels05.ctgui.ViewerSlot;
@@ -13,6 +12,7 @@ import mezz.jei.api.gui.IRecipeLayoutDrawable;
 import mezz.jei.api.ingredients.ITypedIngredient;
 import mezz.jei.api.recipe.IRecipeManager;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import mezz.jei.common.Internal;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -20,7 +20,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +27,7 @@ import java.util.Optional;
 
 import static de.bommels05.ctgui.jei.CTGUIJeiPlugin.RUNTIME;
 
-public class JeiViewerUtils implements ViewerUtils<Either<IRecipeLayoutDrawable<RecipeHolder<? extends Recipe<?>>>, IRecipeLayoutDrawable<? extends Recipe<?>>>> {
+public class JeiViewerUtils implements ViewerUtils<IRecipeLayoutDrawable<? extends Recipe<?>>> {
     public static JeiViewerUtils INSTANCE;
     protected final List<ChangedRecipeManager.ChangedRecipe<?>> changedRecipes = new ArrayList<>();
 
@@ -50,7 +49,7 @@ public class JeiViewerUtils implements ViewerUtils<Either<IRecipeLayoutDrawable<
     }
 
     @Override
-    public boolean isCustomTagRecipe(Either<IRecipeLayoutDrawable<RecipeHolder<? extends Recipe<?>>>, IRecipeLayoutDrawable<? extends Recipe<?>>> recipe) {
+    public boolean isCustomTagRecipe(IRecipeLayoutDrawable<? extends Recipe<?>> recipe) {
         return false;
     }
 
@@ -65,19 +64,14 @@ public class JeiViewerUtils implements ViewerUtils<Either<IRecipeLayoutDrawable<
 
     @Override
     @SuppressWarnings("unchecked")
-    public <R2 extends Recipe<?>, T extends SupportedRecipeType<R2>> SupportedRecipe<R2, T> toSupportedRecipe(Either<IRecipeLayoutDrawable<RecipeHolder<? extends Recipe<?>>>, IRecipeLayoutDrawable<? extends Recipe<?>>> recipe) {
-        return new JeiSupportedRecipe<>((Either<IRecipeLayoutDrawable<RecipeHolder<R2>>, IRecipeLayoutDrawable<R2>>) (Either<?, ?>) recipe);
+    public <R2 extends Recipe<?>, T extends SupportedRecipeType<R2>> SupportedRecipe<R2, T> toSupportedRecipe(IRecipeLayoutDrawable<? extends Recipe<?>> recipe) {
+        return new JeiSupportedRecipe<>((IRecipeLayoutDrawable<R2>) recipe);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public <R2 extends Recipe<?>> Either<IRecipeLayoutDrawable<RecipeHolder<? extends Recipe<?>>>, IRecipeLayoutDrawable<? extends Recipe<?>>> getViewerRecipe(SupportedRecipeType<R2> type, R2 recipe) throws UnsupportedViewerException {
-        Optional<IRecipeLayoutDrawable<RecipeHolder<R2>>> holderRecipe = tryGetViewerRecipe(type, new RecipeHolder<>(type.getId(), recipe));
-        if (holderRecipe.isPresent()) {
-            return Either.left((IRecipeLayoutDrawable<RecipeHolder<? extends Recipe<?>>>) (IRecipeLayoutDrawable<?>) holderRecipe.get());
-        } else {
-            return Either.right(tryGetViewerRecipe(type, recipe).orElseThrow(UnsupportedViewerException::new));
-        }
+    public <R2 extends Recipe<?>> IRecipeLayoutDrawable<? extends Recipe<?>> getViewerRecipe(SupportedRecipeType<R2> type, R2 recipe) throws UnsupportedViewerException {
+        return tryGetViewerRecipe(type, recipe).orElseThrow(UnsupportedViewerException::new);
     }
 
     @SuppressWarnings("unchecked")
@@ -166,16 +160,7 @@ public class JeiViewerUtils implements ViewerUtils<Either<IRecipeLayoutDrawable<
     public void init(Screen screen) {}
 
     public static IRecipeCategory<?> getCategory(ResourceLocation id) throws UnsupportedViewerException {
-        IRecipeManager manager = CTGUIJeiPlugin.RUNTIME.getRecipeManager();
+        IRecipeManager manager = CTGUIJeiPlugin.RUNTIME == null ? Internal.getJeiRuntime().getRecipeManager() : CTGUIJeiPlugin.RUNTIME.getRecipeManager(); //This is used by EmiViewerUtils and EMI disables the Plugin so the runtime never gets set
         return manager.createRecipeCategoryLookup().limitTypes(List.of(manager.getRecipeType(id).orElseThrow(UnsupportedViewerException::new))).get().findFirst().orElseThrow(UnsupportedViewerException::new);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static Either<IRecipeLayoutDrawable<RecipeHolder<? extends Recipe<?>>>, IRecipeLayoutDrawable<? extends Recipe<?>>> rightEither(IRecipeLayoutDrawable<?> recipe) {
-        if (recipe.getRecipe() instanceof RecipeHolder) {
-            return Either.left((IRecipeLayoutDrawable<RecipeHolder<? extends Recipe<?>>>) recipe);
-        } else {
-            return Either.right((IRecipeLayoutDrawable<? extends Recipe<?>>) recipe);
-        }
     }
 }

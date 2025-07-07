@@ -9,9 +9,9 @@ loom {
 dependencies {
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
 
-    implementation "dev.emi:emi-neoforge:${emi_version}"
-    implementation "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
-    implementation("com.blamejared.crafttweaker:CraftTweaker-neoforge-${minecraft_version}:${crafttweaker_version}") {
+    modImplementation "dev.emi:emi-fabric:${emi_version}"
+    modImplementation "mezz.jei:jei-${minecraft_version}-fabric:${jei_version}"
+    modImplementation("com.blamejared.crafttweaker:CraftTweaker-fabric-${minecraft_version}:${crafttweaker_version}") {
         transitive = false
     }
 }

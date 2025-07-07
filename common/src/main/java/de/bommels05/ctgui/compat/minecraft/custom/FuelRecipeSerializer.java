@@ -1,33 +1,25 @@
 package de.bommels05.ctgui.compat.minecraft.custom;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.registries.BuiltInRegistries;
+import com.google.gson.JsonObject;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 
 public class FuelRecipeSerializer implements RecipeSerializer<FuelRecipe> {
 
-    private final MapCodec<FuelRecipe> codec;
-
-    public FuelRecipeSerializer() {
-        codec = RecordCodecBuilder.mapCodec(instance -> instance.group(
-                Ingredient.CODEC.fieldOf("ingredient").forGetter(FuelRecipe::getIngredient),
-                Codec.INT.fieldOf("burnTime").forGetter(FuelRecipe::getBurnTime)
-        ).apply(instance, FuelRecipe::new));
+    @Override
+    public FuelRecipe fromJson(ResourceLocation id, JsonObject json) {
+        return new FuelRecipe(id, Ingredient.fromJson(json.get("ingredient")), json.get("burnTime").getAsInt());
     }
 
     @Override
-    public MapCodec<FuelRecipe> codec() {
-        return codec;
+    public FuelRecipe fromNetwork(ResourceLocation resourceLocation, FriendlyByteBuf friendlyByteBuf) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public StreamCodec<RegistryFriendlyByteBuf, FuelRecipe> streamCodec() {
+    public void toNetwork(FriendlyByteBuf friendlyByteBuf, FuelRecipe recipe) {
         throw new UnsupportedOperationException();
     }
 }

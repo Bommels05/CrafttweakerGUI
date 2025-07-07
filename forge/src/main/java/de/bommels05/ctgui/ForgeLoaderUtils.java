@@ -1,0 +1,246 @@
+package de.bommels05.ctgui;
+
+import com.blamejared.crafttweaker.api.fluid.CTFluidIngredient;
+import com.blamejared.crafttweaker.api.fluid.IFluidStack;
+import com.blamejared.crafttweaker.api.tag.CraftTweakerTagRegistry;
+import com.google.gson.JsonObject;
+import de.bommels05.ctgui.api.FluidAmountedIngredient;
+import de.bommels05.ctgui.api.SpecialAmountedIngredient;
+import de.bommels05.ctgui.api.SupportedRecipeType;
+import de.bommels05.ctgui.compat.mekanism.ChemicalAmountedIngredient;
+import de.bommels05.ctgui.compat.mekanism.MekanismEmiUtils;
+import de.bommels05.ctgui.compat.mekanism.MekanismRecipeUtils;
+import de.bommels05.ctgui.compat.minecraft.CraftingRecipeType;
+import de.bommels05.ctgui.compat.minecraft.custom.CompostingRecipe;
+import de.bommels05.ctgui.compat.minecraft.custom.FuelRecipe;
+import de.bommels05.ctgui.compat.minecraft.custom.InfoRecipe;
+import de.bommels05.ctgui.compat.minecraft.custom.TagRecipe;
+import de.bommels05.ctgui.registry.RecipeSerializers;
+import de.bommels05.ctgui.registry.RecipeTypes;
+import dev.emi.emi.api.EmiInitRegistry;
+import dev.emi.emi.api.stack.EmiStack;
+import dev.emi.emi.api.stack.FluidEmiStack;
+import dev.emi.emi.jemi.JemiStack;
+import mekanism.api.MekanismAPI;
+import mekanism.api.chemical.Chemical;
+import mekanism.api.chemical.ChemicalStack;
+import mekanism.api.chemical.gas.GasStack;
+import mekanism.common.recipe.upgrade.MekanismShapedRecipe;
+import mezz.jei.api.ingredients.ITypedIngredient;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.ShapedRecipe;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.loading.FMLPaths;
+import net.minecraftforge.server.ServerLifecycleHooks;
+
+import java.nio.file.Path;
+
+import static de.bommels05.ctgui.jei.CTGUIJeiPlugin.RUNTIME;
+
+public class ForgeLoaderUtils implements LoaderUtils {
+
+    @Override
+    public boolean isModLoaded(String id) {
+        return ModList.get().isLoaded(id);
+    }
+
+    @Override
+    public void setEditMode(boolean value) {
+        ForgeConfig.setEditMode(value);
+    }
+
+    @Override
+    public void setListButton(boolean value) {
+        ForgeConfig.setListButton(value);
+    }
+
+    @Override
+    public RecipeSerializer<TagRecipe> getTagRecipeSerializer() {
+        return RecipeSerializers.TAG.get();
+    }
+
+    @Override
+    public RecipeType<TagRecipe> getTagRecipeType() {
+        return RecipeTypes.TAG.get();
+    }
+
+    @Override
+    public RecipeSerializer<FuelRecipe> getFuelRecipeSerializer() {
+        return RecipeSerializers.FUEL.get();
+    }
+
+    @Override
+    public RecipeType<FuelRecipe> getFuelRecipeType() {
+        return RecipeTypes.FUEL.get();
+    }
+
+    @Override
+    public RecipeSerializer<CompostingRecipe> getCompostingRecipeSerializer() {
+        return RecipeSerializers.COMPOSTING.get();
+    }
+
+    @Override
+    public RecipeType<CompostingRecipe> getCompostingRecipeType() {
+        return RecipeTypes.COMPOSTING.get();
+    }
+
+    @Override
+    public RecipeSerializer<InfoRecipe> getInfoRecipeSerializer() {
+        return RecipeSerializers.INFO.get();
+    }
+
+    @Override
+    public RecipeType<InfoRecipe> getInfoRecipeType() {
+        return RecipeTypes.INFO.get();
+    }
+
+    @Override
+    public <T> Object stackFromType(T type) {
+        if (type instanceof Fluid fluid) {
+            return new FluidStack(fluid, 1);
+        } else if (ModList.get().isLoaded("mekanism") && type instanceof Chemical<?> chemical) {
+            return MekanismRecipeUtils.from(chemical, 1);
+        }
+        return type;
+    }
+
+    @Override
+    public SpecialAmountedIngredient<?, ?> getRightImplementation(SpecialAmountedIngredient<?, ?> ingredient) {
+        if (ingredient.isStack()) {
+            if (ingredient.getStack() instanceof FluidStack stack) {
+                return new FluidAmountedIngredient(stack, ingredient.shouldUseAmount() ? ingredient.getAmount() : stack.getAmount());
+            } else if (ModList.get().isLoaded("mekanism") && ingredient.getStack() instanceof ChemicalStack<?> stack) {
+                return new ChemicalAmountedIngredient<>(stack, ingredient.shouldUseAmount() ? ingredient.getAmount() : (int) stack.getAmount());
+            }
+        } else {
+            TagKey<?> tag = ingredient.getTag();
+            if (tag.isFor(Registries.FLUID)) {
+                return new FluidAmountedIngredient((TagKey<Fluid>) tag, ingredient.getAmount());
+            } else if (ModList.get().isLoaded("mekanism") && (tag.isFor(MekanismAPI.GAS_REGISTRY_NAME) ||
+                            tag.isFor(MekanismAPI.INFUSE_TYPE_REGISTRY_NAME) ||
+                            tag.isFor(MekanismAPI.SLURRY_REGISTRY_NAME) ||
+                            tag.isFor(MekanismAPI.PIGMENT_REGISTRY_NAME))) {
+                return new ChemicalAmountedIngredient<>((TagKey<Chemical>) tag, ingredient.getAmount());
+            }
+        }
+        return ingredient;
+    }
+
+    @Override
+    public MinecraftServer getServer() {
+        return ServerLifecycleHooks.getCurrentServer();
+    }
+
+    @Override
+    public Path getConfigDir() {
+        return FMLPaths.CONFIGDIR.get();
+    }
+
+    @Override
+    public Path getGameDir() {
+        return FMLPaths.GAMEDIR.get();
+    }
+
+    @Override
+    public String getDefaultTag() {
+        return "forge:ingots/iron";
+    }
+
+    @Override
+    public <S> Object getEmiIngredient(S stack) {
+        if (stack instanceof FluidStack fluidStack) {
+            return EmiStack.of(fluidStack.getFluid(), fluidStack.getAmount());
+        } else if (ModList.get().isLoaded("jei") && ModList.get().isLoaded("mekanism")) {
+            if (stack instanceof ChemicalStack<?>) {
+                ITypedIngredient<S> typed = RUNTIME.getIngredientManager().createTypedIngredient(stack).orElseThrow(() -> new IllegalArgumentException("Unsupported ingredient: " + stack));
+                return new JemiStack<>(typed.getType(), RUNTIME.getIngredientManager().getIngredientHelper(stack), RUNTIME.getIngredientManager().getIngredientRenderer(stack), stack);
+            }
+        }
+        throw new IllegalArgumentException("Unsupported ingredient");
+    }
+
+    @Override
+    public Object getFromEmiStack(Object stack) {
+        if (stack instanceof FluidEmiStack fluidStack) {
+            return new FluidStack((Fluid) fluidStack.getKey(), fluidStack.getAmount() == 0 ? 1 : (int) fluidStack.getAmount());
+        }
+        if (ModList.get().isLoaded("jei") && ModList.get().isLoaded("mekanism") && stack instanceof JemiStack<?> jemiStack && jemiStack.ingredient instanceof GasStack gasStack) {
+            return gasStack;
+        }
+        return null;
+    }
+
+    @Override
+    public void emiInit(Object registry) {
+        EmiInitRegistry reg = (EmiInitRegistry) registry;
+        if (ModList.get().isLoaded("mekanism")) {
+            //Needs to be in a separate class because of class loading issues without emi
+            MekanismEmiUtils.init(reg);
+        }
+    }
+
+    @Override
+    public ShapedRecipe tryGetFromMekanismRecipe(Recipe<?> recipe) {
+        if (ModList.get().isLoaded("mekanism") && recipe instanceof MekanismShapedRecipe r) {
+            return r.getInternal();
+        }
+        return null;
+    }
+
+    @Override
+    public String getMekanismCraftTweakerString(ShapedRecipe recipe, String id) {
+        JsonObject json = new CraftingRecipeType().getRecipeJson(recipe);
+        json.getAsJsonObject().addProperty("type", "mekanism:mek_data");
+        return "<recipetype:minecraft:crafting>.addJsonRecipe(\"" + id + "\", " + json + ");";
+    }
+
+    /**
+     * Returns the CraftTweaker representation of the fluid stack
+     * @param stack The fluid stack
+     * @return The CraftTweaker representation of the fluid stack
+     */
+    public static String getCTString(FluidStack stack) {
+        return IFluidStack.of(stack).getCommandString();
+    }
+
+    /**
+     * Returns the CraftTweaker representation of the fluid ingredient
+     * @param stack The fluid ingredient
+     * @return The CraftTweaker representation of the fluid ingredient
+     */
+    public static String getCTString(FluidAmountedIngredient stack) {
+        if (stack.isStack()) {
+            return IFluidStack.of(stack.shouldUseAmount() ? stack.getStackWithAmount(stack.getAmount()) : stack.getStack()).getCommandString();
+        } else {
+            return new CTFluidIngredient.FluidTagWithAmountIngredient(CraftTweakerTagRegistry.INSTANCE.knownTagManager(Registries.FLUID).tag(stack.getTag()).withAmount(stack.getRightAmount())).getCommandString();
+        }
+    }
+
+    /**
+     * Function to use in a scroll amount area with fluid stacks
+     * @param stack The original fluid stack
+     * @param up Whether to increase or decrease the amount
+     * @return A new fluid stack with the amount changed
+     */
+    public static FluidAmountedIngredient fluidAmountSetter(FluidAmountedIngredient stack, boolean up) {
+        return stack.withAmount(Math.max(1, (stack.getRightAmount() == 1 ? (Screen.hasControlDown() ? 1 : 0) : stack.getRightAmount()) + SupportedRecipeType.getFluidScrollAmount(up)));
+    }
+
+    /**
+     * Function to use in a scroll amount area with fluids that only changes the amount by 1
+     * @param stack The original fluid stack
+     * @param up Whether to increase or decrease the amount
+     * @return A new fluid stack with the amount changed by 1
+     */
+    public static FluidAmountedIngredient limitedFluidAmountSetter(FluidAmountedIngredient stack, boolean up) {
+        return stack.withAmount(Math.max(1, stack.getRightAmount() + (up ? 1 : -1)));
+    }
+}

@@ -1,0 +1,88 @@
+plugins {
+    id "com.github.johnrengelman.shadow" version "7.1.2"
+}
+
+architectury {
+    platformSetupLoomIde()
+    forge()
+}
+
+loom {
+    accessWidenerPath = project(":common").loom.accessWidenerPath
+
+    mods {
+        main {
+            sourceSet project(':common').sourceSets.main
+        }
+    }
+
+    forge {
+        mixinConfig "ctgui.mixins.json"
+        mixinConfig "ctgui.forge.mixins.json"
+    }
+}
+
+configurations {
+    common
+    shadowCommon // Don't use shadow from the shadow plugin since it *excludes* files.
+    compileClasspath.extendsFrom common
+    runtimeClasspath.extendsFrom common
+    //developmentForge.extendsFrom common
+}
+
+dependencies {
+    forge "net.minecraftforge:forge:${forge_version}"
+
+    common(project(path: ":common", configuration: "namedElements")) { transitive false }
+    shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
+
+    modImplementation "dev.emi:emi-forge:${emi_version}"
+    modImplementation "mezz.jei:jei-${minecraft_version}-forge:${jei_version}"
+    modImplementation("com.blamejared.crafttweaker:CraftTweaker-forge-${minecraft_version}:${crafttweaker_version}") {
+        transitive = false
+    }
+
+    modImplementation "mekanism:Mekanism:${mekanism_version}"
+    modRuntimeOnly "mekanism:Mekanism:${mekanism_version}:generators"
+}
+
+processResources {
+    var replaceProperties = [
+            minecraft_version: minecraft_version, min_emi_forge_version: min_emi_forge_version,
+            forge_version: forge_version, forge_version_range: forge_version_range,
+            loader_version_range: loader_version_range,
+            mod_id: mod_id, mod_version: mod_version,
+            min_jei_version: min_jei_version, min_crafttweaker_version: min_crafttweaker_version,
+            min_mekanism_version: min_mekanism_version
+    ]
+    inputs.properties replaceProperties
+
+    filesMatching(['META-INF/mods.toml']) {
+        expand replaceProperties + [project: project]
+    }
+}
+
+shadowJar {
+    exclude "fabric.mod.json"
+    exclude "architectury.common.json"
+
+    configurations = [project.configurations.shadowCommon]
+    archiveClassifier = "dev-shadow"
+}
+
+remapJar {
+    input.set shadowJar.archiveFile
+    dependsOn shadowJar
+}
+
+sourcesJar {
+    def commonSources = project(":common").sourcesJar
+    dependsOn commonSources
+    from commonSources.archiveFile.map { zipTree(it) }
+}
+
+components.java {
+    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
+        skip()
+    }
+}

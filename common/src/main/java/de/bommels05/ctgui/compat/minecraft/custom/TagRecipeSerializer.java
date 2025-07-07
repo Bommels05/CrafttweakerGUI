@@ -1,48 +1,37 @@
 package de.bommels05.ctgui.compat.minecraft.custom;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-
-import java.util.List;
+import net.minecraft.world.item.crafting.ShapedRecipe;
 
 public class TagRecipeSerializer implements RecipeSerializer<TagRecipe> {
 
-    private final MapCodec<TagRecipe> codec;
-
-    public TagRecipeSerializer() {
-        this.codec = RecordCodecBuilder.mapCodec(
-                recipe ->
-                    recipe.group(
-                            Codec.BOOL.fieldOf("item").forGetter(r -> r.item),
-                            ResourceLocation.CODEC.fieldOf("id").forGetter(r -> r.id),
-                            Codec.list(ItemStack.SINGLE_ITEM_CODEC).fieldOf("items").orElse(List.of()).forGetter(r -> r.items != null ? r.items : List.of()),
-                            Codec.list(ResourceLocation.CODEC).fieldOf("itemTags").orElse(List.of()).forGetter(r -> r.itemTags != null ? r.itemTags.stream().map(TagKey::location).toList() : List.of()),
-                            Codec.list(BuiltInRegistries.FLUID.byNameCodec()).fieldOf("fluids").orElse(List.of()).forGetter(r -> r.fluids != null ? r.fluids : List.of()),
-                            Codec.list(ResourceLocation.CODEC).fieldOf("fluidTags").orElse(List.of()).forGetter(r -> r.fluidTags != null ? r.fluidTags.stream().map(TagKey::location).toList() : List.of())
-                    ).apply(recipe, (item, id, items, itemTags, fluids, fluidTags) -> {
-                        return item ? new TagRecipe(TagKey.create(Registries.ITEM, id), items, itemTags.stream().map(tag -> TagKey.create(Registries.ITEM, tag)).toList()) :
-                                new TagRecipe(fluidTags.stream().map(tag -> TagKey.create(Registries.FLUID, tag)).toList(), fluids, TagKey.create(Registries.FLUID, id));
-                    })
-        );
+    @Override
+    public TagRecipe fromJson(ResourceLocation id, JsonObject json) {
+        if (json.get("item").getAsInt() == 1) { //JSON to NBT messes the boolean up
+            return new TagRecipe(TagKey.create(Registries.ITEM, new ResourceLocation(json.get("id").getAsString())),
+                    json.getAsJsonArray("items").asList().stream().map(JsonElement::getAsJsonObject).map(ShapedRecipe::itemStackFromJson).toList(),
+                    json.getAsJsonArray("itemTags").asList().stream().map(JsonElement::getAsString).map(ResourceLocation::new).map(tag -> TagKey.create(Registries.ITEM, tag)).toList());
+        } else {
+            return new TagRecipe(json.getAsJsonArray("fluidTags").asList().stream().map(JsonElement::getAsString).map(ResourceLocation::new).map(tag -> TagKey.create(Registries.FLUID, tag)).toList(),
+                    json.getAsJsonArray("fluids").asList().stream().map(JsonElement::getAsString).map(ResourceLocation::new).map(BuiltInRegistries.FLUID::get).toList(),
+                    TagKey.create(Registries.FLUID, new ResourceLocation(json.get("id").getAsString())));
+        }
     }
 
     @Override
-    public MapCodec<TagRecipe> codec() {
-        return codec;
+    public TagRecipe fromNetwork(ResourceLocation resourceLocation, FriendlyByteBuf friendlyByteBuf) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public StreamCodec<RegistryFriendlyByteBuf, TagRecipe> streamCodec() {
+    public void toNetwork(FriendlyByteBuf friendlyByteBuf, TagRecipe recipe) {
         throw new UnsupportedOperationException();
     }
 }

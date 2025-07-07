@@ -10,7 +10,7 @@ import net.minecraft.world.item.crafting.BlastingRecipe;
 public class BlastingRecipeType extends CookingRecipeType<BlastingRecipe> {
 
     public BlastingRecipeType() {
-        super(ResourceLocation.parse("minecraft:blasting"), BlastingRecipe::new, 100, "blastFurnace");
+        super(new ResourceLocation("minecraft:blasting"), BlastingRecipe::new, 100, "blastFurnace");
     }
 
     @Override

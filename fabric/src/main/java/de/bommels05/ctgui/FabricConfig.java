@@ -1,20 +1,20 @@
 package de.bommels05.ctgui;
 
-import net.neoforged.neoforge.common.ModConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec;
 
 public class FabricConfig {
-    private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
+    private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 
-    private static final ModConfigSpec.BooleanValue EDIT_MODE = BUILDER.comment("Enables editing of recipes. When disabled CTGUI can still be used to display changed recipes").define("editMode", true);
-    private static final ModConfigSpec.BooleanValue NO_TAG_COLLAPSING = BUILDER.push("editing").comment("Disables collapsing tags with one item into the item itself while editing recipes (In Emi)").define("noTagCollapsing", true);
-    private static final ModConfigSpec.BooleanValue NO_TAG_TRANSLATIONS = BUILDER.comment("Disables tag name translation while editing recipes (In Emi)").define("noTagTranslations", true);
-    private static final ModConfigSpec.BooleanValue SHOW_TAGS_EVERYWHERE = BUILDER.comment("Also disables tag collapsing and translations outside the recipe editing screen if their options are enabled").define("showTagsEverywhere", false);
-    private static final ModConfigSpec.BooleanValue NO_WARNING = BUILDER.comment("Disables the edit mode warning message").define("noWarning", true);
-    private static final ModConfigSpec.BooleanValue SAVE_TOAST = BUILDER.comment("Shows a toast when saving recipe changes").define("saveToast", false);
-    private static final ModConfigSpec.BooleanValue LIST_BUTTON = BUILDER.pop().comment("Enables a shortcut button in the pause menu to the list of changed recipes").define("listButton", true);
-    private static final ModConfigSpec.BooleanValue CUSTOM_RECIPE_INDICATOR = BUILDER.comment("Enables a small indicator for all recipes by CraftTweaker (= Exported Recipe changes). This can be used to indicate changes to players after you are done editing").define("customRecipeIndicator", true);
+    private static final ForgeConfigSpec.BooleanValue EDIT_MODE = BUILDER.comment("Enables editing of recipes. When disabled CTGUI can still be used to display changed recipes").define("editMode", true);
+    private static final ForgeConfigSpec.BooleanValue NO_TAG_COLLAPSING = BUILDER.push("editing").comment("Disables collapsing tags with one item into the item itself while editing recipes (In Emi)").define("noTagCollapsing", true);
+    private static final ForgeConfigSpec.BooleanValue NO_TAG_TRANSLATIONS = BUILDER.comment("Disables tag name translation while editing recipes (In Emi)").define("noTagTranslations", true);
+    private static final ForgeConfigSpec.BooleanValue SHOW_TAGS_EVERYWHERE = BUILDER.comment("Also disables tag collapsing and translations outside the recipe editing screen if their options are enabled").define("showTagsEverywhere", false);
+    private static final ForgeConfigSpec.BooleanValue NO_WARNING = BUILDER.comment("Disables the edit mode warning message").define("noWarning", true);
+    private static final ForgeConfigSpec.BooleanValue SAVE_TOAST = BUILDER.comment("Shows a toast when saving recipe changes").define("saveToast", false);
+    private static final ForgeConfigSpec.BooleanValue LIST_BUTTON = BUILDER.pop().comment("Enables a shortcut button in the pause menu to the list of changed recipes").define("listButton", true);
+    private static final ForgeConfigSpec.BooleanValue CUSTOM_RECIPE_INDICATOR = BUILDER.comment("Enables a small indicator for all recipes by CraftTweaker (= Exported Recipe changes). This can be used to indicate changes to players after you are done editing").define("customRecipeIndicator", true);
 
-    static final ModConfigSpec SPEC = BUILDER.build();
+    static final ForgeConfigSpec SPEC = BUILDER.build();
 
     public static void onLoad() {
         Config.editMode = EDIT_MODE.get();

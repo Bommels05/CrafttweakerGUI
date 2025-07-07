@@ -28,16 +28,28 @@ public class RecipeDisplayMixin {
     @Shadow(remap = false)
     private List<Object> rightButtons;
     @Shadow(remap = false)
-    @Final
-    public EmiRecipe recipe ;
+    private List<Object> leftButtons;
+    @Shadow(remap = false) @Final
+    public EmiRecipe recipe;
+    @Shadow(remap = false)
+    private int rows;
+    @Shadow(remap = false)
+    private int leftWidth;
+    @Shadow(remap = false)
+    private int rightWidth;
+    @Shadow(remap = false) @Final
+    private int height;
     @Unique
     private int buttonIndex = 0;
 
-    @Inject(method = "<init>(Ldev/emi/emi/api/recipe/EmiRecipe;)V", at = @At(value = "INVOKE", target = "Ldev/emi/emi/api/recipe/EmiRecipe;supportsRecipeTree()Z"), remap = false)
+    @Inject(method = "<init>(Ldev/emi/emi/api/recipe/EmiRecipe;)V", at = @At(value = "RETURN"), remap = false)
     protected void addButtons(EmiRecipe recipe, CallbackInfo ci) {
         if (CraftTweakerGUI.shouldShowEditButton(recipe.getCategory().getId(), recipe.getId(), recipe)) {
             try {
                 rightButtons.add(Class.forName("dev.emi.emi.screen.RecipeDisplay$ButtonType").getEnumConstants()[2]);
+                this.rows = Math.max(1, (this.height + 8 + 2) / 14);
+                this.leftWidth = Math.max(0, (this.leftButtons.size() + this.rows - 1) / this.rows * 14 - 1);
+                this.rightWidth = Math.max(0, (this.rightButtons.size() + this.rows - 1) / this.rows * 14 - 1);
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }

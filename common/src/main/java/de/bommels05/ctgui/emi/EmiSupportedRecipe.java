@@ -18,7 +18,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import org.slf4j.Logger;
 
 public class EmiSupportedRecipe<R extends Recipe<?>, T extends SupportedRecipeType<R>> implements SupportedRecipe<R, T> {
@@ -32,9 +31,9 @@ public class EmiSupportedRecipe<R extends Recipe<?>, T extends SupportedRecipeTy
     @SuppressWarnings("unchecked")
     public EmiSupportedRecipe(EmiRecipe recipe) {
         this.recipe = recipe;
-        RecipeHolder<R> holder = ((RecipeHolder<R>) recipe.getBackingRecipe());
+        R holder = (R) recipe.getBackingRecipe();
         type = (T) RecipeTypeManager.getType(recipe.getCategory().getId());
-        mcRecipe = type.getAlternativeEmiRecipeGetter() != null ? type.getAlternativeEmiRecipeGetter().apply(recipe) : (holder != null ? ViewerUtils.getRealRecipe(holder.value(), holder.id()) : null);
+        mcRecipe = type.getAlternativeEmiRecipeGetter() != null ? type.getAlternativeEmiRecipeGetter().apply(recipe) : (holder != null ? ViewerUtils.getRealRecipe(holder, holder.getId()) : null);
     }
 
     @SuppressWarnings("unchecked")
@@ -88,7 +87,7 @@ public class EmiSupportedRecipe<R extends Recipe<?>, T extends SupportedRecipeTy
         int mY = mouseY - y;
         int mX = mouseX - x;
         for (Widget widget : widgets.widgets) {
-            widget.render(graphics, mX, mY, Minecraft.getInstance().getTimer().getRealtimeDeltaTicks());
+            widget.render(graphics, mX, mY, Minecraft.getInstance().getFrameTime());
         }
         graphics.pose().translate(-x, -y, 0);
         for (Widget widget : widgets.widgets) {

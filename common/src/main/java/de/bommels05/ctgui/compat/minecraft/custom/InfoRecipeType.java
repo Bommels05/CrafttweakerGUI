@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.minecraft.custom;
 
+import com.google.gson.JsonObject;
 import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.api.AmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
@@ -7,7 +8,6 @@ import de.bommels05.ctgui.api.UnsupportedRecipeException;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
 import de.bommels05.ctgui.api.option.RecipeIdFieldRecipeOption;
 import de.bommels05.ctgui.emi.EmiViewerUtils;
-import de.bommels05.ctgui.mixin.EmiCompostingRecipeAccessor;
 import de.bommels05.ctgui.mixin.EmiInfoRecipeAccessor;
 import dev.emi.emi.api.recipe.EmiInfoRecipe;
 import dev.emi.emi.api.recipe.EmiRecipe;
@@ -24,15 +24,15 @@ public class InfoRecipeType extends SupportedRecipeType<InfoRecipe> {
     RecipeIdFieldRecipeOption<InfoRecipe> text = new RecipeIdFieldRecipeOption<>(Component.translatable("ctgui.editing.options.info_text"), s -> true);
 
     public InfoRecipeType() {
-        super(ResourceLocation.parse(CraftTweakerGUI.isJeiActive() ? "minecraft:info" : "emi:info"));
+        super(new ResourceLocation(CraftTweakerGUI.isJeiActive() ? "minecraft:info" : "emi:info"));
 
         addAreaEmptyRightClick(0, 0, 17, 17, (r, am) -> {
-            return new InfoRecipe(am.ensureAmount(1, 1).ingredient(), r.getText());
+            return new InfoRecipe(r.getId(), am.ensureAmount(1, 1).ingredient(), r.getText());
         }, r -> {
             return new AmountedIngredient(r.getIngredient(), 1);
         });
         addOption(text, (r, value) -> {
-            return new InfoRecipe(r.getIngredient(), value);
+            return new InfoRecipe(r.getId(), r.getIngredient(), value);
         });
     }
 
@@ -41,7 +41,7 @@ public class InfoRecipeType extends SupportedRecipeType<InfoRecipe> {
         super.onInitialize(recipe);
         if (recipe == null) {
             text.set("Info Text...");
-            return new InfoRecipe(Ingredient.EMPTY, "Info Text...");
+            return new InfoRecipe(nullRl(), Ingredient.EMPTY, "Info Text...");
         } else if (recipe.getText() == null) {
             throw new UnsupportedRecipeException(Component.translatable("ctgui.editing.multipage_info_recipe")); //null means currently unsupported multi-page info
         }
@@ -61,7 +61,7 @@ public class InfoRecipeType extends SupportedRecipeType<InfoRecipe> {
 
     @Override
     public Function<EmiRecipe, InfoRecipe> getAlternativeEmiRecipeGetter() {
-        return recipe -> recipe instanceof EmiInfoRecipeAccessor r ? new InfoRecipe(EmiViewerUtils.getElseEmpty(EmiIngredient.of(r.getStacks())), r.getText().size() == 1 ? r.getText().get(0).getString() : null) : null;
+        return recipe -> recipe instanceof EmiInfoRecipeAccessor r ? new InfoRecipe(nullRl(), EmiViewerUtils.getElseEmpty(EmiIngredient.of(r.getStacks())), r.getText().size() == 1 ? r.getText().get(0).getString() : null) : null;
     }
 
     @Override
@@ -72,6 +72,19 @@ public class InfoRecipeType extends SupportedRecipeType<InfoRecipe> {
     @Override
     public String getCraftTweakerImportsString() {
         return "import mods.jeitweaker.Jei;";
+    }
+
+    @Override
+    public JsonObject getRecipeJson(InfoRecipe recipe) {
+        JsonObject json = new JsonObject();
+        json.addProperty("text", recipe.getText());
+        json.add("ingredient", recipe.getIngredient().toJson());
+        return json;
+    }
+
+    @Override
+    public InfoRecipe getWithId(InfoRecipe r, ResourceLocation id) {
+        return new InfoRecipe(id, r.getIngredient(), r.getText());
     }
 
     @Override

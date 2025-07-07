@@ -3,6 +3,7 @@ package de.bommels05.ctgui.api;
 import com.blamejared.crafttweaker.api.ingredient.IIngredient;
 import com.blamejared.crafttweaker.api.ingredient.type.IngredientWithAmount;
 import com.blamejared.crafttweaker.api.util.ItemStackUtil;
+import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Either;
 import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.screen.RecipeEditScreen;
@@ -13,8 +14,8 @@ import dev.emi.emi.api.recipe.EmiRecipeCategory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -22,7 +23,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.PotionItem;
-import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import org.jetbrains.annotations.Nullable;
@@ -41,7 +42,9 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
 
     public static final ItemStack UNSET = new ItemStack(Items.BARRIER);
     static {
-        UNSET.set(DataComponents.CUSTOM_NAME, Component.literal("Unset"));
+        CompoundTag display = new CompoundTag();
+        display.putString("Name", "Unset");
+        UNSET.getOrCreateTag().put("display", display);
     }
     private final ResourceLocation id;
     private final List<Area<R, ?, ?>> areas = new ArrayList<>();
@@ -88,6 +91,21 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
      * @return The CraftTweaker command to add the recipe
      */
     public abstract String getCraftTweakerString(R recipe, String id);
+
+    /**
+     * Returns the JSON representation of the recipe so it can be loaded back using the recipe serializer
+     * @param recipe The recipe
+     * @return The JSON representation of the recipe
+     */
+    public abstract JsonObject getRecipeJson(R recipe);
+
+    /***
+     * Returns the recipe with the recipe id changed to the supplied one
+     * @param recipe The recipe
+     * @param id The recipe id
+     * @return The recipe with the id
+     */
+    public abstract R getWithId(R recipe, ResourceLocation id);
 
     /**
      * Returns the CraftTweaker command to remove the recipe of this type with the given id
@@ -176,7 +194,7 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
      */
     protected String getPotionCTString(ItemStack stack) {
         if (stack.getItem() instanceof PotionItem) {
-            return "<potion:" + getPotionId(stack.get(DataComponents.POTION_CONTENTS)) + ">" + (stack.getCount() > 1 ? " * " + stack.getCount() : "");
+            return "<potion:" + BuiltInRegistries.POTION.getKey(PotionUtils.getPotion(stack)) + ">" + (stack.getCount() > 1 ? " * " + stack.getCount() : "");
         }
         throw new IllegalArgumentException("Stack is not a potion");
     }
@@ -197,6 +215,18 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
      */
     protected String getCTString(AmountedIngredient ingredient) {
         return new IngredientWithAmount(IIngredient.fromIngredient(ingredient.ingredient()), ingredient.amount()).getCommandString();
+    }
+
+    /**
+     * Returns the JSON representation of an ItemStack
+     * @param stack The ItemStack
+     * @return The JSON representation of the ItemStack
+     */
+    protected JsonObject getJson(ItemStack stack) {
+        JsonObject json = new JsonObject();
+        json.addProperty("item", BuiltInRegistries.ITEM.getKey(stack.getItem()).toString());
+        json.addProperty("count", stack.getCount());
+        return json;
     }
 
     public R onDragAndDrop(R recipe, int x, int y, AmountedIngredient ingredient) {
@@ -460,7 +490,7 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
     }
 
     protected ResourceLocation nullRl() {
-        return ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, "null");
+        return new ResourceLocation(CraftTweakerGUI.MOD_ID, "null");
     }
 
     protected EmiRecipeCategory getEmiCategory(ResourceLocation id) {
@@ -468,7 +498,7 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
     }
 
     protected ItemStack convertUnset(ItemStack stack) {
-        if (ItemStack.isSameItemSameComponents(stack, UNSET)) {
+        if (ItemStack.isSameItemSameTags(stack, UNSET)) {
             return ItemStack.EMPTY;
         }
         return stack;
@@ -482,7 +512,7 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
     }
 
     protected AmountedIngredient convertUnset(AmountedIngredient ingredient) {
-        if (ItemStack.isSameItemSameComponents(ingredient.asStack(), UNSET)) {
+        if (ItemStack.isSameItemSameTags(ingredient.asStack(), UNSET)) {
             return AmountedIngredient.empty();
         }
         return ingredient;
@@ -497,10 +527,6 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
 
     protected void error(Component message) {
         new UnsupportedRecipeException(message).display();
-    }
-
-    private ResourceLocation getPotionId(PotionContents potion) {
-        return potion.potion().orElseThrow().unwrap().map(ResourceKey::location, BuiltInRegistries.POTION::getKey);
     }
 
     public ResourceLocation getId() {

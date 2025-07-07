@@ -1,10 +1,12 @@
 package de.bommels05.ctgui;
 
+import com.google.gson.Gson;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.JsonOps;
 import de.bommels05.ctgui.api.RecipeTypeManager;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
@@ -15,6 +17,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.structures.NbtToSnbt;
 import net.minecraft.nbt.*;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -105,9 +108,9 @@ public class ChangedRecipeManager {
                 }
                 RecipeSerializer<?> serializer = change.recipe.getSerializer();
                 changeTag.putString("serializer", BuiltInRegistries.RECIPE_SERIALIZER.getKey(serializer).toString());
-                changeTag.put("recipe", toTag(serializer, change.recipe));
+                changeTag.put("recipe", toTag(change.recipeType, change.recipe));
                 if (change.type == ChangedRecipe.Type.CHANGED && change.originalRecipe != null) {
-                    changeTag.put("originalRecipe", toTag(serializer, change.originalRecipe));
+                    changeTag.put("originalRecipe", toTag(change.recipeType, change.originalRecipe));
                 }
                 changes.add(changeTag);
             } catch (Throwable t) {
@@ -148,10 +151,10 @@ public class ChangedRecipeManager {
                     try {
                         CompoundTag change = (CompoundTag) tag;
                         ChangedRecipe.Type type = ChangedRecipe.Type.valueOf(change.getString("type"));
-                        SupportedRecipeType<?> recipeType = RecipeTypeManager.getType(ResourceLocation.parse(change.getString("recipeType")));;
-                        RecipeSerializer<?> serializer = BuiltInRegistries.RECIPE_SERIALIZER.get(ResourceLocation.parse(change.getString("serializer")));
+                        SupportedRecipeType<?> recipeType = RecipeTypeManager.getType(new ResourceLocation(change.getString("recipeType")));;
+                        RecipeSerializer<?> serializer = BuiltInRegistries.RECIPE_SERIALIZER.get(new ResourceLocation(change.getString("serializer")));
                         changedRecipes.add(new ChangedRecipe<>(type, type != ChangedRecipe.Type.REMOVED ? change.getString("id") : null,
-                                type != ChangedRecipe.Type.ADDED ? ResourceLocation.parse(change.getString("originalId")) : null,
+                                type != ChangedRecipe.Type.ADDED ? new ResourceLocation(change.getString("originalId")) : null,
                                 fromTag(serializer, change.get("recipe"), recipeType),
                                 type == ChangedRecipe.Type.CHANGED && change.contains("originalRecipe") ? fromTag(serializer, change.get("originalRecipe"), recipeType) : null,
                                 recipeType, change.getBoolean("exported")));
@@ -173,29 +176,21 @@ public class ChangedRecipeManager {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T extends Recipe<?>> Tag toTag(RecipeSerializer<?> serializer, Recipe<?> recipe) {
-        DataResult<Tag> result = ((RecipeSerializer<T>) serializer).codec().encode((T) recipe, NbtOps.INSTANCE, NbtOps.INSTANCE.mapBuilder()).build((Tag) null);
-        if (result.isSuccess()) {
-            return result.getOrThrow();
+    private static <T extends Recipe<?>> Tag toTag(SupportedRecipeType<?> type, T recipe) {
+        try {
+            return JsonOps.INSTANCE.convertTo(NbtOps.INSTANCE, ((SupportedRecipeType<T>) type).getRecipeJson(recipe));
+        } catch (Exception e) {
+            throw new RuntimeException("Recipe could not be serialized", e);
         }
-        throw new RuntimeException("Recipe could not be serialized: " + result.error().map(DataResult.Error::message).orElse(recipe.toString()));
     }
 
     @SuppressWarnings("unchecked")
     private static <T extends Recipe<?>> T fromTag(RecipeSerializer<?> serializer, Tag tag, SupportedRecipeType<?> recipeType) {
-        AtomicReference<String> error = new AtomicReference<>(tag.toString());
-        Optional<T> result = ((RecipeSerializer<T>) serializer).codec().decode(NbtOps.INSTANCE, NbtOps.INSTANCE.getMap(tag).getOrThrow()).resultOrPartial(error::set);
-        if (result.isPresent()) {
-            try {
-                T recipe = result.get();
-                T processedRecipe = ((SupportedRecipeType<T>) recipeType).onInitialize(recipe);
-                return processedRecipe == null ? recipe : processedRecipe;
-            } catch (UnsupportedRecipeException e) {
-                //Unsupported recipes shouldn't be able to get saved, so we ignore it
-                throw new RuntimeException(e);
-            }
+        try {
+            return ((RecipeSerializer<T>) serializer).fromJson(new ResourceLocation(CraftTweakerGUI.MOD_ID, "null"), NbtOps.INSTANCE.convertTo(JsonOps.INSTANCE, tag).getAsJsonObject());
+        } catch (Exception e) {
+            throw new RuntimeException("Recipe could not be deserialized", e);
         }
-        throw new RuntimeException("Recipe could not be deserialized: " + error.get());
     }
 
     public static void export() {
@@ -251,7 +246,7 @@ public class ChangedRecipeManager {
     }
 
     private static void toastWithChat(Component title, Component message) {
-        Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToast.SystemToastId.PERIODIC_NOTIFICATION, title, message));
+        Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToast.SystemToastIds.PERIODIC_NOTIFICATION, title, message));
         Minecraft.getInstance().player.sendSystemMessage(title.copy().append(": ").append(message));
     }
 
@@ -359,6 +354,10 @@ public class ChangedRecipeManager {
 
         public T getRecipe() {
             return recipe;
+        }
+
+        public T getRecipeWithId() {
+            return recipeType.getWithId(recipe, new ResourceLocation(CraftTweakerGUI.MOD_ID, id));
         }
 
         public T getOriginalRecipe() {

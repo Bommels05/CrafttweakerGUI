@@ -58,7 +58,7 @@ public record AmountedIngredient(Ingredient ingredient, int amount) {
         int amount = Math.min(max, Math.max(min, this.amount));
         if (amount != this.amount) {
             return new AmountedIngredient(Ingredient.of(Arrays.stream(ingredient.values).filter(value -> value instanceof Ingredient.ItemValue).
-                    map(value -> ((Ingredient.ItemValue) value).item().copyWithCount(amount))), amount);
+                    map(value -> ((Ingredient.ItemValue) value).item.copyWithCount(amount))), amount);
         }
         return this;
     }

@@ -22,10 +22,12 @@ public class ChangedRecipesList extends ObjectSelectionList<ChangedRecipesList.E
     private final Button delete;
     private final Button edit;
     private boolean onlyNew;
+    private boolean validClick;
 
     public ChangedRecipesList(Minecraft mc, int width, int height, int y, boolean onlyNew) {
-        super(mc, width, height, y, 36);
+        super(mc, width, height, y, y + height, 36);
         this.onlyNew = onlyNew;
+        setRenderTopAndBottom(false);
 
         delete = Button.builder(Component.translatable("ctgui.editing.delete"), button -> {
             ChangedRecipeManager.removeChangedRecipe(getSelected().recipe);
@@ -71,28 +73,35 @@ public class ChangedRecipesList extends ObjectSelectionList<ChangedRecipesList.E
             }
             int width = Math.max(recipe.getWidth(), 100) + 10;
             int left = this.width - width;
-            /*graphics.setColor(0.25F, 0.25F, 0.25F, 1.0F);
-            graphics.blit(Screen.MENU_BACKGROUND, left, this.getY(), 0, 0, width, minecraft.screen.height - this.getY(), 32, 32);
-            graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);*/
+            graphics.setColor(0.25F, 0.25F, 0.25F, 1.0F);
+            graphics.blit(Screen.BACKGROUND_LOCATION, left, this.y0, 0, 0, width, minecraft.screen.height - this.y0, 32, 32);
+            graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
             int buttonX = left + ((width / 2) - 50);
             if (Config.editMode) {
-                delete.setPosition(buttonX, this.getBottom() - 50);
-                delete.render(graphics, mouseX, mouseY, minecraft.getTimer().getRealtimeDeltaTicks());
+                delete.setPosition(buttonX, this.y1 - 50);
+                delete.render(graphics, mouseX, mouseY, minecraft.getFrameTime());
                 if (getSelected().recipe.getType() != Type.REMOVED) {
-                    edit.setPosition(buttonX, this.getBottom() - 25);
-                    edit.render(graphics, mouseX, mouseY, minecraft.getTimer().getRealtimeDeltaTicks());
+                    edit.setPosition(buttonX, this.y1 - 25);
+                    edit.render(graphics, mouseX, mouseY, minecraft.getFrameTime());
                 }
             }
-            recipe.render(left + 5, this.getY() + 5, graphics, mouseX, mouseY, minecraft.screen);
+            recipe.render(left + 5, this.y0 + 5, graphics, mouseX, mouseY, minecraft.screen);
         }
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (!super.mouseClicked(mouseX, mouseY, button)) {
+        super.mouseClicked(mouseX, mouseY, button);
+        if (validClick) {
+            validClick = false;
             return Config.editMode && getSelected() != null && (delete.mouseClicked(mouseX, mouseY, button) || (getSelected().recipe.getType() != Type.REMOVED && edit.mouseClicked(mouseX, mouseY, button)));
         }
         return true;
+    }
+
+    @Override
+    protected void clickedHeader(int i, int j) {
+        validClick = true;
     }
 
     public class Entry extends ObjectSelectionList.Entry<Entry> {

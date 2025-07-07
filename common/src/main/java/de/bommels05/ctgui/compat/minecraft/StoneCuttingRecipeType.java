@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.minecraft;
 
+import com.google.gson.JsonObject;
 import de.bommels05.ctgui.api.AmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
@@ -17,15 +18,15 @@ public class StoneCuttingRecipeType extends SupportedRecipeType<StonecutterRecip
 
 
     public StoneCuttingRecipeType() {
-        super(ResourceLocation.parse("minecraft:stonecutting"));
+        super(new ResourceLocation("minecraft:stonecutting"));
 
         addAreaEmptyRightClick(0, 0, 17, 17, (r, am) -> {
-            return new StonecutterRecipe(r.getGroup(), am.ensureAmount(1, 1).ingredient(), r.getResultItem(regAccess()));
+            return new StonecutterRecipe(r.getId(), r.getGroup(), am.ensureAmount(1, 1).ingredient(), r.getResultItem(regAccess()));
         }, r -> {
             return new AmountedIngredient(r.getIngredients().get(0), 1);
         });
         addAreaScrollAmountEmptyRightClick(58, 0, 25, 25, (r, am) -> {
-            return new StonecutterRecipe(r.getGroup(), r.getIngredients().get(0), am.asStack());
+            return new StonecutterRecipe(r.getId(), r.getGroup(), r.getIngredients().get(0), am.asStack());
         }, r -> {
             return AmountedIngredient.of(r.getResultItem(regAccess()));
         });
@@ -35,7 +36,7 @@ public class StoneCuttingRecipeType extends SupportedRecipeType<StonecutterRecip
     public StonecutterRecipe onInitialize(StonecutterRecipe recipe) throws UnsupportedRecipeException {
         super.onInitialize(recipe);
         if (recipe == null) {
-            return new StonecutterRecipe("", Ingredient.EMPTY, ItemStack.EMPTY);
+            return new StonecutterRecipe(nullRl(), "", Ingredient.EMPTY, ItemStack.EMPTY);
         }
         return null;
     }
@@ -53,5 +54,18 @@ public class StoneCuttingRecipeType extends SupportedRecipeType<StonecutterRecip
     @Override
     public String getCraftTweakerString(StonecutterRecipe recipe, String id) {
         return "stoneCutter.addRecipe(\"" + id + "\", " + getCTString(recipe.getResultItem(regAccess())) +  ", "+ getCTString(recipe.getIngredients().get(0)) + ");";
+    }
+
+    @Override
+    public JsonObject getRecipeJson(StonecutterRecipe recipe) {
+        JsonObject json = new JsonObject();
+        json.add("ingredient", recipe.getIngredients().get(0).toJson());
+        json.add("result", getJson(recipe.getResultItem(regAccess())));
+        return json;
+    }
+
+    @Override
+    public StonecutterRecipe getWithId(StonecutterRecipe r, ResourceLocation id) {
+        return new StonecutterRecipe(id, r.getGroup(), r.getIngredients().get(0), r.getResultItem(regAccess()));
     }
 }

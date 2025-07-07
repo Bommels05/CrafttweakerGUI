@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.minecraft.custom;
 
+import com.google.gson.JsonObject;
 import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.api.AmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
@@ -23,14 +24,14 @@ public class CompostingRecipeType extends SupportedRecipeType<CompostingRecipe> 
     private final FloatRecipeOption<CompostingRecipe> chance = new FloatRecipeOption<>(Component.translatable("ctgui.editing.options.composting_chance"), 0, 1);
 
     public CompostingRecipeType() {
-        super(ResourceLocation.parse(CraftTweakerGUI.isJeiActive() ? "minecraft:composting" : "emi:composting"));
+        super(new ResourceLocation(CraftTweakerGUI.isJeiActive() ? "minecraft:composting" : "emi:composting"));
         addAreaEmptyRightClick(0, 0, 17, 17, (r, am) -> {
-            return new CompostingRecipe(am.ensureAmount(1, 1).ingredient(), r.getChance());
+            return new CompostingRecipe(r.getId(), am.ensureAmount(1, 1).ingredient(), r.getChance());
         }, r -> {
             return new AmountedIngredient(r.getIngredient(), 1);
         });
         addOption(chance, (r, value) -> {
-            return new CompostingRecipe(r.getIngredient(), value);
+            return new CompostingRecipe(r.getId(), r.getIngredient(), value);
         });
     }
 
@@ -39,7 +40,7 @@ public class CompostingRecipeType extends SupportedRecipeType<CompostingRecipe> 
         super.onInitialize(recipe);
         if (recipe == null) {
             chance.set(0.3f);
-            return new CompostingRecipe(Ingredient.EMPTY, 0.3f);
+            return new CompostingRecipe(nullRl(), Ingredient.EMPTY, 0.3f);
         }
         chance.set(recipe.getChance());
         return null;
@@ -57,7 +58,7 @@ public class CompostingRecipeType extends SupportedRecipeType<CompostingRecipe> 
 
     @Override
     public Function<EmiRecipe, CompostingRecipe> getAlternativeEmiRecipeGetter() {
-        return recipe -> recipe instanceof EmiCompostingRecipeAccessor r ? new CompostingRecipe(EmiViewerUtils.getElseEmpty(r.getStack()), r.getChance()) : null;
+        return recipe -> recipe instanceof EmiCompostingRecipeAccessor r ? new CompostingRecipe(nullRl(), EmiViewerUtils.getElseEmpty(r.getStack()), r.getChance()) : null;
     }
 
     @Override
@@ -68,6 +69,19 @@ public class CompostingRecipeType extends SupportedRecipeType<CompostingRecipe> 
     @Override
     public String getCraftTweakerRemoveString(CompostingRecipe recipe, ResourceLocation id) {
         return "composter.setValue(" + getCTString(recipe.getIngredient()) + ", 0);";
+    }
+
+    @Override
+    public JsonObject getRecipeJson(CompostingRecipe recipe) {
+        JsonObject json = new JsonObject();
+        json.addProperty("chance", recipe.getChance());
+        json.add("ingredient", recipe.getIngredient().toJson());
+        return json;
+    }
+
+    @Override
+    public CompostingRecipe getWithId(CompostingRecipe r, ResourceLocation id) {
+        return new CompostingRecipe(id, r.getIngredient(), r.getChance());
     }
 
     @Override

@@ -17,9 +17,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.ItemLike;
-import org.apache.commons.lang3.stream.Streams;
 
 import java.util.List;
+import java.util.stream.StreamSupport;
 
 public interface ViewerUtils<R> {
 
@@ -70,13 +70,14 @@ public interface ViewerUtils<R> {
 
     @SuppressWarnings("unchecked")
     public static <S, T, RT extends Registry<?>, RT2 extends Registry<T>> List<S> of(TagKey<T> tag) {
-        return (List<S>) Streams.of(((RT2) ((Registry<RT>) BuiltInRegistries.REGISTRY).get((ResourceKey<RT>) tag.registry())).getTagOrEmpty(tag)).map(Holder::value).map(ViewerUtils::stackFromType).toList();
+        Iterable<Holder<T>> tagEntries = ((RT2) ((Registry<RT>) BuiltInRegistries.REGISTRY).get((ResourceKey<RT>) tag.registry())).getTagOrEmpty(tag);
+        return (List<S>) StreamSupport.stream(tagEntries.spliterator(), false).map(Holder::value).map(ViewerUtils::stackFromType).toList();
     }
 
     @SuppressWarnings("unchecked")
     public static <T> T getRealRecipe(T recipe, ResourceLocation id) {
         if (Minecraft.getInstance().hasSingleplayerServer()) {
-            return Minecraft.getInstance().getSingleplayerServer().getRecipeManager().byKey(id).map(h -> (T) h.value()).orElse(recipe);
+            return Minecraft.getInstance().getSingleplayerServer().getRecipeManager().byKey(id).map(h -> (T) h).orElse(recipe);
         }
         return recipe;
     }

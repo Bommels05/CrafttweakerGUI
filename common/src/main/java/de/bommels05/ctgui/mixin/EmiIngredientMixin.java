@@ -40,7 +40,7 @@ public interface EmiIngredientMixin {
         if (Config.noTagCollapsing && (Minecraft.getInstance().screen instanceof RecipeEditScreen<?> || Config.showTagsEverywhere) &&
                 Arrays.stream(ingredient.values).anyMatch(value -> value instanceof Ingredient.TagValue &&
                         //Empty Tags shouldn't display as a list ingredient
-                        BuiltInRegistries.ITEM.getTagOrEmpty(((Ingredient.TagValue) value).tag()).iterator().hasNext())) {
+                        BuiltInRegistries.ITEM.getTagOrEmpty(((Ingredient.TagValue) value).tag).iterator().hasNext())) {
             //Indicate that this is a tag to mixins further down the line
             return new TagCollapsingBypassingList<>(instance.toList());
         }

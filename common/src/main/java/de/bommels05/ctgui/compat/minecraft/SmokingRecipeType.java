@@ -11,7 +11,7 @@ import net.minecraft.world.item.crafting.SmokingRecipe;
 public class SmokingRecipeType extends CookingRecipeType<SmokingRecipe> {
 
     public SmokingRecipeType() {
-        super(ResourceLocation.parse("minecraft:smoking"), SmokingRecipe::new, 100, "smoker");
+        super(new ResourceLocation("minecraft:smoking"), SmokingRecipe::new, 100, "smoker");
     }
 
     @Override

@@ -7,6 +7,8 @@ accessible field net/minecraft/tags/TagEntry tag Z
 accessible field net/minecraft/tags/TagEntry id Lnet/minecraft/resources/ResourceLocation;
 accessible field net/minecraft/world/item/crafting/Ingredient values [Lnet/minecraft/world/item/crafting/Ingredient$Value;
 accessible class net/minecraft/world/item/crafting/Ingredient$TagValue
+accessible field net/minecraft/world/item/crafting/Ingredient$TagValue tag Lnet/minecraft/tags/TagKey;
 accessible class net/minecraft/world/item/crafting/Ingredient$ItemValue
+accessible field net/minecraft/world/item/crafting/Ingredient$ItemValue item Lnet/minecraft/world/item/ItemStack;
 accessible class net/minecraft/world/item/crafting/Ingredient$Value
-extendable method net/minecraft/client/gui/components/SpriteIconButton <init> (IILnet/minecraft/network/chat/Component;IILnet/minecraft/resources/ResourceLocation;Lnet/minecraft/client/gui/components/Button$OnPress;Lnet/minecraft/client/gui/components/Button$CreateNarration;)V
+accessible method net/minecraft/resources/ResourceLocation isValidPath (Ljava/lang/String;)Z

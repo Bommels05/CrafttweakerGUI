@@ -1,6 +1,6 @@
 plugins {
     id "architectury-plugin" version "3.+"
-    id "dev.architectury.loom" version "1.7-SNAPSHOT" apply false
+    id "dev.architectury.loom" version "1.9-SNAPSHOT" apply false
 }
 
 architectury {
@@ -29,7 +29,7 @@ allprojects {
         archivesName = mod_id
     }
 
-    java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+    java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
     version = mod_version
     group = mod_group_id

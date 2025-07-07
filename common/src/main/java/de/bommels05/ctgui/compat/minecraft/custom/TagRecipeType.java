@@ -1,5 +1,7 @@
 package de.bommels05.ctgui.compat.minecraft.custom;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import de.bommels05.ctgui.api.AmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
@@ -10,6 +12,7 @@ import de.bommels05.ctgui.emi.EmiEditingTagRecipe;
 import dev.emi.emi.api.recipe.EmiRecipe;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.recipe.EmiTagRecipe;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -18,6 +21,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.material.Fluid;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +46,7 @@ public class TagRecipeType extends SupportedRecipeType<TagRecipe> {
     });
 
     public TagRecipeType() {
-        super(ResourceLocation.parse("emi:tag"));
+        super(new ResourceLocation("emi:tag"));
 
         //todo enable this when fluids are supported
         /*addOption(item, (r, item) -> {
@@ -55,9 +59,9 @@ public class TagRecipeType extends SupportedRecipeType<TagRecipe> {
         addOption(name, (r, name) -> {
             if (ResourceLocation.tryParse(name) != null && !name.isEmpty()) {
                 if (r.item) {
-                    return new TagRecipe(TagKey.create(Registries.ITEM, ResourceLocation.parse(name)), r.items, r.itemTags);
+                    return new TagRecipe(TagKey.create(Registries.ITEM, new ResourceLocation(name)), r.items, r.itemTags);
                 } else {
-                    return new TagRecipe(r.fluidTags, r.fluids, TagKey.create(Registries.FLUID, ResourceLocation.parse(name)));
+                    return new TagRecipe(r.fluidTags, r.fluids, TagKey.create(Registries.FLUID, new ResourceLocation(name)));
                 }
             } else {
                 r.valid = false;
@@ -72,7 +76,7 @@ public class TagRecipeType extends SupportedRecipeType<TagRecipe> {
 
         if (recipe == null) {
             name.set("ctgui:example_tag");
-            return new TagRecipe(TagKey.create(Registries.ITEM, ResourceLocation.parse("ctgui:example_tag")), List.of(), List.of());
+            return new TagRecipe(TagKey.create(Registries.ITEM, new ResourceLocation("ctgui:example_tag")), List.of(), List.of());
         }
         name.set(recipe.id.toString());
         //We return the old recipe here so the custom emi recipe implementation is used and not the original
@@ -100,7 +104,7 @@ public class TagRecipeType extends SupportedRecipeType<TagRecipe> {
                         }
                     } else if (am.isTag()) {
                         List<TagKey<Item>> tags = new ArrayList<>(r.itemTags);
-                        tags.add(((Ingredient.TagValue) am.ingredient().values[0]).tag());
+                        tags.add(((Ingredient.TagValue) am.ingredient().values[0]).tag);
                         return new TagRecipe(TagKey.create(Registries.ITEM, r.id), r.items, tags);
                     } else {
                         List<ItemStack> items = new ArrayList<>(r.items);
@@ -154,19 +158,57 @@ public class TagRecipeType extends SupportedRecipeType<TagRecipe> {
 
     @Override
     public String getCraftTweakerRemoveString(TagRecipe recipe, ResourceLocation id) {
-        return "<tag:item:" + recipe.id + ">.clear();";
+        return "<tag:items:" + recipe.id + ">.clear();";
     }
 
     @Override
     public String getCraftTweakerString(TagRecipe recipe, String id) {
         StringJoiner builder = new StringJoiner("\n");
         for (TagKey<Item> tag : recipe.itemTags) {
-            String tagName = "<tag:item:" + tag.location() + ">";
-            builder.add("if (" + tagName + ".exists) { <tag:item:" + recipe.id + ">.add(" + tagName + "); }");
+            String tagName = "<tag:items:" + tag.location() + ">";
+            builder.add("if (" + tagName + ".exists) { <tag:items:" + recipe.id + ">.add(" + tagName + "); }");
         }
         for (ItemStack item : recipe.items) {
-            builder.add("<tag:item:" + recipe.id + ">.add(" + getCTString(item) + ");");
+            builder.add("<tag:items:" + recipe.id + ">.add(" + getCTString(item) + ");");
         }
         return builder.toString();
+    }
+
+    @Override
+    public JsonObject getRecipeJson(TagRecipe recipe) {
+        JsonObject json = new JsonObject();
+        json.addProperty("item", recipe.item);
+        json.addProperty("id", recipe.id.toString());
+        if (recipe.item) {
+            JsonArray items = new JsonArray();
+            for (ItemStack item : recipe.items) {
+                items.add(getJson(item));
+            }
+            json.add("items", items);
+
+            JsonArray itemTags = new JsonArray();
+            for (TagKey<Item> tag : recipe.itemTags) {
+                itemTags.add(tag.location().toString());
+            }
+            json.add("itemTags", itemTags);
+        } else {
+            JsonArray fluids = new JsonArray();
+            for (Fluid fluid : recipe.fluids) {
+                fluids.add(BuiltInRegistries.FLUID.getKey(fluid).toString());
+            }
+            json.add("fluids", fluids);
+
+            JsonArray fluidTags = new JsonArray();
+            for (TagKey<Fluid> tag : recipe.fluidTags) {
+                fluidTags.add(tag.location().toString());
+            }
+            json.add("fluidTags", fluidTags);
+        }
+        return json;
+    }
+
+    @Override
+    public TagRecipe getWithId(TagRecipe recipe, ResourceLocation id) {
+        return recipe;
     }
 }

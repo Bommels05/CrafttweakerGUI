@@ -3,9 +3,8 @@ package de.bommels05.ctgui;
 import de.bommels05.ctgui.compat.minecraft.custom.*;
 import de.bommels05.ctgui.emi.EmiViewerUtils;
 import de.bommels05.ctgui.jei.JeiViewerUtils;
-import de.bommels05.ctgui.screen.ChangeListScreen;
-import fuzs.forgeconfigapiport.fabric.api.neoforge.v4.NeoForgeConfigRegistry;
-import fuzs.forgeconfigapiport.fabric.api.neoforge.v4.NeoForgeModConfigEvents;
+import fuzs.forgeconfigapiport.api.config.v2.ForgeConfigRegistry;
+import fuzs.forgeconfigapiport.api.config.v2.ModConfigEvents;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
@@ -17,7 +16,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.neoforged.fml.config.ModConfig;
+import net.minecraftforge.fml.config.ModConfig;
 
 public class ClientInit implements ClientModInitializer {
 
@@ -36,17 +35,17 @@ public class ClientInit implements ClientModInitializer {
         CraftTweakerGUI.loaderUtils = new FabricLoaderUtils();
 
         tagRecipeType = registerRecipeType("tag");
-        tagRecipeSerializer = Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, "tag"), new TagRecipeSerializer());
+        tagRecipeSerializer = Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, new ResourceLocation(CraftTweakerGUI.MOD_ID, "tag"), new TagRecipeSerializer());
         fuelRecipeType = registerRecipeType("fuel");
-        fuelRecipeSerializer = Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, "fuel"), new FuelRecipeSerializer());
+        fuelRecipeSerializer = Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, new ResourceLocation(CraftTweakerGUI.MOD_ID, "fuel"), new FuelRecipeSerializer());
         compostingRecipeType = registerRecipeType("composting");
-        compostingRecipeSerializer = Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, "composting"), new CompostingRecipeSerializer());
+        compostingRecipeSerializer = Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, new ResourceLocation(CraftTweakerGUI.MOD_ID, "composting"), new CompostingRecipeSerializer());
         infoRecipeType = registerRecipeType("info");
-        infoRecipeSerializer = Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, "info"), new InfoRecipeSerializer());
+        infoRecipeSerializer = Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, new ResourceLocation(CraftTweakerGUI.MOD_ID, "info"), new InfoRecipeSerializer());
 
-        NeoForgeModConfigEvents.reloading(CraftTweakerGUI.MOD_ID).register(config -> FabricConfig.onLoad());
-        NeoForgeModConfigEvents.loading(CraftTweakerGUI.MOD_ID).register(config -> FabricConfig.onLoad());
-        NeoForgeConfigRegistry.INSTANCE.register(CraftTweakerGUI.MOD_ID, ModConfig.Type.COMMON, FabricConfig.SPEC);
+        ModConfigEvents.reloading(CraftTweakerGUI.MOD_ID).register(config -> FabricConfig.onLoad());
+        ModConfigEvents.loading(CraftTweakerGUI.MOD_ID).register(config -> FabricConfig.onLoad());
+        ForgeConfigRegistry.INSTANCE.register(CraftTweakerGUI.MOD_ID, ModConfig.Type.COMMON, FabricConfig.SPEC);
 
         if (!FabricLoader.getInstance().isModLoaded("emi") && !FabricLoader.getInstance().isModLoaded("jei")) {
             throw new IllegalStateException("Either Emi or Jei is required for CraftTweaker GUI to work");
@@ -62,7 +61,7 @@ public class ClientInit implements ClientModInitializer {
     }
 
     private <T extends Recipe<?>> RecipeType<T> registerRecipeType(String name) {
-        String id = ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, name).toString();
+        String id = new ResourceLocation(CraftTweakerGUI.MOD_ID, name).toString();
         return Registry.register(BuiltInRegistries.RECIPE_TYPE, id, new RecipeType<>() {
             public String toString() {
                 return id;

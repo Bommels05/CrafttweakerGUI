@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.minecraft.custom;
 
+import com.google.gson.JsonObject;
 import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.api.AmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
@@ -20,14 +21,14 @@ public class FuelRecipeType extends SupportedRecipeType<FuelRecipe> {
     private final IntegerRecipeOption<FuelRecipe> burnTime = new IntegerRecipeOption<>(Component.translatable("ctgui.editing.options.burn_time"), 1);
 
     public FuelRecipeType() {
-        super(ResourceLocation.parse(CraftTweakerGUI.isJeiActive() ? "minecraft:fuel" : "emi:fuel"));
+        super(new ResourceLocation(CraftTweakerGUI.isJeiActive() ? "minecraft:fuel" : "emi:fuel"));
         addAreaEmptyRightClick(18, 0, 17, 17, (r, am) -> {
-            return new FuelRecipe(am.ensureAmount(1, 1).ingredient(), r.getBurnTime());
+            return new FuelRecipe(r.getId(), am.ensureAmount(1, 1).ingredient(), r.getBurnTime());
         }, r -> {
             return new AmountedIngredient(r.getIngredient(), 1);
         });
         addOption(burnTime, (r, value) -> {
-            return new FuelRecipe(r.getIngredient(), value);
+            return new FuelRecipe(r.getId(), r.getIngredient(), value);
         });
     }
 
@@ -36,7 +37,7 @@ public class FuelRecipeType extends SupportedRecipeType<FuelRecipe> {
         super.onInitialize(recipe);
         if (recipe == null) {
             burnTime.set(200);
-            return new FuelRecipe(Ingredient.EMPTY, 200);
+            return new FuelRecipe(nullRl(), Ingredient.EMPTY, 200);
         }
         burnTime.set(recipe.getBurnTime());
         return null;
@@ -55,7 +56,7 @@ public class FuelRecipeType extends SupportedRecipeType<FuelRecipe> {
 
     @Override
     public Function<EmiRecipe, FuelRecipe> getAlternativeEmiRecipeGetter() {
-        return recipe -> recipe instanceof EmiFuelRecipeAccessor r ? new FuelRecipe(EmiViewerUtils.getElseEmpty(r.getStack()), r.getTime()) : null;
+        return recipe -> recipe instanceof EmiFuelRecipeAccessor r ? new FuelRecipe(nullRl(), EmiViewerUtils.getElseEmpty(r.getStack()), r.getTime()) : null;
     }
 
     @Override
@@ -66,6 +67,19 @@ public class FuelRecipeType extends SupportedRecipeType<FuelRecipe> {
     @Override
     public String getCraftTweakerRemoveString(FuelRecipe recipe, ResourceLocation id) {
         return "(" + getCTString(recipe.getIngredient()) + " as IIngredient).burnTime = 0;";
+    }
+
+    @Override
+    public JsonObject getRecipeJson(FuelRecipe recipe) {
+        JsonObject json = new JsonObject();
+        json.addProperty("burnTime", recipe.getBurnTime());
+        json.add("ingredient", recipe.getIngredient().toJson());
+        return json;
+    }
+
+    @Override
+    public FuelRecipe getWithId(FuelRecipe r, ResourceLocation id) {
+        return new FuelRecipe(id, r.getIngredient(), r.getBurnTime());
     }
 
     @Override

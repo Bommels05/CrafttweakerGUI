@@ -1,31 +1,25 @@
 package de.bommels05.ctgui.compat.minecraft.custom;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
+import com.google.gson.JsonObject;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 
 public class CompostingRecipeSerializer implements RecipeSerializer<CompostingRecipe> {
 
-    private final MapCodec<CompostingRecipe> codec;
-
-    public CompostingRecipeSerializer() {
-        codec = RecordCodecBuilder.mapCodec(instance -> instance.group(
-                Ingredient.CODEC.fieldOf("ingredient").forGetter(CompostingRecipe::getIngredient),
-                Codec.FLOAT.fieldOf("chance").forGetter(CompostingRecipe::getChance)
-        ).apply(instance, CompostingRecipe::new));
+    @Override
+    public CompostingRecipe fromJson(ResourceLocation id, JsonObject json) {
+        return new CompostingRecipe(id, Ingredient.fromJson(json.get("ingredient")), json.get("chance").getAsFloat());
     }
 
     @Override
-    public MapCodec<CompostingRecipe> codec() {
-        return codec;
+    public CompostingRecipe fromNetwork(ResourceLocation resourceLocation, FriendlyByteBuf friendlyByteBuf) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public StreamCodec<RegistryFriendlyByteBuf, CompostingRecipe> streamCodec() {
+    public void toNetwork(FriendlyByteBuf friendlyByteBuf, CompostingRecipe recipe) {
         throw new UnsupportedOperationException();
     }
 }

@@ -10,7 +10,7 @@ import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.library.recipes.collect.RecipeMap;
 import mezz.jei.library.util.IngredientSupplierHelper;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.Recipe;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -48,8 +48,8 @@ public class InjectionRecipeManagerPlugin implements IRecipeManagerPlugin {
     }
 
     @NotNull
-    private static RecipeHolder<?> toRecipeHolder(ChangedRecipeManager.ChangedRecipe<?> recipe) {
-        return new RecipeHolder<>(ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, recipe.getId()), recipe.getRecipe());
+    private static Recipe<?> toRecipeHolder(ChangedRecipeManager.ChangedRecipe<?> recipe) {
+        return recipe.getRecipeWithId();
     }
 
     private void fill(RecipeMap map) {
