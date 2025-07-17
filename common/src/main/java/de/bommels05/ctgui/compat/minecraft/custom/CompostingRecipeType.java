@@ -23,7 +23,7 @@ public class CompostingRecipeType extends SupportedRecipeType<CompostingRecipe> 
     private final FloatRecipeOption<CompostingRecipe> chance = new FloatRecipeOption<>(Component.translatable("ctgui.editing.options.composting_chance"), 0, 1);
 
     public CompostingRecipeType() {
-        super(ResourceLocation.parse(CraftTweakerGUI.isJeiActive() ? "minecraft:composting" : "emi:composting"));
+        super(CraftTweakerGUI.rl(CraftTweakerGUI.isJeiActive() ? "minecraft:composting" : "emi:composting"));
         addAreaEmptyRightClick(0, 0, 17, 17, (r, am) -> {
             return new CompostingRecipe(am.ensureAmount(1, 1).ingredient(), r.getChance());
         }, r -> {

@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.mekanism;
 
+import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
@@ -19,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 public class CentrifugingRecipeType extends SupportedRecipeType<BasicCentrifugingRecipe> {
 
     public CentrifugingRecipeType() {
-        super(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "centrifuging"));
+        super(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "centrifuging"));
 
         addAreaScrollAmountEmptyRightClick(21, 0, 18, 60, (r, stack) -> {
             return new BasicCentrifugingRecipe(MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getInput()), r.getOutputRaw());
@@ -50,7 +51,7 @@ public class CentrifugingRecipeType extends SupportedRecipeType<BasicCentrifugin
 
     @Override
     public Object getEmiRecipe(BasicCentrifugingRecipe recipe) throws UnsupportedViewerException {
-        return new ChemicalToChemicalEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "centrifuging")), new RecipeHolder<>(nullRl(), recipe));
+        return new ChemicalToChemicalEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "centrifuging")), new RecipeHolder<>(nullRl(), recipe));
     }
 
     @Override

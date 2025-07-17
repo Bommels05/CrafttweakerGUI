@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.mekanism;
 
+import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.NeoLoaderUtils;
 import de.bommels05.ctgui.api.FluidAmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
@@ -23,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 public class DecondensentratingRecipeType extends SupportedRecipeType<BasicRotaryRecipe> {
 
     public DecondensentratingRecipeType() {
-        super(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "decondensentrating"));
+        super(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "decondensentrating"));
 
         addAreaScrollAmountEmptyRightClick(22, 1, 18, 60, (r, input) -> {
             ChemicalStack stack = input.toStack();
@@ -54,7 +55,7 @@ public class DecondensentratingRecipeType extends SupportedRecipeType<BasicRotar
 
     @Override
     public Object getEmiRecipe(BasicRotaryRecipe recipe) throws UnsupportedViewerException {
-        return new RotaryEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "decondensentrating")), nullRl(), new RecipeHolder<>(nullRl(), recipe), false);
+        return new RotaryEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "decondensentrating")), nullRl(), new RecipeHolder<>(nullRl(), recipe), false);
     }
 
     @Override

@@ -26,7 +26,7 @@ public class CraftingRecipeType extends SupportedRecipeType<CraftingRecipe> {
     private final BooleanRecipeOption<CraftingRecipe> shapeless = new BooleanRecipeOption<>(Component.translatable("ctgui.editing.options.shapeless"));
 
     public CraftingRecipeType() {
-        super(ResourceLocation.parse("minecraft:crafting"));
+        super(CraftTweakerGUI.rl("minecraft:crafting"));
         for (int row = 0; row < 3; row++) {
             for (int i = 0; i < 3; i++) {
                 int index = i + row * 3;

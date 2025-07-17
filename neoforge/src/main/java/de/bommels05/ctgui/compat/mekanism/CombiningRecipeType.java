@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.mekanism;
 
+import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.api.AmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
@@ -17,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 public class CombiningRecipeType extends SupportedRecipeType<BasicCombinerRecipe> {
 
     public CombiningRecipeType() {
-        super(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "combining"));
+        super(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "combining"));
 
         addAreaScrollAmountEmptyRightClick(35, 0, 17, 17, (r, am) -> {
             return new BasicCombinerRecipe(MekanismRecipeUtils.of(convertToUnset(am)), r.getExtraInput(), r.getOutputRaw());
@@ -52,7 +53,7 @@ public class CombiningRecipeType extends SupportedRecipeType<BasicCombinerRecipe
 
     @Override
     public Object getEmiRecipe(BasicCombinerRecipe recipe) throws UnsupportedViewerException {
-        return new CombinerEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "combining")), new RecipeHolder<>(nullRl(), recipe));
+        return new CombinerEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "combining")), new RecipeHolder<>(nullRl(), recipe));
     }
 
     @Override

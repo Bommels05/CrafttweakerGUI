@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.minecraft;
 
+import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.api.AmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
@@ -19,7 +20,7 @@ import java.util.function.Function;
 public class BrewingRecipeType extends SupportedRecipeType<BrewingRecipe> {
 
     public BrewingRecipeType() {
-        super(ResourceLocation.parse("minecraft:brewing"));
+        super(CraftTweakerGUI.rl("minecraft:brewing"));
 
         addAreaEmptyRightClick(39, 36, 17, 17, (r, am) -> {
             return new BrewingRecipe(am.ensureAmount(1, 1).ingredient(), r.getReagent(), r.getOutput());

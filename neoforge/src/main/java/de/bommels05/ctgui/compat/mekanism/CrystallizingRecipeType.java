@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.mekanism;
 
+import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.api.AmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
@@ -20,7 +21,7 @@ public class CrystallizingRecipeType extends SupportedRecipeType<BasicChemicalCr
 
     @SuppressWarnings("unchecked")
     public CrystallizingRecipeType() {
-        super(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "crystallizing"));
+        super(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "crystallizing"));
 
         addAreaScrollAmountEmptyRightClick(124, 54, 17, 17, (r, am) -> {
             return new BasicChemicalCrystallizerRecipe(r.getInput(), convertToUnset(am.asStack()));
@@ -50,7 +51,7 @@ public class CrystallizingRecipeType extends SupportedRecipeType<BasicChemicalCr
 
     @Override
     public Object getEmiRecipe(BasicChemicalCrystallizerRecipe recipe) throws UnsupportedViewerException {
-        return new ChemicalCrystallizerEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "crystallizing")), new RecipeHolder<>(nullRl(), recipe));
+        return new ChemicalCrystallizerEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "crystallizing")), new RecipeHolder<>(nullRl(), recipe));
     }
 
     @Override

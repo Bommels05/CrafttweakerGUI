@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.mekanism;
 
+import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
@@ -19,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 public class OxidizingRecipeType extends SupportedRecipeType<BasicChemicalOxidizerRecipe> {
 
     public OxidizingRecipeType() {
-        super(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "oxidizing"));
+        super(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "oxidizing"));
 
         addAreaScrollAmountEmptyRightClick(6, 24, 17, 17, (r, am) -> {
             return new BasicChemicalOxidizerRecipe(MekanismRecipeUtils.of(convertToUnset(am)), r.getOutputRaw());
@@ -50,7 +51,7 @@ public class OxidizingRecipeType extends SupportedRecipeType<BasicChemicalOxidiz
 
     @Override
     public Object getEmiRecipe(BasicChemicalOxidizerRecipe recipe) throws UnsupportedViewerException {
-        return new ItemStackToChemicalEmiRecipe<>((MekanismEmiRecipeCategory) getEmiCategory(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "oxidizing")), new RecipeHolder<>(nullRl(), recipe), TileEntityChemicalOxidizer.BASE_TICKS_REQUIRED);
+        return new ItemStackToChemicalEmiRecipe<>((MekanismEmiRecipeCategory) getEmiCategory(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "oxidizing")), new RecipeHolder<>(nullRl(), recipe), TileEntityChemicalOxidizer.BASE_TICKS_REQUIRED);
     }
 
     @Override

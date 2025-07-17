@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.mekanism;
 
+import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.api.AmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
@@ -23,7 +24,7 @@ public class InfusingRecipeType extends SupportedRecipeType<BasicMetallurgicInfu
     private final BooleanRecipeOption<BasicMetallurgicInfuserRecipe> perTickUsage = new BooleanRecipeOption<>(Component.translatable("ctgui.editing.options.per_tick_usage"), Component.translatable("ctgui.editing.options.per_tick_usage_chemical"));
 
     public InfusingRecipeType() {
-        super(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "metallurgic_infusing"));
+        super(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "metallurgic_infusing"));
 
         addAreaScrollAmountEmptyRightClick(45, 26, 17, 17, (r, am) -> {
             return new BasicMetallurgicInfuserRecipe(MekanismRecipeUtils.of(convertToUnset(am)), r.getChemicalInput(), r.getOutputRaw(), r.perTickUsage());
@@ -64,7 +65,7 @@ public class InfusingRecipeType extends SupportedRecipeType<BasicMetallurgicInfu
 
     @Override
     public Object getEmiRecipe(BasicMetallurgicInfuserRecipe recipe) throws UnsupportedViewerException {
-        return new MetallurgicInfuserEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "metallurgic_infusing")), new RecipeHolder<>(nullRl(), recipe));
+        return new MetallurgicInfuserEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "metallurgic_infusing")), new RecipeHolder<>(nullRl(), recipe));
     }
 
     @Override

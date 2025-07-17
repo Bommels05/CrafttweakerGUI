@@ -20,7 +20,7 @@ public class FuelRecipeType extends SupportedRecipeType<FuelRecipe> {
     private final IntegerRecipeOption<FuelRecipe> burnTime = new IntegerRecipeOption<>(Component.translatable("ctgui.editing.options.burn_time"), 1);
 
     public FuelRecipeType() {
-        super(ResourceLocation.parse(CraftTweakerGUI.isJeiActive() ? "minecraft:fuel" : "emi:fuel"));
+        super(CraftTweakerGUI.rl(CraftTweakerGUI.isJeiActive() ? "minecraft:fuel" : "emi:fuel"));
         addAreaEmptyRightClick(18, 0, 17, 17, (r, am) -> {
             return new FuelRecipe(am.ensureAmount(1, 1).ingredient(), r.getBurnTime());
         }, r -> {

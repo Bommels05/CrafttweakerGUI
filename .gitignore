@@ -24,3 +24,4 @@ runs
 /neoforge/run/
 /fabric/run/
 gradle/wrapper/gradle-wrapper.jar
+/forge/run

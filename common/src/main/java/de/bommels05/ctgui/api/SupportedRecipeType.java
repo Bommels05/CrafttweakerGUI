@@ -460,7 +460,7 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
     }
 
     protected ResourceLocation nullRl() {
-        return ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, "null");
+        return CraftTweakerGUI.rl(CraftTweakerGUI.MOD_ID, "null");
     }
 
     protected EmiRecipeCategory getEmiCategory(ResourceLocation id) {

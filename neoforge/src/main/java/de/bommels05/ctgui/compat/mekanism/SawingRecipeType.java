@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.mekanism;
 
+import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.api.AmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
@@ -22,7 +23,7 @@ public class SawingRecipeType extends SupportedRecipeType<BasicSawmillRecipe> {
     private final DoubleRecipeOption<BasicSawmillRecipe> chance = new DoubleRecipeOption<>(Component.translatable("ctgui.editing.options.secondary_output_chance"), 0, 1);
 
     public SawingRecipeType() {
-        super(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "sawing"));
+        super(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "sawing"));
 
         addAreaScrollAmountEmptyRightClick(27, 0, 16, 17, (r, am) -> {
             return new BasicSawmillRecipe(MekanismRecipeUtils.of(convertToUnset(am)), r.getMainOutputRaw().orElse(ItemStack.EMPTY),
@@ -68,7 +69,7 @@ public class SawingRecipeType extends SupportedRecipeType<BasicSawmillRecipe> {
 
     @Override
     public Object getEmiRecipe(BasicSawmillRecipe recipe) throws UnsupportedViewerException {
-        return new SawmillEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "sawing")), new RecipeHolder<>(nullRl(), recipe));
+        return new SawmillEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "sawing")), new RecipeHolder<>(nullRl(), recipe));
     }
 
     @Override

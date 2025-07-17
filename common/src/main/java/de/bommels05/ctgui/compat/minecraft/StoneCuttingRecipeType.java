@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.minecraft;
 
+import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.api.AmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
@@ -17,7 +18,7 @@ public class StoneCuttingRecipeType extends SupportedRecipeType<StonecutterRecip
 
 
     public StoneCuttingRecipeType() {
-        super(ResourceLocation.parse("minecraft:stonecutting"));
+        super(CraftTweakerGUI.rl("minecraft:stonecutting"));
 
         addAreaEmptyRightClick(0, 0, 17, 17, (r, am) -> {
             return new StonecutterRecipe(r.getGroup(), am.ensureAmount(1, 1).ingredient(), r.getResultItem(regAccess()));

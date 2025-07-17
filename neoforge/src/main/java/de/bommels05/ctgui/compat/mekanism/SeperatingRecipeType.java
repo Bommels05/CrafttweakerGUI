@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.mekanism;
 
+import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.NeoLoaderUtils;
 import de.bommels05.ctgui.api.FluidAmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
@@ -27,7 +28,7 @@ public class SeperatingRecipeType extends SupportedRecipeType<BasicElectrolysisR
     private final LongRecipeOption<BasicElectrolysisRecipe> energyMultiplier = new LongRecipeOption<>(Component.translatable("ctgui.editing.options.energy_multiplier"), 1);
 
     public SeperatingRecipeType() {
-        super(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "separating"));
+        super(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "separating"));
 
         addAreaScrollAmountEmptyRightClick(1, 1, 18, 60, (r, stack) -> {
             return new BasicElectrolysisRecipe(MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getInput()), r.getEnergyMultiplier(), r.getLeftChemicalOutput(), r.getRightChemicalOutput());
@@ -70,7 +71,7 @@ public class SeperatingRecipeType extends SupportedRecipeType<BasicElectrolysisR
 
     @Override
     public Object getEmiRecipe(BasicElectrolysisRecipe recipe) throws UnsupportedViewerException {
-        return new ElectrolysisEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "separating")), new RecipeHolder<>(nullRl(), recipe));
+        return new ElectrolysisEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "separating")), new RecipeHolder<>(nullRl(), recipe));
     }
 
     @Override

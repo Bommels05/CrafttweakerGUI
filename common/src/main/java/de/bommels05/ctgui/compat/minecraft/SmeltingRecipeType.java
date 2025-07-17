@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.minecraft;
 
+import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
 import dev.emi.emi.api.recipe.EmiRecipe;
 import dev.emi.emi.api.recipe.VanillaEmiRecipeCategories;
@@ -10,7 +11,7 @@ import net.minecraft.world.item.crafting.SmeltingRecipe;
 public class SmeltingRecipeType extends CookingRecipeType<SmeltingRecipe> {
 
     public SmeltingRecipeType() {
-        super(ResourceLocation.parse("minecraft:smelting"), SmeltingRecipe::new, 200, "furnace");
+        super(CraftTweakerGUI.rl("minecraft:smelting"), SmeltingRecipe::new, 200, "furnace");
     }
 
     @Override

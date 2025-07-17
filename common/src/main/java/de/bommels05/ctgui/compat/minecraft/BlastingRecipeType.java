@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.minecraft;
 
+import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
 import dev.emi.emi.api.recipe.EmiRecipe;
 import dev.emi.emi.api.recipe.VanillaEmiRecipeCategories;
@@ -10,7 +11,7 @@ import net.minecraft.world.item.crafting.BlastingRecipe;
 public class BlastingRecipeType extends CookingRecipeType<BlastingRecipe> {
 
     public BlastingRecipeType() {
-        super(ResourceLocation.parse("minecraft:blasting"), BlastingRecipe::new, 100, "blastFurnace");
+        super(CraftTweakerGUI.rl("minecraft:blasting"), BlastingRecipe::new, 100, "blastFurnace");
     }
 
     @Override

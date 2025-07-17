@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.minecraft;
 
+import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.api.AmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
@@ -17,7 +18,7 @@ import net.minecraft.world.item.crafting.SmithingTransformRecipe;
 public class SmithingRecipeType extends SupportedRecipeType<SmithingRecipe> {
 
     public SmithingRecipeType() {
-        super(ResourceLocation.parse("minecraft:smithing"));
+        super(CraftTweakerGUI.rl("minecraft:smithing"));
         addAreaEmptyRightClick(0, 0, 17, 17, (r, am) -> {
             SmithingTransformRecipe recipe = ((SmithingTransformRecipe) r);
             return new SmithingTransformRecipe(am.ensureAmount(1, 1).ingredient(), recipe.base, recipe.addition, recipe.getResultItem(regAccess()));

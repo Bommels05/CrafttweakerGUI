@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.mekanism;
 
+import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.api.AmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
@@ -17,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 public class EnrichingRecipeType extends SupportedRecipeType<BasicEnrichingRecipe> {
 
     public EnrichingRecipeType() {
-        super(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "enriching"));
+        super(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "enriching"));
 
         addAreaScrollAmountEmptyRightClick(35, 0, 17, 17, (r, am) -> {
             return new BasicEnrichingRecipe(MekanismRecipeUtils.of(convertToUnset(am)), r.getOutputRaw());
@@ -47,7 +48,7 @@ public class EnrichingRecipeType extends SupportedRecipeType<BasicEnrichingRecip
 
     @Override
     public Object getEmiRecipe(BasicEnrichingRecipe recipe) throws UnsupportedViewerException {
-        return new ItemStackToItemStackEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "enriching")), new RecipeHolder<>(nullRl(), recipe));
+        return new ItemStackToItemStackEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "enriching")), new RecipeHolder<>(nullRl(), recipe));
     }
 
     @Override

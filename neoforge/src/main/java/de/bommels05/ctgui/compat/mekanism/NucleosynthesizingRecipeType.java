@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.mekanism;
 
+import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.api.AmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
@@ -25,7 +26,7 @@ public class NucleosynthesizingRecipeType extends SupportedRecipeType<BasicNucle
     private final BooleanRecipeOption<BasicNucleosynthesizingRecipe> perTickUsage = new BooleanRecipeOption<>(Component.translatable("ctgui.editing.options.per_tick_usage"), Component.translatable("ctgui.editing.options.per_tick_usage_chemical"));
 
     public NucleosynthesizingRecipeType() {
-        super(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "nucleosynthesizing"));
+        super(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "nucleosynthesizing"));
 
 
         addAreaScrollAmountEmptyRightClick(20, 22, 17, 17, (r, am) -> {
@@ -73,7 +74,7 @@ public class NucleosynthesizingRecipeType extends SupportedRecipeType<BasicNucle
 
     @Override
     public Object getEmiRecipe(BasicNucleosynthesizingRecipe recipe) throws UnsupportedViewerException {
-        return new NucleosynthesizingEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "nucleosynthesizing")), new RecipeHolder<>(nullRl(), recipe));
+        return new NucleosynthesizingEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "nucleosynthesizing")), new RecipeHolder<>(nullRl(), recipe));
     }
 
     @Override

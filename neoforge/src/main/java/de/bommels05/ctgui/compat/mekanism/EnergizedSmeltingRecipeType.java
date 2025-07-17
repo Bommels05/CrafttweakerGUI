@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.mekanism;
 
+import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.api.AmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
@@ -20,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 public class EnergizedSmeltingRecipeType extends SupportedRecipeType<BasicSmeltingRecipe> {
 
     public EnergizedSmeltingRecipeType() {
-        super(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "smelting"));
+        super(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "smelting"));
 
         addAreaScrollAmountEmptyRightClick(35, 0, 17, 17, (r, am) -> {
             return new BasicSmeltingRecipe(MekanismRecipeUtils.of(convertToUnset(am)), r.getOutputRaw());
@@ -52,7 +53,7 @@ public class EnergizedSmeltingRecipeType extends SupportedRecipeType<BasicSmelti
 
     @Override
     public Object getEmiRecipe(BasicSmeltingRecipe recipe) throws UnsupportedViewerException {
-        return new ItemStackToItemStackEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "smelting")), new RecipeHolder<>(nullRl(), recipe));
+        return new ItemStackToItemStackEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "smelting")), new RecipeHolder<>(nullRl(), recipe));
     }
 
     @Override

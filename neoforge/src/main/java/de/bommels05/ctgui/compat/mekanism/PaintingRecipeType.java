@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.mekanism;
 
+import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.api.AmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
@@ -24,7 +25,7 @@ public class PaintingRecipeType extends SupportedRecipeType<BasicPaintingRecipe>
     private final BooleanRecipeOption<BasicPaintingRecipe> perTickUsage = new BooleanRecipeOption<>(Component.translatable("ctgui.editing.options.per_tick_usage"), Component.translatable("ctgui.editing.options.per_tick_usage_chemical"));
 
     public PaintingRecipeType() {
-        super(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "painting"));
+        super(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "painting"));
 
         addAreaScrollAmountEmptyRightClick(20, 22, 17, 17, (r, am) -> {
             return new BasicPaintingRecipe(MekanismRecipeUtils.of(convertToUnset(am)), r.getChemicalInput(), r.getOutputRaw(), r.perTickUsage());
@@ -64,7 +65,7 @@ public class PaintingRecipeType extends SupportedRecipeType<BasicPaintingRecipe>
 
     @Override
     public Object getEmiRecipe(BasicPaintingRecipe recipe) throws UnsupportedViewerException {
-        return new PaintingEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "painting")), new RecipeHolder<>(nullRl(), recipe));
+        return new PaintingEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "painting")), new RecipeHolder<>(nullRl(), recipe));
     }
 
     @Override

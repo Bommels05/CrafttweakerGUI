@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.mekanism;
 
+import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.api.AmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
@@ -23,7 +24,7 @@ public class InjectingRecipeType extends SupportedRecipeType<BasicInjectingRecip
     private final BooleanRecipeOption<BasicInjectingRecipe> perTickUsage = new BooleanRecipeOption<>(Component.translatable("ctgui.editing.options.per_tick_usage"), Component.translatable("ctgui.editing.options.per_tick_usage_chemical"));
 
     public InjectingRecipeType() {
-        super(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "injecting"));
+        super(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "injecting"));
 
         addAreaScrollAmountEmptyRightClick(36, 1, 17, 17, (r, am) -> {
             return new BasicInjectingRecipe(MekanismRecipeUtils.of(convertToUnset(am)), r.getChemicalInput(), r.getOutputRaw(), r.perTickUsage());
@@ -64,7 +65,7 @@ public class InjectingRecipeType extends SupportedRecipeType<BasicInjectingRecip
 
     @Override
     public Object getEmiRecipe(BasicInjectingRecipe recipe) throws UnsupportedViewerException {
-        return new ItemStackChemicalToItemStackEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "injecting")), new RecipeHolder<>(nullRl(), recipe));
+        return new ItemStackChemicalToItemStackEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "injecting")), new RecipeHolder<>(nullRl(), recipe));
     }
 
     @Override

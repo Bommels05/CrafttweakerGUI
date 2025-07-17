@@ -13,6 +13,7 @@ import mezz.jei.api.gui.IRecipeLayoutDrawable;
 import mezz.jei.api.ingredients.ITypedIngredient;
 import mezz.jei.api.recipe.IRecipeManager;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import mezz.jei.common.Internal;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -166,7 +167,7 @@ public class JeiViewerUtils implements ViewerUtils<Either<IRecipeLayoutDrawable<
     public void init(Screen screen) {}
 
     public static IRecipeCategory<?> getCategory(ResourceLocation id) throws UnsupportedViewerException {
-        IRecipeManager manager = CTGUIJeiPlugin.RUNTIME.getRecipeManager();
+        IRecipeManager manager = CTGUIJeiPlugin.RUNTIME == null ? Internal.getJeiRuntime().getRecipeManager() : CTGUIJeiPlugin.RUNTIME.getRecipeManager(); //This is used by EmiViewerUtils and EMI disables the Plugin so the runtime never gets set
         return manager.createRecipeCategoryLookup().limitTypes(List.of(manager.getRecipeType(id).orElseThrow(UnsupportedViewerException::new))).get().findFirst().orElseThrow(UnsupportedViewerException::new);
     }
 

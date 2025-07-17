@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.minecraft.custom;
 
+import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.api.AmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
@@ -42,7 +43,7 @@ public class TagRecipeType extends SupportedRecipeType<TagRecipe> {
     });
 
     public TagRecipeType() {
-        super(ResourceLocation.parse("emi:tag"));
+        super(CraftTweakerGUI.rl("emi:tag"));
 
         //todo enable this when fluids are supported
         /*addOption(item, (r, item) -> {
@@ -72,7 +73,7 @@ public class TagRecipeType extends SupportedRecipeType<TagRecipe> {
 
         if (recipe == null) {
             name.set("ctgui:example_tag");
-            return new TagRecipe(TagKey.create(Registries.ITEM, ResourceLocation.parse("ctgui:example_tag")), List.of(), List.of());
+            return new TagRecipe(TagKey.create(Registries.ITEM, CraftTweakerGUI.rl("ctgui:example_tag")), List.of(), List.of());
         }
         name.set(recipe.id.toString());
         //We return the old recipe here so the custom emi recipe implementation is used and not the original

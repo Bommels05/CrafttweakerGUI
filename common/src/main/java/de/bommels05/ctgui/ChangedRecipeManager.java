@@ -107,7 +107,9 @@ public class ChangedRecipeManager {
                 changeTag.putString("serializer", BuiltInRegistries.RECIPE_SERIALIZER.getKey(serializer).toString());
                 changeTag.put("recipe", toTag(serializer, change.recipe));
                 if (change.type == ChangedRecipe.Type.CHANGED && change.originalRecipe != null) {
-                    changeTag.put("originalRecipe", toTag(serializer, change.originalRecipe));
+                    RecipeSerializer<?> oldSerializer = change.originalRecipe.getSerializer();
+                    changeTag.putString("oldSerializer", BuiltInRegistries.RECIPE_SERIALIZER.getKey(oldSerializer).toString());
+                    changeTag.put("originalRecipe", toTag(oldSerializer, change.originalRecipe));
                 }
                 changes.add(changeTag);
             } catch (Throwable t) {
@@ -148,12 +150,13 @@ public class ChangedRecipeManager {
                     try {
                         CompoundTag change = (CompoundTag) tag;
                         ChangedRecipe.Type type = ChangedRecipe.Type.valueOf(change.getString("type"));
-                        SupportedRecipeType<?> recipeType = RecipeTypeManager.getType(ResourceLocation.parse(change.getString("recipeType")));;
-                        RecipeSerializer<?> serializer = BuiltInRegistries.RECIPE_SERIALIZER.get(ResourceLocation.parse(change.getString("serializer")));
+                        SupportedRecipeType<?> recipeType = RecipeTypeManager.getType(CraftTweakerGUI.rl(change.getString("recipeType")));;
+                        RecipeSerializer<?> serializer = BuiltInRegistries.RECIPE_SERIALIZER.get(CraftTweakerGUI.rl(change.getString("serializer")));
+                        RecipeSerializer<?> oldSerializer = change.contains("oldSerializer") ? BuiltInRegistries.RECIPE_SERIALIZER.get(CraftTweakerGUI.rl(change.getString("oldSerializer"))) : serializer;
                         changedRecipes.add(new ChangedRecipe<>(type, type != ChangedRecipe.Type.REMOVED ? change.getString("id") : null,
-                                type != ChangedRecipe.Type.ADDED ? ResourceLocation.parse(change.getString("originalId")) : null,
+                                type != ChangedRecipe.Type.ADDED ? CraftTweakerGUI.rl(change.getString("originalId")) : null,
                                 fromTag(serializer, change.get("recipe"), recipeType),
-                                type == ChangedRecipe.Type.CHANGED && change.contains("originalRecipe") ? fromTag(serializer, change.get("originalRecipe"), recipeType) : null,
+                                type == ChangedRecipe.Type.CHANGED && change.contains("originalRecipe") ? fromTag(oldSerializer, change.get("originalRecipe"), recipeType) : null,
                                 recipeType, change.getBoolean("exported")));
                         i++;
                     } catch (Throwable t) {

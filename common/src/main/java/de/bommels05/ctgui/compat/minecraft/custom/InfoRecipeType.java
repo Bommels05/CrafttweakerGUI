@@ -24,7 +24,7 @@ public class InfoRecipeType extends SupportedRecipeType<InfoRecipe> {
     RecipeIdFieldRecipeOption<InfoRecipe> text = new RecipeIdFieldRecipeOption<>(Component.translatable("ctgui.editing.options.info_text"), s -> true);
 
     public InfoRecipeType() {
-        super(ResourceLocation.parse(CraftTweakerGUI.isJeiActive() ? "minecraft:info" : "emi:info"));
+        super(CraftTweakerGUI.rl(CraftTweakerGUI.isJeiActive() ? "minecraft:info" : "emi:info"));
 
         addAreaEmptyRightClick(0, 0, 17, 17, (r, am) -> {
             return new InfoRecipe(am.ensureAmount(1, 1).ingredient(), r.getText());

@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.mekanism;
 
+import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
@@ -23,7 +24,7 @@ public class DissolutingRecipeType extends SupportedRecipeType<BasicChemicalDiss
     private final BooleanRecipeOption<BasicChemicalDissolutionRecipe> perTickUsage = new BooleanRecipeOption<>(Component.translatable("ctgui.editing.options.per_tick_usage"), Component.translatable("ctgui.editing.options.per_tick_usage_chemical"));
 
     public DissolutingRecipeType() {
-        super(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "dissolution"));
+        super(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "dissolution"));
 
         addAreaScrollAmountEmptyRightClick(25, 33, 17, 17, (r, am) -> {
             return new BasicChemicalDissolutionRecipe(MekanismRecipeUtils.of(convertToUnset(am)), r.getChemicalInput(), r.getOutputRaw(), r.perTickUsage());
@@ -66,7 +67,7 @@ public class DissolutingRecipeType extends SupportedRecipeType<BasicChemicalDiss
 
     @Override
     public Object getEmiRecipe(BasicChemicalDissolutionRecipe recipe) throws UnsupportedViewerException {
-        return new ChemicalDissolutionEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "dissolution")), new RecipeHolder<>(nullRl(), recipe));
+        return new ChemicalDissolutionEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "dissolution")), new RecipeHolder<>(nullRl(), recipe));
     }
 
     @Override

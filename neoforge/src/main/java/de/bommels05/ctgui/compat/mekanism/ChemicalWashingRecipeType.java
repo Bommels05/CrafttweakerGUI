@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.mekanism;
 
+import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.NeoLoaderUtils;
 import de.bommels05.ctgui.api.FluidAmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
@@ -24,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 public class ChemicalWashingRecipeType extends SupportedRecipeType<BasicWashingRecipe> {
 
     public ChemicalWashingRecipeType() {
-        super(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "washing"));
+        super(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "washing"));
 
         addAreaScrollAmountEmptyRightClick(0, 0, 18, 60, (r, stack) -> {
             return new BasicWashingRecipe(MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getFluidInput()), r.getChemicalInput(), r.getOutputRaw());
@@ -63,7 +64,7 @@ public class ChemicalWashingRecipeType extends SupportedRecipeType<BasicWashingR
 
     @Override
     public Object getEmiRecipe(BasicWashingRecipe recipe) throws UnsupportedViewerException {
-        return new FluidChemicalToChemicalEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "washing")), new RecipeHolder<>(nullRl(), recipe));
+        return new FluidChemicalToChemicalEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "washing")), new RecipeHolder<>(nullRl(), recipe));
     }
 
     @Override

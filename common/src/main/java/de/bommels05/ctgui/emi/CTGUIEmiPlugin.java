@@ -11,11 +11,11 @@ import dev.emi.emi.api.EmiEntrypoint;
 import dev.emi.emi.api.EmiInitRegistry;
 import dev.emi.emi.api.EmiPlugin;
 import dev.emi.emi.api.EmiRegistry;
-import dev.emi.emi.api.stack.EmiRegistryAdapter;
 import dev.emi.emi.api.stack.EmiStack;
 import dev.emi.emi.api.widget.Bounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 import net.minecraft.world.item.crafting.Ingredient;
 
@@ -45,21 +45,22 @@ public class CTGUIEmiPlugin implements EmiPlugin {
             return true;
         });
         registry.addRecipeDecorator((recipe, widgets) -> {
-            ChangedRecipeManager.ChangedRecipe<?> change = ChangedRecipeManager.getAffectingChange(recipe.getId());
+            ResourceLocation id = EmiViewerUtils.getOriginalId(recipe);
+            ChangedRecipeManager.ChangedRecipe<?> change = ChangedRecipeManager.getAffectingChange(id);
             if (change != null && !((change.getRecipe() instanceof TagRecipe || !change.getRecipeType().needsRecipeId()) && change.wasExported())) {
                 widgets.addDrawable(0, 0, recipe.getDisplayWidth(), recipe.getDisplayHeight(), (graphics, mouseX, mouseY, delta) -> {
                     graphics.fill(0, 0, recipe.getDisplayWidth(), recipe.getDisplayHeight(), FastColor.ARGB32.color(157, 148, 60, 60));
                 });
                 widgets.addTooltipText(List.of(Component.translatable(change.getType() == ChangedRecipeManager.ChangedRecipe.Type.CHANGED ? "ctgui.recipe_changed" : "ctgui.recipe_removed")), 0, 0, recipe.getDisplayWidth(), recipe.getDisplayHeight());
-            } else if (recipe.getId() != null) {
+            } else if (id != null) {
                 int width = Minecraft.getInstance().font.width("+");
                 int x = recipe.getDisplayWidth() + (1 + width) - 8;
-                if (recipe.getId().getNamespace().equals(CraftTweakerGUI.MOD_ID)) {
+                if (id.getNamespace().equals(CraftTweakerGUI.MOD_ID)) {
                     widgets.addDrawable(x, 1, width, 9, (graphics, mouseX, mouseY, delta) -> {
                         graphics.drawString(Minecraft.getInstance().font, "+", 0, -6, 65280, false);
                     });
                     widgets.addTooltipText(List.of(Component.translatable("ctgui.recipe_added")), x, -5, width, 6);
-                } else if (Config.customRecipeIndicator && recipe.getId().getNamespace().equals(CraftTweakerConstants.MOD_ID)) {
+                } else if (Config.customRecipeIndicator && id.getNamespace().equals(CraftTweakerConstants.MOD_ID)) {
                     widgets.addDrawable(x, 1, width, 9, (graphics, mouseX, mouseY, delta) -> {
                         graphics.drawString(Minecraft.getInstance().font, "+", 0, -6, 16762624, false);
                     });

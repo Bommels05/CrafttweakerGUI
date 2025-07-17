@@ -49,7 +49,7 @@ public class InjectionRecipeManagerPlugin implements IRecipeManagerPlugin {
 
     @NotNull
     private static RecipeHolder<?> toRecipeHolder(ChangedRecipeManager.ChangedRecipe<?> recipe) {
-        return new RecipeHolder<>(ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, recipe.getId()), recipe.getRecipe());
+        return new RecipeHolder<>(CraftTweakerGUI.rl(CraftTweakerGUI.MOD_ID, recipe.getId()), recipe.getRecipe());
     }
 
     private void fill(RecipeMap map) {

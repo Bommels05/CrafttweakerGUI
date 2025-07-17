@@ -6,9 +6,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 
 public class ScreenUtils {
-    public static final ResourceLocation EDIT_BUTTON_TEXTURE = ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, "textures/gui/edit_button.png");
-    public static final ResourceLocation EDIT_ICON_TEXTURE = ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, "textures/gui/edit_icon.png");
-    private static final ResourceLocation BACKGROUND_PARTS = ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, "textures/gui/background.png");
+    public static final ResourceLocation EDIT_BUTTON_TEXTURE = CraftTweakerGUI.rl(CraftTweakerGUI.MOD_ID, "textures/gui/edit_button.png");
+    public static final ResourceLocation EDIT_ICON_TEXTURE = CraftTweakerGUI.rl(CraftTweakerGUI.MOD_ID, "textures/gui/edit_icon.png");
+    private static final ResourceLocation BACKGROUND_PARTS = CraftTweakerGUI.rl(CraftTweakerGUI.MOD_ID, "textures/gui/background.png");
 
     public static void renderContainerBackground(GuiGraphics graphics, int x, int y, int width, int height) {
         graphics.fill(x + 3, y + 3, x + width - 3, y + height - 3, FastColor.ARGB32.color(255, 198, 198, 198));

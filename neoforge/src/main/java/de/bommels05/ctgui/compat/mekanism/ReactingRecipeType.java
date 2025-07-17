@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.mekanism;
 
+import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.NeoLoaderUtils;
 import de.bommels05.ctgui.api.*;
 import de.bommels05.ctgui.api.option.IntegerRecipeOption;
@@ -26,7 +27,7 @@ public class ReactingRecipeType extends SupportedRecipeType<BasicPressurizedReac
     private final IntegerRecipeOption<BasicPressurizedReactionRecipe> duration = new IntegerRecipeOption<>(Component.translatable("ctgui.editing.options.duration"), 1);
 
     public ReactingRecipeType() {
-        super(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "reaction"));
+        super(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "reaction"));
 
         addAreaScrollAmountEmptyRightClick(50, 24, 17, 17, (r, am) -> {
             return new BasicPressurizedReactionRecipe(MekanismRecipeUtils.of(convertToUnset(am)), r.getInputFluid(), r.getInputChemical(), r.getEnergyRequired(), r.getDuration(), r.getOutputItem(), r.getOutputChemical());
@@ -83,7 +84,7 @@ public class ReactingRecipeType extends SupportedRecipeType<BasicPressurizedReac
 
     @Override
     public Object getEmiRecipe(BasicPressurizedReactionRecipe recipe) throws UnsupportedViewerException {
-        return new PressurizedReactionEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "reaction")), new RecipeHolder<>(nullRl(), recipe));
+        return new PressurizedReactionEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "reaction")), new RecipeHolder<>(nullRl(), recipe));
     }
 
     @Override

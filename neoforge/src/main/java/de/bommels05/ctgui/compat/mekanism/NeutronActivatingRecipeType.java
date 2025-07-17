@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.mekanism;
 
+import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
@@ -19,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 public class NeutronActivatingRecipeType extends SupportedRecipeType<BasicActivatingRecipe> {
 
     public NeutronActivatingRecipeType() {
-        super(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "activating"));
+        super(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "activating"));
 
         addAreaScrollAmountEmptyRightClick(21, 0, 18, 60, (r, stack) -> {
             return new BasicActivatingRecipe(MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getInput()), r.getOutputRaw());
@@ -50,7 +51,7 @@ public class NeutronActivatingRecipeType extends SupportedRecipeType<BasicActiva
 
     @Override
     public Object getEmiRecipe(BasicActivatingRecipe recipe) throws UnsupportedViewerException {
-        return new ChemicalToChemicalEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "activating")), new RecipeHolder<>(nullRl(), recipe));
+        return new ChemicalToChemicalEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "activating")), new RecipeHolder<>(nullRl(), recipe));
     }
 
     @Override

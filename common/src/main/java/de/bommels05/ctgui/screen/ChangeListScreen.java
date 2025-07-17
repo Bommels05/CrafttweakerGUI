@@ -77,7 +77,7 @@ public class ChangeListScreen extends Screen {
         SpriteIconButton button = SpriteIconButton.builder(Component.empty(), b -> {
             Config.setEditMode(!Config.editMode);
             minecraft.setScreen(new DisconnectedScreen(new ChangeListScreen(), Component.translatable("ctgui.warning"), Component.translatable("ctgui.list.rejoin_warning"), CommonComponents.GUI_BACK));
-        }, true).size(20, 20).sprite(ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, path), 16, 16).build();
+        }, true).size(20, 20).sprite(CraftTweakerGUI.rl(CraftTweakerGUI.MOD_ID, path), 16, 16).build();
         button.setX(5);
         button.setY(this.height - 25);
         button.setTooltip(Tooltip.create(Component.translatable("ctgui.list.edit_mode_" + Config.editMode)));

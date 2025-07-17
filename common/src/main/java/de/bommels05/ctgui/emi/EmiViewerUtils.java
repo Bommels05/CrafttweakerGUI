@@ -18,7 +18,6 @@ import dev.emi.emi.api.stack.ListEmiIngredient;
 import dev.emi.emi.api.stack.TagEmiIngredient;
 import dev.emi.emi.api.widget.Widget;
 import dev.emi.emi.jemi.JemiRecipe;
-import dev.emi.emi.recipe.EmiBrewingRecipe;
 import dev.emi.emi.recipe.EmiFuelRecipe;
 import dev.emi.emi.recipe.EmiTagRecipe;
 import dev.emi.emi.registry.EmiRecipes;
@@ -65,7 +64,7 @@ public class EmiViewerUtils implements ViewerUtils<EmiRecipe> {
     public <T extends Recipe<?>> void inject(ChangedRecipeManager.ChangedRecipe<T> recipe) {
         try {
             initFields();
-            ResourceLocation id = ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, recipe.getId());
+            ResourceLocation id = CraftTweakerGUI.rl(CraftTweakerGUI.MOD_ID, recipe.getId());
             EmiRecipes.recipeIds.put(recipe.getRecipe(), id);
             EmiRecipe r = getViewerRecipe(recipe.getRecipeType(), recipe.getRecipe());
             r.getInputs().stream().map(EmiIngredient::getEmiStacks).forEach(stacks -> {
@@ -94,18 +93,18 @@ public class EmiViewerUtils implements ViewerUtils<EmiRecipe> {
         try {
             initFields();
             EmiRecipe r = getViewerRecipe(recipe.getRecipeType(), recipe.getRecipe());
-            ResourceLocation id = ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, recipe.getId());
+            ResourceLocation id = CraftTweakerGUI.rl(CraftTweakerGUI.MOD_ID, recipe.getId());
             r.getInputs().stream().map(EmiIngredient::getEmiStacks).forEach(stacks -> {
                 for (EmiStack input : stacks) {
-                    List<EmiRecipe> recipes = new ArrayList<>(byInput.get(input).stream().filter(r2 -> !r2.getId().equals(id)).toList());
+                    List<EmiRecipe> recipes = new ArrayList<>(byInput.get(input).stream().filter(r2 -> !id.equals(getOriginalId(r2))).toList());
                     byInput.put(input, recipes);
                 }
             });
             for (EmiStack output : r.getOutputs()) {
-                List<EmiRecipe> recipes = new ArrayList<>(byOutput.get(output).stream().filter(r2 -> !r2.getId().equals(id)).toList());
+                List<EmiRecipe> recipes = new ArrayList<>(byOutput.get(output).stream().filter(r2 -> !id.equals(getOriginalId(r2))).toList());
                 byOutput.put(output, recipes);
             }
-            List<EmiRecipe> recipes = new ArrayList<>(byCategory.get(r.getCategory()).stream().filter(r2 -> !r2.getId().equals(id)).toList());
+            List<EmiRecipe> recipes = new ArrayList<>(byCategory.get(r.getCategory()).stream().filter(r2 -> !id.equals(getOriginalId(r2))).toList());
             byCategory.put(r.getCategory(), recipes);
             byId.remove(id);
         } catch (Throwable t) {
@@ -298,5 +297,12 @@ public class EmiViewerUtils implements ViewerUtils<EmiRecipe> {
 
     public static EmiFuelRecipe getFuelRecipe(FuelRecipe recipe, ResourceLocation id) {
         return new EmiFuelRecipe(EmiIngredient.of(recipe.getIngredient()), recipe.getBurnTime(), id);
+    }
+
+    public static ResourceLocation getOriginalId(EmiRecipe recipe) {
+        if (CraftTweakerGUI.getLoaderUtils().isModLoaded("jei") && recipe instanceof JemiRecipe<?> && recipe.getId() != null) {
+            return CraftTweakerGUI.rl(recipe.getId().getPath().replaceFirst("/", "").replaceFirst("/", ":"));
+        }
+        return recipe.getId();
     }
 }

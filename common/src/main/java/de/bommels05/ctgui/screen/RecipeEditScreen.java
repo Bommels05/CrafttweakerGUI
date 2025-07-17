@@ -37,7 +37,7 @@ import java.util.function.BiFunction;
 
 public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
 
-    private final static ResourceLocation HOT_BAR = ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, "textures/gui/hotbar.png");
+    private final static ResourceLocation HOT_BAR = CraftTweakerGUI.rl(CraftTweakerGUI.MOD_ID, "textures/gui/hotbar.png");
     private SupportedRecipe<R, ? extends SupportedRecipeType<R>> recipe;
     private AmountedIngredient dragged = null;
     private SpecialAmountedIngredient<?, ?> draggedSpecial = null;
@@ -159,8 +159,8 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
         if (idOption.isPresent()) {
             RecipeIdFieldRecipeOption<R> option = (RecipeIdFieldRecipeOption<R>) idOption.get();
             option.addToScreen(this, 0, 0);
-            option.supplyEditBox(idBox, (id) -> recipeId = id);
             recipeIdChanged = true;
+            option.supplyEditBox(idBox, (id) -> recipeId = id);
         } else {
             idBox.setTooltip(Tooltip.create(Component.translatable(action.isEdit() ?  "ctgui.editing.recipe_id_editing" : "ctgui.editing.recipe_id")));
             idBox.setMaxLength(256);
@@ -236,8 +236,8 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
 
     private void setTag(String type, String tag) {
         try {
-            if (BuiltInRegistries.REGISTRY.containsKey(ResourceLocation.parse(type))) {
-                this.tag = TagKey.create(ResourceKey.createRegistryKey(ResourceLocation.parse(type)), ResourceLocation.parse(tag));
+            if (BuiltInRegistries.REGISTRY.containsKey(CraftTweakerGUI.rl(type))) {
+                this.tag = TagKey.create(ResourceKey.createRegistryKey(CraftTweakerGUI.rl(type)), CraftTweakerGUI.rl(tag));
             } else {
                 this.tag = null;
             }

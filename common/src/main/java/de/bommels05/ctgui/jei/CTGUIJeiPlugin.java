@@ -41,6 +41,6 @@ public class CTGUIJeiPlugin implements IModPlugin {
 
     @Override
     public ResourceLocation getPluginUid() {
-        return ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, "jei_plugin");
+        return CraftTweakerGUI.rl(CraftTweakerGUI.MOD_ID, "jei_plugin");
     }
 }

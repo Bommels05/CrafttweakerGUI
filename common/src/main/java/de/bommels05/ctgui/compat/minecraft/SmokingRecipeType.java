@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.minecraft;
 
+import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
 import dev.emi.emi.api.recipe.EmiRecipe;
 import dev.emi.emi.api.recipe.VanillaEmiRecipeCategories;
@@ -11,7 +12,7 @@ import net.minecraft.world.item.crafting.SmokingRecipe;
 public class SmokingRecipeType extends CookingRecipeType<SmokingRecipe> {
 
     public SmokingRecipeType() {
-        super(ResourceLocation.parse("minecraft:smoking"), SmokingRecipe::new, 100, "smoker");
+        super(CraftTweakerGUI.rl("minecraft:smoking"), SmokingRecipe::new, 100, "smoker");
     }
 
     @Override

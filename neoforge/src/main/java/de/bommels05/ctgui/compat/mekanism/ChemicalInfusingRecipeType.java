@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.mekanism;
 
+import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
@@ -19,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 public class ChemicalInfusingRecipeType extends SupportedRecipeType<BasicChemicalInfuserRecipe> {
 
     public ChemicalInfusingRecipeType() {
-        super(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "chemical_infusing"));
+        super(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "chemical_infusing"));
 
         addAreaScrollAmountEmptyRightClick(22, 10, 18, 60, (r, stack) -> {
             return new BasicChemicalInfuserRecipe(MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getLeftInput()), r.getRightInput(), r.getOutputRaw());
@@ -56,7 +57,7 @@ public class ChemicalInfusingRecipeType extends SupportedRecipeType<BasicChemica
 
     @Override
     public Object getEmiRecipe(BasicChemicalInfuserRecipe recipe) throws UnsupportedViewerException {
-        return new ChemicalChemicalToChemicalEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "chemical_infusing")), new RecipeHolder<>(nullRl(), recipe));
+        return new ChemicalChemicalToChemicalEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "chemical_infusing")), new RecipeHolder<>(nullRl(), recipe));
     }
 
     @Override

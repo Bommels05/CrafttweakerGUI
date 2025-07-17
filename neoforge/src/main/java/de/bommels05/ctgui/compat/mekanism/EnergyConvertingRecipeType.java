@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.mekanism;
 
+import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
@@ -16,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 public class EnergyConvertingRecipeType extends SupportedRecipeType<BasicItemStackToEnergyRecipe> {
 
     public EnergyConvertingRecipeType() {
-        super(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "energy_conversion"));
+        super(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "energy_conversion"));
 
         addAreaScrollAmountEmptyRightClick(6, 24, 17, 17, (r, am) -> {
             return new BasicItemStackToEnergyRecipe(MekanismRecipeUtils.of(convertToUnset(am)), r.getOutput(ItemStack.EMPTY));
@@ -48,7 +49,7 @@ public class EnergyConvertingRecipeType extends SupportedRecipeType<BasicItemSta
 
     @Override
     public Object getEmiRecipe(BasicItemStackToEnergyRecipe recipe) throws UnsupportedViewerException {
-        return new ItemStackToEnergyEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "energy_conversion")), new RecipeHolder<>(nullRl(), recipe));
+        return new ItemStackToEnergyEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "energy_conversion")), new RecipeHolder<>(nullRl(), recipe));
     }
 
     @Override

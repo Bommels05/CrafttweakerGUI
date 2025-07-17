@@ -1,5 +1,6 @@
 package de.bommels05.ctgui.compat.mekanism;
 
+import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.NeoLoaderUtils;
 import de.bommels05.ctgui.api.FluidAmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
@@ -21,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 public class EvaporatingRecipeType extends SupportedRecipeType<BasicFluidToFluidRecipe> {
 
     public EvaporatingRecipeType() {
-        super(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "evaporating"));
+        super(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "evaporating"));
 
         addAreaScrollAmountEmptyRightClick(3, 1, 18, 60, (r, stack) -> {
             return new BasicFluidToFluidRecipe(MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getInput()), r.getOutputRaw());
@@ -52,7 +53,7 @@ public class EvaporatingRecipeType extends SupportedRecipeType<BasicFluidToFluid
 
     @Override
     public Object getEmiRecipe(BasicFluidToFluidRecipe recipe) throws UnsupportedViewerException {
-        return new FluidToFluidEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(ResourceLocation.fromNamespaceAndPath(MekanismAPI.MEKANISM_MODID, "evaporating")), new RecipeHolder<>(nullRl(), recipe));
+        return new FluidToFluidEmiRecipe((MekanismEmiRecipeCategory) getEmiCategory(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "evaporating")), new RecipeHolder<>(nullRl(), recipe));
     }
 
     @Override

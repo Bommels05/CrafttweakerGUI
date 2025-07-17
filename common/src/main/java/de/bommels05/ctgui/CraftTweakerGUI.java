@@ -53,4 +53,13 @@ public class CraftTweakerGUI {
         }
     }
 
+    //For better 1.20.1 porting
+    public static ResourceLocation rl(String s) {
+        return ResourceLocation.parse(s);
+    }
+
+    public static ResourceLocation rl(String namespace, String path) {
+        return ResourceLocation.fromNamespaceAndPath(namespace, path);
+    }
+
 }
