@@ -2,9 +2,13 @@ package de.bommels05.ctgui.compat.mekanism;
 
 import com.google.common.base.Preconditions;
 import de.bommels05.ctgui.api.SpecialAmountedIngredient;
+import mekanism.api.MekanismAPI;
 import mekanism.api.chemical.Chemical;
 import mekanism.api.chemical.ChemicalStack;
+import net.minecraft.core.Registry;
 import net.minecraft.tags.TagKey;
+
+import java.util.List;
 
 public class ChemicalAmountedIngredient extends SpecialAmountedIngredient<ChemicalStack, Chemical> {
 
@@ -40,8 +44,21 @@ public class ChemicalAmountedIngredient extends SpecialAmountedIngredient<Chemic
     }
 
     @Override
-    public ChemicalStack toStack() {
-        return super.toStack().copyWithAmount(getRightAmount());
+    public List<ChemicalStack> getStacks() {
+        if (shouldUseAmount()) {
+            return getStacksInternal().stream().map(stack -> stack.copyWithAmount(getAmount())).toList();
+        }
+        return getStacksInternal();
+    }
+
+    @Override
+    public Chemical getStackAsType() {
+        return getStack().getChemical();
+    }
+
+    @Override
+    public Registry<Chemical> getRegistry() {
+        return MekanismAPI.CHEMICAL_REGISTRY;
     }
 
     @Override

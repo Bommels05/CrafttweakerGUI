@@ -4,33 +4,26 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.EitherCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
-import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 
-import java.util.Optional;
-
 /**
  * Has an Ingredient Codec with NBT support for item values
  */
-public class FlexibleNBTIngredient {
-
-    /*public static final Codec<ItemStack> OPTIONAL_COUNT_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            BuiltInRegistries.ITEM.holderByNameCodec().fieldOf("item").forGetter(ItemStack::getItemHolder),
-            Codec.INT.optionalFieldOf("count").forGetter(stack -> Optional.of(stack.getCount())),
-            CompoundTag.CODEC.optionalFieldOf("tag").forGetter(stack -> Optional.ofNullable(stack.getTag()))
-    ).apply(instance, (item, count, tag) -> new ItemStack(item, count.orElse(1), tag)));*/
+public class ExtraCodecs {
 
     public static final Codec<TagKey<Item>> ITEM_TAG_CODEC = RecordCodecBuilder.create(instance -> instance.group(
             TagKey.codec(Registries.ITEM).fieldOf("tag").forGetter(tag -> tag)
     ).apply(instance, tag -> tag));
 
-    public static final Codec<Ingredient> CODEC = new EitherCodec<>(ItemStack.CODEC, ITEM_TAG_CODEC).xmap(either -> {
+    public static final Codec<Ingredient> NBT_INGREDIENT_CODEC = new EitherCodec<>(ItemStack.CODEC, ITEM_TAG_CODEC).xmap(either -> {
         return either.map(Ingredient::of, Ingredient::of);
     }, ingredient -> {
         if (ingredient.isEmpty()) {
@@ -45,5 +38,14 @@ public class FlexibleNBTIngredient {
             throw new IllegalArgumentException("Invalid ingredient value: " + value);
         }
     });
+
+    public static final Codec<TagKey<?>> TAG_KEY_CODEC = RecordCodecBuilder.create(tagKey ->
+        tagKey.group(
+                ResourceLocation.CODEC.fieldOf("location").forGetter(TagKey::location),
+                ResourceLocation.CODEC.fieldOf("registry").forGetter(t -> t.registry().location())
+        ).apply(tagKey, (location, registry) ->
+            TagKey.create(ResourceKey.createRegistryKey(registry), location)
+        )
+    );
 
 }

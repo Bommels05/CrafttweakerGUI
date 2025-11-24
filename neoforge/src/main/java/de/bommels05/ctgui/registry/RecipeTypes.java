@@ -15,7 +15,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 public class RecipeTypes {
 
     public static final DeferredRegister<RecipeType<?>> RECIPE_TYPES = DeferredRegister.create(BuiltInRegistries.RECIPE_TYPE, CraftTweakerGUI.MOD_ID);
-    public static final DeferredHolder<RecipeType<?>, RecipeType<TagRecipe>> TAG = RECIPE_TYPES.register("tag", () -> RecipeType.simple(ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, "tag")));
+    public static final DeferredHolder<RecipeType<?>, RecipeType<TagRecipe<?>>> TAG = RECIPE_TYPES.register("tag", () -> RecipeType.simple(ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, "tag")));
     public static final DeferredHolder<RecipeType<?>, RecipeType<FuelRecipe>> FUEL = RECIPE_TYPES.register("fuel", () -> RecipeType.simple(ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, "fuel")));
     public static final DeferredHolder<RecipeType<?>, RecipeType<CompostingRecipe>> COMPOSTING = RECIPE_TYPES.register("composting", () -> RecipeType.simple(ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, "composting")));
     public static final DeferredHolder<RecipeType<?>, RecipeType<InfoRecipe>> INFO = RECIPE_TYPES.register("info", () -> RecipeType.simple(ResourceLocation.fromNamespaceAndPath(CraftTweakerGUI.MOD_ID, "info")));

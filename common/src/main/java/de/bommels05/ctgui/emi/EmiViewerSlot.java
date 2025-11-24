@@ -25,7 +25,7 @@ public class EmiViewerSlot implements ViewerSlot {
         slot = new SlotWidget(EmiStack.of(stack), x, y);
     }
 
-    public <S, T> EmiViewerSlot(SpecialAmountedIngredient<S, T> ingredient, int x, int y) {
+    public EmiViewerSlot(SpecialAmountedIngredient<?, ?> ingredient, int x, int y) {
         slot = new SlotWidget(EmiViewerUtils.of(ingredient), x, y);
     }
 

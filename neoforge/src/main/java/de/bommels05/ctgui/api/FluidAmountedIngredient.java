@@ -1,9 +1,13 @@
 package de.bommels05.ctgui.api;
 
 import com.google.common.base.Preconditions;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
+
+import java.util.List;
 
 public class FluidAmountedIngredient extends SpecialAmountedIngredient<FluidStack, Fluid> {
 
@@ -39,8 +43,21 @@ public class FluidAmountedIngredient extends SpecialAmountedIngredient<FluidStac
     }
 
     @Override
-    public FluidStack toStack() {
-        return super.toStack().copyWithAmount(getRightAmount());
+    public List<FluidStack> getStacks() {
+        if (shouldUseAmount()) {
+            return getStacksInternal().stream().map(stack -> stack.copyWithAmount(getAmount())).toList();
+        }
+        return getStacksInternal();
+    }
+
+    @Override
+    public Fluid getStackAsType() {
+        return getStack().getFluid();
+    }
+
+    @Override
+    public Registry<Fluid> getRegistry() {
+        return BuiltInRegistries.FLUID;
     }
 
     @Override

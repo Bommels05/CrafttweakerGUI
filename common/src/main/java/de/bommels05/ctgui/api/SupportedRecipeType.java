@@ -220,7 +220,6 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
         return null;
     }
 
-    @SuppressWarnings("unchecked")
     public R onClick(R recipe, int x, int y, boolean rightClick, RecipeEditScreen<R> screen) {
         for (Area<R, ?, ?> area : areas) {
             if (area.inside(x, y)) {
@@ -242,8 +241,7 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
         return null;
     }
 
-    @SuppressWarnings("unchecked")
-    public <S, T> R onReleased(R recipe, int x, int y, boolean rightClick, RecipeEditScreen<R> screen) {
+    public R onReleased(R recipe, int x, int y, boolean rightClick, RecipeEditScreen<R> screen) {
         if (!rightClick && screen.getDragged() != null) {
             R result = onDragAndDrop(recipe, x, y, screen.getDragged());
             screen.setDragged(null);
@@ -341,6 +339,21 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
      */
     protected void addAreaEmptyRightClick(int x, int y, int width, int height, BiFunction<R, AmountedIngredient, R> dragAndDropHandler, Function<R, AmountedIngredient> stackSupplier) {
         addAreaEmptyRightClick(x, y, width, height, dragAndDropHandler, stackSupplier, (r, up) -> null);
+    }
+
+    /**
+     * Adds a new area to interact with the recipe in the editing screen that calls the drag and drop handler with the empty Ingredient when right-clicked
+     * @param x The x coordinate of the area
+     * @param y The y coordinate of the area
+     * @param width The width of the area
+     * @param height The height of the area
+     * @param dragAndDropHandler The handler that handles Ingredients being dropped into the area and returns a modified recipe if needed
+     * @param stackSupplier The supplier that returns the Ingredient that is currently in the area
+     * @param emptyIngredient The supplier that returns the empty ingredient to pass into the drag and drop handler when right-clicked
+     */
+    protected <T> void addAreaEmptyRightClick(int x, int y, int width, int height, BiFunction<R, T, R> dragAndDropHandler, Function<R, T> stackSupplier,
+                                              Supplier<T> emptyIngredient) {
+        addAreaEmptyRightClick(x, y, width, height, dragAndDropHandler, stackSupplier, emptyIngredient, (r, up) -> null);
     }
 
     /**

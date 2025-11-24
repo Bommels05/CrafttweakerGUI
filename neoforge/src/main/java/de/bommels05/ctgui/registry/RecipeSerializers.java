@@ -12,7 +12,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 public class RecipeSerializers {
 
     public static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(BuiltInRegistries.RECIPE_SERIALIZER, CraftTweakerGUI.MOD_ID);
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<TagRecipe>> TAG = RECIPE_SERIALIZERS.register("tag", TagRecipeSerializer::new);
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<TagRecipe<?>>> TAG = RECIPE_SERIALIZERS.register("tag", TagRecipeSerializer::new);
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<FuelRecipe>> FUEL = RECIPE_SERIALIZERS.register("fuel", FuelRecipeSerializer::new);
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<CompostingRecipe>> COMPOSTING = RECIPE_SERIALIZERS.register("composting", CompostingRecipeSerializer::new);
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<InfoRecipe>> INFO = RECIPE_SERIALIZERS.register("info", InfoRecipeSerializer::new);

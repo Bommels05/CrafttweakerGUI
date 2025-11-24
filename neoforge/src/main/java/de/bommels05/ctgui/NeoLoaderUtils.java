@@ -28,6 +28,7 @@ import mekanism.client.recipe_viewer.emi.ChemicalEmiStack;
 import mekanism.common.recipe.upgrade.MekanismShapedRecipe;
 import mekanism.common.registries.MekanismRecipeSerializersInternal;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.TagKey;
@@ -61,12 +62,12 @@ public class NeoLoaderUtils implements LoaderUtils {
     }
 
     @Override
-    public RecipeSerializer<TagRecipe> getTagRecipeSerializer() {
+    public RecipeSerializer<TagRecipe<?>> getTagRecipeSerializer() {
         return RecipeSerializers.TAG.get();
     }
 
     @Override
-    public RecipeType<TagRecipe> getTagRecipeType() {
+    public RecipeType<TagRecipe<?>> getTagRecipeType() {
         return RecipeTypes.TAG.get();
     }
 
@@ -101,7 +102,7 @@ public class NeoLoaderUtils implements LoaderUtils {
     }
 
     @Override
-    public <T> Object stackFromType(T type) {
+    public Object stackFromType(Object type) {
         if (type instanceof Fluid fluid) {
             return new FluidStack(fluid, 1);
         } else if (ModList.get().isLoaded("mekanism") && type instanceof Chemical chemical) {
@@ -111,22 +112,34 @@ public class NeoLoaderUtils implements LoaderUtils {
     }
 
     @Override
-    public SpecialAmountedIngredient<?, ?> getRightImplementation(SpecialAmountedIngredient<?, ?> ingredient) {
-        if (ingredient.isStack()) {
-            if (ingredient.getStack() instanceof FluidStack stack) {
-                return new FluidAmountedIngredient(stack, ingredient.shouldUseAmount() ? ingredient.getAmount() : stack.getAmount());
-            } else if (ModList.get().isLoaded("mekanism") && ingredient.getStack() instanceof ChemicalStack stack) {
-                return new ChemicalAmountedIngredient(stack, ingredient.shouldUseAmount() ? ingredient.getAmount() : (int) stack.getAmount());
-            }
+    public Object emptyStackFromRegistry(Registry<?> registry) {
+        if (registry.key() == Registries.FLUID) {
+            return FluidStack.EMPTY;
+        } else if (ModList.get().isLoaded("mekanism") && registry.key() == MekanismAPI.CHEMICAL_REGISTRY_NAME) {
+            return ChemicalStack.EMPTY;
         } else {
-            TagKey<?> tag = ingredient.getTag();
-            if (tag.isFor(Registries.FLUID)) {
-                return new FluidAmountedIngredient((TagKey<Fluid>) tag, ingredient.getAmount());
-            } else if (ModList.get().isLoaded("mekanism") && tag.isFor(MekanismAPI.CHEMICAL_REGISTRY_NAME)) {
-                return new ChemicalAmountedIngredient((TagKey<Chemical>) tag, ingredient.getAmount());
-            }
+            throw new UnsupportedOperationException("Unsupported Ingredient Type: " + registry.key().location());
         }
-        return ingredient;
+    }
+
+    public SpecialAmountedIngredient<?, ?> getIngredientFromStack(Object stack) {
+        if (stack instanceof FluidStack s) {
+            return new FluidAmountedIngredient(s);
+        } else if (ModList.get().isLoaded("mekanism") && stack instanceof ChemicalStack s) {
+            return new ChemicalAmountedIngredient(s, (int) s.getAmount());
+        } else {
+            throw new UnsupportedOperationException("Unsupported Ingredient Type: " + stack.getClass());
+        }
+    }
+
+    public SpecialAmountedIngredient<?, ?> getIngredientFromTag(TagKey<?> tag, int amount) {
+        if (tag.isFor(Registries.FLUID)) {
+            return new FluidAmountedIngredient((TagKey<Fluid>) tag, amount);
+        } else if (ModList.get().isLoaded("mekanism") && tag.isFor(MekanismAPI.CHEMICAL_REGISTRY_NAME)) {
+            return new ChemicalAmountedIngredient((TagKey<Chemical>) tag, amount);
+        } else {
+            throw new UnsupportedOperationException("Unsupported Ingredient Type: " + tag.registry().location());
+        }
     }
 
     @Override

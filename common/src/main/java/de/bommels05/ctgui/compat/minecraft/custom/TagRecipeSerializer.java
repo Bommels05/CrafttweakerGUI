@@ -1,11 +1,11 @@
 package de.bommels05.ctgui.compat.minecraft.custom;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.*;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import de.bommels05.ctgui.api.ExtraCodecs;
+import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
@@ -14,35 +14,64 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 
 import java.util.List;
+import java.util.stream.Stream;
 
-public class TagRecipeSerializer implements RecipeSerializer<TagRecipe> {
+public class TagRecipeSerializer implements RecipeSerializer<TagRecipe<?>> {
 
-    private final MapCodec<TagRecipe> codec;
+    private final MapCodec<TagRecipe<?>> codec;
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public TagRecipeSerializer() {
-        this.codec = RecordCodecBuilder.mapCodec(
-                recipe ->
-                    recipe.group(
-                            Codec.BOOL.fieldOf("item").forGetter(r -> r.item),
-                            ResourceLocation.CODEC.fieldOf("id").forGetter(r -> r.id),
-                            Codec.list(ItemStack.SINGLE_ITEM_CODEC).fieldOf("items").orElse(List.of()).forGetter(r -> r.items != null ? r.items : List.of()),
-                            Codec.list(ResourceLocation.CODEC).fieldOf("itemTags").orElse(List.of()).forGetter(r -> r.itemTags != null ? r.itemTags.stream().map(TagKey::location).toList() : List.of()),
-                            Codec.list(BuiltInRegistries.FLUID.byNameCodec()).fieldOf("fluids").orElse(List.of()).forGetter(r -> r.fluids != null ? r.fluids : List.of()),
-                            Codec.list(ResourceLocation.CODEC).fieldOf("fluidTags").orElse(List.of()).forGetter(r -> r.fluidTags != null ? r.fluidTags.stream().map(TagKey::location).toList() : List.of())
-                    ).apply(recipe, (item, id, items, itemTags, fluids, fluidTags) -> {
-                        return item ? new TagRecipe(TagKey.create(Registries.ITEM, id), items, itemTags.stream().map(tag -> TagKey.create(Registries.ITEM, tag)).toList()) :
-                                new TagRecipe(fluidTags.stream().map(tag -> TagKey.create(Registries.FLUID, tag)).toList(), fluids, TagKey.create(Registries.FLUID, id));
-                    })
+        MapCodec<TagRecipe<?>> oldCodec = RecordCodecBuilder.mapCodec(recipe ->
+                recipe.group(
+                        ResourceLocation.CODEC.fieldOf("id").forGetter(r -> r.id),
+                        Codec.list(BuiltInRegistries.ITEM.byNameCodec()).fieldOf("items").orElse(List.of()).forGetter(r -> null),
+                        Codec.list(ResourceLocation.CODEC).fieldOf("itemTags").orElse(List.of()).forGetter(r -> null)
+                ).apply(recipe, (id, items, itemTags) -> {
+                    return new TagRecipe<>(id, BuiltInRegistries.ITEM, itemTags.stream().map(r -> TagKey.create(Registries.ITEM, r)).toList(), items);
+                })
         );
+        MapCodec<TagRecipe> newCodec = RecordCodecBuilder.mapCodec(recipe ->
+                recipe.group(
+                        ResourceLocation.CODEC.fieldOf("id").forGetter(r -> r.id),
+                        ResourceLocation.CODEC.fieldOf("registry").forGetter(r -> r.registry.key().location()),
+                        Codec.list(ExtraCodecs.TAG_KEY_CODEC).fieldOf("tags").orElse(List.of()).forGetter(r -> r.tags != null ? r.tags : List.of()),
+                        Codec.list(ResourceLocation.CODEC).fieldOf("entries").forGetter(r -> r.entries.stream().map(r.registry::getKey).toList())
+                ).apply(recipe, (id, registry, tags, entries) -> {
+                    Registry<?> r = BuiltInRegistries.REGISTRY.get(registry);
+                    return TagRecipe.cast(id, r, tags, entries.stream().map(r::get).toList());
+                })
+        );
+
+        this.codec = new MapCodec<>() {
+            @Override
+            public <T> Stream<T> keys(DynamicOps<T> ops) {
+                return Stream.empty();
+            }
+
+            @Override
+            public <T> DataResult<TagRecipe<?>> decode(DynamicOps<T> ops, MapLike<T> input) {
+                DataResult<TagRecipe<?>> result = ((MapCodec<TagRecipe<?>>) (MapCodec<?>) newCodec).decode(ops, input);
+                if (result.isError()) {
+                    return oldCodec.decode(ops, input);
+                }
+                return result;
+            }
+
+            @Override
+            public <T> RecordBuilder<T> encode(TagRecipe<?> input, DynamicOps<T> ops, RecordBuilder<T> prefix) {
+                return newCodec.encode(input, ops, prefix);
+            }
+        };
     }
 
     @Override
-    public MapCodec<TagRecipe> codec() {
+    public MapCodec<TagRecipe<?>> codec() {
         return codec;
     }
 
     @Override
-    public StreamCodec<RegistryFriendlyByteBuf, TagRecipe> streamCodec() {
+    public StreamCodec<RegistryFriendlyByteBuf, TagRecipe<?>> streamCodec() {
         throw new UnsupportedOperationException();
     }
 }

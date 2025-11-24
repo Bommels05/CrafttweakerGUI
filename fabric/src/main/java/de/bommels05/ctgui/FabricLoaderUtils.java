@@ -8,7 +8,9 @@ import de.bommels05.ctgui.compat.minecraft.custom.TagRecipe;
 import dev.emi.emi.api.EmiInitRegistry;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.Registry;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -34,12 +36,12 @@ public class FabricLoaderUtils implements LoaderUtils {
     }
 
     @Override
-    public RecipeSerializer<TagRecipe> getTagRecipeSerializer() {
+    public RecipeSerializer<TagRecipe<?>> getTagRecipeSerializer() {
         return ClientInit.tagRecipeSerializer;
     }
 
     @Override
-    public RecipeType<TagRecipe> getTagRecipeType() {
+    public RecipeType<TagRecipe<?>> getTagRecipeType() {
         return ClientInit.tagRecipeType;
     }
 
@@ -74,13 +76,23 @@ public class FabricLoaderUtils implements LoaderUtils {
     }
 
     @Override
-    public <T> Object stackFromType(T type) {
+    public Object stackFromType(Object type) {
         return type;
     }
 
     @Override
-    public SpecialAmountedIngredient<?, ?> getRightImplementation(SpecialAmountedIngredient<?, ?> ingredient) {
-        return ingredient;
+    public Object emptyStackFromRegistry(Registry<?> registry) {
+        throw new UnsupportedOperationException("Unsupported Ingredient Type: " + registry.key().location());
+    }
+
+    @Override
+    public SpecialAmountedIngredient<?, ?> getIngredientFromStack(Object stack) {
+        throw new UnsupportedOperationException("Unsupported Ingredient Type: " + stack.getClass());
+    }
+
+    @Override
+    public SpecialAmountedIngredient<?, ?> getIngredientFromTag(TagKey<?> tag, int amount) {
+        throw new UnsupportedOperationException("Unsupported Ingredient Type: " + tag.registry().location());
     }
 
     @Override

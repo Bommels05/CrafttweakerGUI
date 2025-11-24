@@ -195,7 +195,7 @@ public class EmiViewerUtils implements ViewerUtils<EmiRecipe> {
     }
 
     @Override
-    public <S, T> ViewerSlot newSlotSpecial(SpecialAmountedIngredient<S, T> ingredient, int x, int y) {
+    public ViewerSlot newSlotSpecial(SpecialAmountedIngredient<?, ?> ingredient, int x, int y) {
         return new EmiViewerSlot(ingredient, x, y);
     }
 

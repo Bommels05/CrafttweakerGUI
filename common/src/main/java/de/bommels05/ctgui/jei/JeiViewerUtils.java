@@ -107,7 +107,7 @@ public class JeiViewerUtils implements ViewerUtils<Either<IRecipeLayoutDrawable<
     }
 
     @Override
-    public <S, T> ViewerSlot newSlotSpecial(SpecialAmountedIngredient<S, T> ingredient, int x, int y) {
+    public ViewerSlot newSlotSpecial(SpecialAmountedIngredient<?, ?> ingredient, int x, int y) {
         return new JeiViewerSlot(ingredient, x, y);
     }
 

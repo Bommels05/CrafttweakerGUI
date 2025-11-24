@@ -79,7 +79,7 @@ public class ChangedRecipeManager {
     }
 
     public static boolean idAlreadyUsed(String id) {
-        return changedRecipes.stream().anyMatch(changedRecipe -> changedRecipe.getId().equals(id));
+        return changedRecipes.stream().anyMatch(changedRecipe -> changedRecipe.getId().replace("minecraft:", "").equals(id.replace("minecraft:", "")));
     }
 
     public static void save() {

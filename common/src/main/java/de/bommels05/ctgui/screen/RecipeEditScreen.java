@@ -1,10 +1,7 @@
 package de.bommels05.ctgui.screen;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import de.bommels05.ctgui.ChangedRecipeManager;
-import de.bommels05.ctgui.CraftTweakerGUI;
-import de.bommels05.ctgui.SupportedRecipe;
-import de.bommels05.ctgui.ViewerSlot;
+import de.bommels05.ctgui.*;
 import de.bommels05.ctgui.api.*;
 import de.bommels05.ctgui.api.option.RecipeIdFieldRecipeOption;
 import de.bommels05.ctgui.api.option.RecipeOption;
@@ -244,7 +241,7 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
         } catch (ResourceLocationException | NullPointerException e) {
             this.tag = null;
         }
-        tagSlot = CraftTweakerGUI.getViewerUtils().newSlotSpecial(this.tag == null ? new SpecialAmountedIngredient<>(ItemStack.EMPTY) : new SpecialAmountedIngredient<>(this.tag, 1), 102, getTagMinY() + 31);
+        tagSlot = CraftTweakerGUI.getViewerUtils().newSlotSpecial(this.tag == null ? new ItemAmountedIngredient(ItemStack.EMPTY) : ViewerUtils.ingredientFromTag(this.tag, 1), 102, getTagMinY() + 31);
     }
 
     @Override
@@ -316,12 +313,8 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
     }
 
     public <T> void handleDragAndDropSpecial(int x, int y, T ingredient) {
-        R newRecipe = recipe.getType().onDragAndDropSpecial(recipe.getRecipe(), x - getRecipeX(), y - getRecipeY(), getRightImplementation(new SpecialAmountedIngredient<>(ingredient)));
+        R newRecipe = recipe.getType().onDragAndDropSpecial(recipe.getRecipe(), x - getRecipeX(), y - getRecipeY(), CraftTweakerGUI.getLoaderUtils().getIngredientFromStack(ingredient));
         changeRecipe(newRecipe);
-    }
-
-    private SpecialAmountedIngredient<?, ?> getRightImplementation(SpecialAmountedIngredient<?, ?> ingredient) {
-        return CraftTweakerGUI.getLoaderUtils().getRightImplementation(ingredient);
     }
 
     @Override
@@ -341,7 +334,7 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
                 if (tag.isFor(Registries.ITEM)) {
                     setDragged(new AmountedIngredient(Ingredient.of((TagKey<Item>) tag), 1));
                 } else {
-                    setDraggedSpecial(getRightImplementation(new SpecialAmountedIngredient<>(tag, 1)));
+                    setDraggedSpecial(ViewerUtils.ingredientFromTag(tag, 1));
                 }
             } else {
                 for (ViewerSlot slot : hotBarSlots) {

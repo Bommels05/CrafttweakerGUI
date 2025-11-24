@@ -2,6 +2,7 @@ package de.bommels05.ctgui.api;
 
 import com.google.common.base.Preconditions;
 import de.bommels05.ctgui.ViewerUtils;
+import net.minecraft.core.Registry;
 import net.minecraft.tags.TagKey;
 
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.List;
  * @param <S> The type of the stack e.g. FluidStack
  * @param <T> The type of the tag (=The type of the Registry of the tag) e.g. Fluid
  */
-public class SpecialAmountedIngredient<S, T> {
+public abstract class SpecialAmountedIngredient<S, T> {
 
     private final S stack;
     private final TagKey<T> tag;
@@ -39,26 +40,32 @@ public class SpecialAmountedIngredient<S, T> {
         Preconditions.checkArgument(amount > 0, "Amount must be greater than 0");
     }
 
-    public SpecialAmountedIngredient<S, T> withAmount(int amount) {
+    public abstract SpecialAmountedIngredient<S, T> withAmount(int amount);/* {
         Preconditions.checkArgument(amount > 0, "Amount must be greater than 0");
         return new SpecialAmountedIngredient<>(stack, tag, amount);
-    }
+    }*/
 
     public S toStack() {
-        try {
+        if (!isTagEmpty()) {
             return getStacks().get(0);
-        } catch (IndexOutOfBoundsException e) {
-            throw new IllegalStateException("Empty Tag was not ignored", e);
+        } else {
+            throw new IllegalStateException("Empty Tag was not ignored");
         }
     }
 
-    public List<S> getStacks() {
-        return stack != null ? List.of(stack) : ViewerUtils.of(tag);
+    protected List<S> getStacksInternal() {
+        return isStack() ? List.of(stack) : ViewerUtils.of(tag);
     }
+
+    public abstract List<S> getStacks();
 
     public S getStack() {
         return stack;
     }
+
+    public abstract T getStackAsType();
+
+    public abstract Registry<T> getRegistry();
 
     public TagKey<T> getTag() {
         return tag;
@@ -81,10 +88,16 @@ public class SpecialAmountedIngredient<S, T> {
     }
 
     public boolean isTag() {
-        return tag != null;
+        return !isStack();
     }
 
-    public boolean isStackEmpty() {
-        return false;
+    public boolean isEmpty() {
+        return isStack() ? isStackEmpty() : isTagEmpty();
     }
+
+    public boolean isTagEmpty() {
+        return getStacks().isEmpty();
+    }
+
+    public abstract boolean isStackEmpty();
 }

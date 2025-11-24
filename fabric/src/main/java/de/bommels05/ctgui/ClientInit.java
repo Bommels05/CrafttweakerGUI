@@ -21,8 +21,8 @@ import net.neoforged.fml.config.ModConfig;
 
 public class ClientInit implements ClientModInitializer {
 
-    public static RecipeType<TagRecipe> tagRecipeType;
-    public static RecipeSerializer<TagRecipe> tagRecipeSerializer;
+    public static RecipeType<TagRecipe<?>> tagRecipeType;
+    public static RecipeSerializer<TagRecipe<?>> tagRecipeSerializer;
     public static RecipeType<FuelRecipe> fuelRecipeType;
     public static RecipeSerializer<FuelRecipe> fuelRecipeSerializer;
     public static RecipeType<CompostingRecipe> compostingRecipeType;

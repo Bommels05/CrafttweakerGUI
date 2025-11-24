@@ -1,17 +1,13 @@
 package de.bommels05.ctgui.compat.minecraft.custom;
 
 import de.bommels05.ctgui.CraftTweakerGUI;
-import de.bommels05.ctgui.api.AmountedIngredient;
-import de.bommels05.ctgui.api.SupportedRecipeType;
-import de.bommels05.ctgui.api.UnsupportedRecipeException;
-import de.bommels05.ctgui.api.UnsupportedViewerException;
-import de.bommels05.ctgui.api.option.BooleanRecipeOption;
+import de.bommels05.ctgui.api.*;
 import de.bommels05.ctgui.api.option.RecipeIdFieldRecipeOption;
 import de.bommels05.ctgui.emi.EmiEditingTagRecipe;
 import dev.emi.emi.api.recipe.EmiRecipe;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.recipe.EmiTagRecipe;
-import net.minecraft.core.registries.Registries;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -19,16 +15,16 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.Function;
 
-public class TagRecipeType extends SupportedRecipeType<TagRecipe> {
+public class TagRecipeType extends SupportedRecipeType<TagRecipe<?>> {
 
-    private final BooleanRecipeOption<TagRecipe> item = new BooleanRecipeOption<>(Component.translatable("ctgui.editing.options.tag_item"));
-    private final RecipeIdFieldRecipeOption<TagRecipe> name = new RecipeIdFieldRecipeOption<>(Component.translatable("ctgui.editing.options.tag_name"), name -> {
+    private final RecipeIdFieldRecipeOption<TagRecipe<?>> name = new RecipeIdFieldRecipeOption<>(Component.translatable("ctgui.editing.options.tag_name"), name -> {
         boolean slash = false;
         for (char c : name.toCharArray()) {
             if (slash && c == '/') {
@@ -45,21 +41,9 @@ public class TagRecipeType extends SupportedRecipeType<TagRecipe> {
     public TagRecipeType() {
         super(CraftTweakerGUI.rl("emi:tag"));
 
-        //todo enable this when fluids are supported
-        /*addOption(item, (r, item) -> {
-            if (item) {
-                return new TagRecipe(TagKey.create(Registries.ITEM, r.id), List.of(), List.of());
-            } else {
-                return new TagRecipe(List.of(), List.of(), TagKey.create(Registries.FLUID, r.id));
-            }
-        });*/
         addOption(name, (r, name) -> {
             if (ResourceLocation.tryParse(name) != null && !name.isEmpty()) {
-                if (r.item) {
-                    return new TagRecipe(TagKey.create(Registries.ITEM, ResourceLocation.parse(name)), r.items, r.itemTags);
-                } else {
-                    return new TagRecipe(r.fluidTags, r.fluids, TagKey.create(Registries.FLUID, ResourceLocation.parse(name)));
-                }
+                return new TagRecipe(ResourceLocation.parse(name), r.registry, r.tags, r.entries);
             } else {
                 r.valid = false;
                 return r;
@@ -68,106 +52,137 @@ public class TagRecipeType extends SupportedRecipeType<TagRecipe> {
     }
 
     @Override
-    public TagRecipe onInitialize(TagRecipe recipe) throws UnsupportedRecipeException {
+    public TagRecipe<?> onInitialize(TagRecipe<?> recipe) throws UnsupportedRecipeException {
         super.onInitialize(recipe);
 
         if (recipe == null) {
-            name.set("ctgui:example_tag");
-            return new TagRecipe(TagKey.create(Registries.ITEM, CraftTweakerGUI.rl("ctgui:example_tag")), List.of(), List.of());
+            name.set("crafttweaker:example_tag");
+            return new TagRecipe<>(CraftTweakerGUI.rl("crafttweaker:example_tag"), BuiltInRegistries.ITEM, List.of(), List.of());
         }
         name.set(recipe.id.toString());
         //We return the old recipe here so the custom emi recipe implementation is used and not the original
         return recipe;
     }
 
-    public void lateInit(List<EmiIngredient> ingredients, int pageHeight, int page) {
+    @SuppressWarnings("unchecked")
+    public <T> void lateInit(List<EmiIngredient> ingredients, int pageHeight, int page, boolean item) {
         int pageMultiplier = page * (pageHeight * 8);
         clearAreas();
         for (int i = 0; i < ingredients.size() && i / 8 <= pageHeight; i++) {
             int index = i;
-            addAreaEmptyRightClick(i % 8 * 18, i / 8 * 18 + 24, 17, 17, (r, am) -> {
-                if (r.item) {
+            if (item) {
+                addAreaEmptyRightClick(i % 8 * 18, i / 8 * 18 + 24, 17, 17, (recipe, am) -> {
+                    TagRecipe<Item> r = (TagRecipe<Item>) recipe;
                     if (am.isEmpty()) {
-                        if (index + pageMultiplier < r.itemTags.size()) {
-                            List<TagKey<Item>> tags = new ArrayList<>(r.itemTags);
+                        if (index + pageMultiplier < r.tags.size()) {
+                            List<TagKey<Item>> tags = new ArrayList<>(r.tags);
                             tags.remove(index + pageMultiplier);
-                            return new TagRecipe(TagKey.create(Registries.ITEM, r.id), r.items, tags);
-                        } else if ((index + pageMultiplier) - r.itemTags.size() < r.items.size()) {
-                            List<ItemStack> items = new ArrayList<>(r.items);
-                            items.remove((index + pageMultiplier) - r.itemTags.size());
-                            return new TagRecipe(TagKey.create(Registries.ITEM, r.id), items, r.itemTags);
+                            return new TagRecipe<>(r.id, r.registry, tags, r.entries);
+                        } else if ((index + pageMultiplier) - r.tags.size() < r.entries.size()) {
+                            List<Item> entries = new ArrayList<>(r.entries);
+                            entries.remove((index + pageMultiplier) - r.tags.size());
+                            return new TagRecipe<>(r.id, r.registry, r.tags, entries);
                         } else {
                             return r;
                         }
                     } else if (am.isTag()) {
-                        List<TagKey<Item>> tags = new ArrayList<>(r.itemTags);
+                        List<TagKey<Item>> tags = new ArrayList<>(r.tags);
                         tags.add(((Ingredient.TagValue) am.ingredient().values[0]).tag());
-                        return new TagRecipe(TagKey.create(Registries.ITEM, r.id), r.items, tags);
+                        return new TagRecipe<>(r.id, r.registry, tags, r.entries);
                     } else {
-                        List<ItemStack> items = new ArrayList<>(r.items);
-                        items.add(am.withAmount(1).asStack());
-                        return new TagRecipe(TagKey.create(Registries.ITEM, r.id), items, r.itemTags);
+                        List<Item> entries = new ArrayList<>(r.entries);
+                        entries.add(am.asStack().getItem());
+                        return new TagRecipe<>(r.id, r.registry, r.tags, entries);
                     }
-                } else {
-                    //todo add this when fluids are supported
-                    return null;
-                }
-            }, r -> {
-                if (r.item) {
-                    if (index + pageMultiplier < r.itemTags.size()) {
-                        return new AmountedIngredient(Ingredient.of(r.itemTags.get(index + pageMultiplier)), 1);
-                    } else if ((index + pageMultiplier) - r.itemTags.size() < r.items.size()) {
-                        return AmountedIngredient.of(r.items.get((index + pageMultiplier) - r.itemTags.size()));
+                }, recipe -> {
+                    TagRecipe<Item> r = (TagRecipe<Item>) recipe;
+                    if (index + pageMultiplier < r.tags.size()) {
+                        return new AmountedIngredient(Ingredient.of(r.tags.get(index + pageMultiplier)), 1);
+                    } else if ((index + pageMultiplier) - r.tags.size() < r.entries.size()) {
+                        return AmountedIngredient.of(new ItemStack(r.entries.get((index + pageMultiplier) - r.tags.size())));
                     }
                     return AmountedIngredient.empty();
-                } else {
-                    //todo add this when fluids are supported
+                });
+            } else {
+                addAreaEmptyRightClick(i % 8 * 18, i / 8 * 18 + 24, 17, 17, (recipe, ingredient) -> {
+                    TagRecipe<T> r = (TagRecipe<T>) recipe;
+                    SpecialAmountedIngredient<?, T> am = (SpecialAmountedIngredient<?, T>) ingredient;
+                    if (am.isEmpty()) {
+                        if (index + pageMultiplier < r.tags.size()) {
+                            List<TagKey<T>> tags = new ArrayList<>(r.tags);
+                            tags.remove(index + pageMultiplier);
+                            return new TagRecipe<>(r.id, r.registry, tags, r.entries);
+                        } else if ((index + pageMultiplier) - r.tags.size() < r.entries.size()) {
+                            List<T> entries = new ArrayList<>(r.entries);
+                            entries.remove((index + pageMultiplier) - r.tags.size());
+                            return new TagRecipe<>(r.id, r.registry, r.tags, entries);
+                        }
+                    } else if (am.getRegistry() == r.registry) {
+                        if (am.isTag()) {
+                            List<TagKey<T>> tags = new ArrayList<>(r.tags);
+                            tags.add(am.getTag());
+                            return new TagRecipe<>(r.id, r.registry, tags, r.entries);
+                        } else {
+                            List<T> entries = new ArrayList<>(r.entries);
+                            entries.add(am.getStackAsType());
+                            return new TagRecipe<>(r.id, r.registry, r.tags, entries);
+                        }
+                    }
                     return null;
-                }
-            });
+                }, recipe -> {
+                    TagRecipe<T> r = (TagRecipe<T>) recipe;
+                    if (index + pageMultiplier < r.tags.size()) {
+                        return CraftTweakerGUI.getLoaderUtils().getIngredientFromTag(r.tags.get(index + pageMultiplier), 1);
+                    } else if ((index + pageMultiplier) - r.tags.size() < r.entries.size()) {
+                        return CraftTweakerGUI.getLoaderUtils().getIngredientFromStack(CraftTweakerGUI.getLoaderUtils().stackFromType(r.entries.get((index + pageMultiplier) - r.tags.size())));
+                    }
+                    return CraftTweakerGUI.getLoaderUtils().getIngredientFromStack(CraftTweakerGUI.getLoaderUtils().emptyStackFromRegistry(r.registry));
+                }, () -> CraftTweakerGUI.getLoaderUtils().getIngredientFromStack(CraftTweakerGUI.getLoaderUtils().emptyStackFromRegistry(BuiltInRegistries.FLUID)));
+            }
         }
     }
 
     @Override
-    public ItemStack getMainOutput(TagRecipe recipe) {
+    public ItemStack getMainOutput(TagRecipe<?> recipe) {
         //Because the recipe id field is overridden this is just used for the icon in the changed recipes list
         return new ItemStack(Items.NAME_TAG);
     }
 
     @Override
-    public boolean isValid(TagRecipe recipe) {
+    public boolean isValid(TagRecipe<?> recipe) {
         return recipe.valid;
     }
 
     @Override
-    public Object getEmiRecipe(TagRecipe recipe) throws UnsupportedViewerException {
-        if (recipe.item) {
-            return new EmiEditingTagRecipe(this, TagKey.create(Registries.ITEM, recipe.id), recipe.items, recipe.itemTags);
-        } else {
-            return new EmiEditingTagRecipe(this, recipe.fluidTags, recipe.fluids, TagKey.create(Registries.FLUID, recipe.id));
-        }
+    public Object getEmiRecipe(TagRecipe<?> recipe) throws UnsupportedViewerException {
+        return new EmiEditingTagRecipe(this, TagKey.create(recipe.registry.key(), recipe.id), recipe.tags, recipe.entries);
     }
 
     @Override
-    public Function<EmiRecipe, TagRecipe> getAlternativeEmiRecipeGetter() {
-        return recipe -> recipe instanceof EmiTagRecipe ? new TagRecipe(((EmiTagRecipe) recipe).key) : null;
+    public Function<EmiRecipe, TagRecipe<?>> getAlternativeEmiRecipeGetter() {
+        return recipe -> recipe instanceof EmiTagRecipe ? new TagRecipe<>(((EmiTagRecipe) recipe).key) : null;
     }
 
     @Override
-    public String getCraftTweakerRemoveString(TagRecipe recipe, ResourceLocation id) {
-        return "<tag:item:" + recipe.id + ">.clear();";
+    public String getCraftTweakerRemoveString(TagRecipe<?> recipe, ResourceLocation id) {
+        return "<tag:" + getCraftTweakerRegistry(recipe) + ":" + recipe.id + ">.clear();";
     }
 
     @Override
-    public String getCraftTweakerString(TagRecipe recipe, String id) {
+    public String getCraftTweakerString(TagRecipe<?> recipe, String id) {
         StringJoiner builder = new StringJoiner("\n");
-        for (TagKey<Item> tag : recipe.itemTags) {
-            String tagName = "<tag:item:" + tag.location() + ">";
-            builder.add("if (" + tagName + ".exists) { <tag:item:" + recipe.id + ">.add(" + tagName + "); }");
+        String type = getCraftTweakerRegistry(recipe);
+        for (TagKey<?> tag : recipe.tags) {
+            String tagName = "<tag:" + type + ":" + tag.location() + ">";
+            builder.add("if (" + tagName + ".exists) { <tag:" + type + ":" + recipe.id + ">.add(" + tagName + "); }");
         }
-        for (ItemStack item : recipe.items) {
-            builder.add("<tag:item:" + recipe.id + ">.add(" + getCTString(item) + ");");
-        }
+        recipe.forEntryWithId((entryId) -> {
+            builder.add("<tag:" + type + ":" + recipe.id + ">.add(<" + type.substring(type.indexOf('/') + 1) + ":" + entryId + ">);");
+        });
         return builder.toString();
+    }
+
+    private String getCraftTweakerRegistry(TagRecipe<?> recipe) {
+        return recipe.registry.key().location().toString().replace(':', '/').replace("minecraft/", "");
     }
 }

@@ -1,5 +1,6 @@
 package de.bommels05.ctgui;
 
+import de.bommels05.ctgui.api.ItemAmountedIngredient;
 import de.bommels05.ctgui.api.SpecialAmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
@@ -9,10 +10,12 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
@@ -43,7 +46,7 @@ public interface ViewerUtils<R> {
 
     public ViewerSlot newSlot(ItemStack stack, int x, int y);
 
-    public <S, T> ViewerSlot newSlotSpecial(SpecialAmountedIngredient<S, T> ingredient, int x, int y);
+    public ViewerSlot newSlotSpecial(SpecialAmountedIngredient<?, ?> ingredient, int x, int y);
 
     public <S, T> void renderIngredientSpecial(SpecialAmountedIngredient<S, T> ingredient, GuiGraphics graphics, int x, int y, float partialTick);
 
@@ -81,11 +84,19 @@ public interface ViewerUtils<R> {
         return recipe;
     }
 
-    public static <T> Object stackFromType(T type) {
+    public static Object stackFromType(Object type) {
         if (type instanceof ItemLike item) {
             return new ItemStack(item);
         } else {
             return CraftTweakerGUI.getLoaderUtils().stackFromType(type);
+        }
+    }
+
+    public static SpecialAmountedIngredient<?, ?> ingredientFromTag(TagKey<?> tag, int amount) {
+        if (tag.isFor(Registries.ITEM)) {
+            return new ItemAmountedIngredient((TagKey<Item>) tag, amount);
+        } else {
+            return CraftTweakerGUI.getLoaderUtils().getIngredientFromTag(tag, amount);
         }
     }
 
