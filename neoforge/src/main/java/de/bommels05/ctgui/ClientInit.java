@@ -93,14 +93,6 @@ public class ClientInit {
     }
 
     @SubscribeEvent
-    public void onSave(LevelEvent.Save event) {
-        //This is a server event, but we are on the physical client
-        if (Config.editMode) {
-            ChangedRecipeManager.save();
-        }
-    }
-
-    @SubscribeEvent
     public void onJoin(PlayerEvent.PlayerLoggedInEvent event) {
         if (Config.editMode && !Config.noWarning) {
             event.getEntity().sendSystemMessage(Component.translatable("ctgui.editing.options_warning").withStyle(ChatFormatting.GOLD));

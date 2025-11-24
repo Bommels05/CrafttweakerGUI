@@ -41,7 +41,6 @@ public class ChangedRecipeManager {
     public static final Path SCRIPT_FILE = CraftTweakerGUI.getLoaderUtils().getGameDir().resolve("scripts/ctgui_generated.zs");
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final List<ChangedRecipe<?>> changedRecipes = new ArrayList<>();
-    private static long lastSave = System.currentTimeMillis();
     private static boolean savedOld = false;
     static {
         load();
@@ -55,7 +54,7 @@ public class ChangedRecipeManager {
         if (inject && !recipe.wasExported() && recipe.type != ChangedRecipe.Type.REMOVED) {
             CraftTweakerGUI.getViewerUtils().inject(recipe);
         }
-        lastSave = 0;
+        save();
     }
 
     public static void addChangedRecipe(ChangedRecipe<?> recipe) {
@@ -67,7 +66,7 @@ public class ChangedRecipeManager {
         if (!recipe.wasExported() && recipe.getType() != ChangedRecipe.Type.REMOVED) {
             CraftTweakerGUI.getViewerUtils().unInject(recipe);
         }
-        lastSave = 0;
+        save();
     }
 
     public static List<ChangedRecipe<?>> getChangedRecipes() {
@@ -83,10 +82,6 @@ public class ChangedRecipeManager {
     }
 
     public static void save() {
-        if (System.currentTimeMillis() - lastSave < 60000) {
-            return;
-        }
-        lastSave = System.currentTimeMillis();
         CompoundTag root = new CompoundTag();
         ListTag changes = new ListTag();
         for (ChangedRecipe<?> change : changedRecipes) {
@@ -204,6 +199,7 @@ public class ChangedRecipeManager {
     public static void export() {
         File file = SCRIPT_FILE.toFile();
         file.delete();
+        boolean shouldSave = false;
         try {
             FileWriter writer = new FileWriter(file);
             writer.append("/*CraftTweaker GUI generated script\n");
@@ -234,7 +230,10 @@ public class ChangedRecipeManager {
                     writer.append(change.getCraftTweakerString() + "\n");
                     writer.append("\n");
                 }
-                change.setExported(true);
+                if (!change.wasExported()) {
+                    change.setExported(true);
+                    shouldSave = true;
+                }
             }
 
             writer.flush();
@@ -242,6 +241,13 @@ public class ChangedRecipeManager {
         } catch (Throwable t) {
             LOGGER.error("Could not export recipe changes", t);
             toastWithChat(Component.translatable("ctgui.export_error_title"), Component.translatable("ctgui.error_message"));
+
+            changedRecipes.forEach(recipe -> recipe.setExported(false));
+            shouldSave = true;
+        }
+
+        if (shouldSave) {
+            save();
         }
     }
 

@@ -225,9 +225,9 @@ public class NeoLoaderUtils implements LoaderUtils {
      */
     public static String getCTString(FluidAmountedIngredient stack) {
         if (stack.isStack()) {
-            return IFluidStack.of(stack.shouldUseAmount() ? stack.getStack().copyWithAmount(stack.getAmount()) : stack.getStack()).getCommandString();
+            return IFluidStack.of(stack.getStack()).getCommandString();
         } else {
-            return new CTFluidIngredient.FluidTagWithAmountIngredient(CraftTweakerTagRegistry.INSTANCE.knownTagManager(Registries.FLUID).tag(stack.getTag()).withAmount(stack.getRightAmount())).getCommandString();
+            return new CTFluidIngredient.FluidTagWithAmountIngredient(CraftTweakerTagRegistry.INSTANCE.knownTagManager(Registries.FLUID).tag(stack.getTag()).withAmount(stack.getAmount())).getCommandString();
         }
     }
 
@@ -238,7 +238,7 @@ public class NeoLoaderUtils implements LoaderUtils {
      * @return A new fluid stack with the amount changed
      */
     public static FluidAmountedIngredient fluidAmountSetter(FluidAmountedIngredient stack, boolean up) {
-        return stack.withAmount(Math.max(1, (stack.getRightAmount() == 1 ? (Screen.hasControlDown() ? 1 : 0) : stack.getRightAmount()) + SupportedRecipeType.getFluidScrollAmount(up)));
+        return stack.withAmount(Math.max(1, (stack.getAmount() == 1 ? (Screen.hasControlDown() ? 1 : 0) : stack.getAmount()) + SupportedRecipeType.getFluidScrollAmount(up)));
     }
 
     /**
@@ -248,6 +248,6 @@ public class NeoLoaderUtils implements LoaderUtils {
      * @return A new fluid stack with the amount changed by 1
      */
     public static FluidAmountedIngredient limitedFluidAmountSetter(FluidAmountedIngredient stack, boolean up) {
-        return stack.withAmount(Math.max(1, stack.getRightAmount() + (up ? 1 : -1)));
+        return stack.withAmount(Math.max(1, stack.getAmount() + (up ? 1 : -1)));
     }
 }

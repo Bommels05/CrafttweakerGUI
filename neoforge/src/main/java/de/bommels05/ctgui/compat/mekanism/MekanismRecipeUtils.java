@@ -34,7 +34,7 @@ public class MekanismRecipeUtils {
     }
 
     public static int getAmount(FluidStackIngredient ingredient) {
-        return of(ingredient).getRightAmount();
+        return of(ingredient).getAmount();
     }
 
     public static ChemicalAmountedIngredient of(ChemicalStackIngredient ingredient) {
@@ -49,18 +49,14 @@ public class MekanismRecipeUtils {
 
     public static ChemicalStackIngredient toIngredientChemical(ChemicalAmountedIngredient ingredient) {
         if (ingredient.isStack()) {
-            ChemicalStack stack = ingredient.getStack();
-            if (ingredient.shouldUseAmount()) {
-                stack = ingredient.getStack().copyWithAmount(ingredient.getAmount());
-            }
-            return IngredientCreatorAccess.chemicalStack().from(stack);
+            return IngredientCreatorAccess.chemicalStack().from(ingredient.getStack());
         }
         return IngredientCreatorAccess.chemicalStack().from(ingredient.getTag(), ingredient.getAmount());
     }
 
     public static FluidStackIngredient toIngredientFluid(FluidAmountedIngredient ingredient) {
         if (ingredient.isStack()) {
-            return IngredientCreatorAccess.fluid().from(ingredient.shouldUseAmount() ? ingredient.getStack().copyWithAmount(ingredient.getAmount()) : ingredient.getStack());
+            return IngredientCreatorAccess.fluid().from(ingredient.getStack());
         }
         return IngredientCreatorAccess.fluid().from(ingredient.getTag(), ingredient.getAmount());
     }
@@ -80,7 +76,7 @@ public class MekanismRecipeUtils {
     }
 
     public static int getAmount(ChemicalStackIngredient ingredient) {
-        return of(ingredient).getRightAmount();
+        return of(ingredient).getAmount();
     }
 
     public static String getCTString(ChemicalStackIngredient ingredient) {
@@ -103,7 +99,7 @@ public class MekanismRecipeUtils {
 
     public static ChemicalAmountedIngredient chemicalAmountSetter(ChemicalAmountedIngredient stack, boolean up, int smallChange, int normalChange, int largeChange) {
         int value = Screen.hasShiftDown() ? largeChange : (Screen.hasControlDown() ? smallChange : normalChange);
-        return stack.withAmount(Math.max(1, (stack.getRightAmount() == 1 ? (value == 1 ? 1 : 0) : stack.getRightAmount()) + (up ? value : -value)));
+        return stack.withAmount(Math.max(1, (stack.getAmount() == 1 ? (value == 1 ? 1 : 0) : stack.getAmount()) + (up ? value : -value)));
     }
 
     public static ChemicalAmountedIngredient chemicalAmountSetter(ChemicalAmountedIngredient stack, boolean up, int normalChange, int largeChange) {
@@ -116,7 +112,7 @@ public class MekanismRecipeUtils {
     }
 
     public static ChemicalAmountedIngredient limitedChemicalAmountSetter(ChemicalAmountedIngredient stack, boolean up) {
-        return stack.withAmount(Math.max(1, stack.getRightAmount() + (up ? 1 : -1)));
+        return stack.withAmount(Math.max(1, stack.getAmount() + (up ? 1 : -1)));
     }
 
     public static ChemicalStack from(Chemical chemical, long amount) {

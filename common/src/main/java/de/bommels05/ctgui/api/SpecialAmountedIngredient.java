@@ -21,29 +21,13 @@ public abstract class SpecialAmountedIngredient<S, T> {
     protected SpecialAmountedIngredient(S stack, TagKey<T> tag, int amount) {
         Preconditions.checkArgument(!(stack instanceof TagKey<?>), "Wrong constructor used for tag");
         Preconditions.checkArgument(!((stack == null && tag == null) || (stack != null && tag != null)), "Either stack or tag must be null and the other one must not be null");
+        Preconditions.checkArgument(amount >= 0, "Amount must be >= 0");
         this.stack = stack;
         this.tag = tag;
         this.amount = amount;
     }
 
-    public SpecialAmountedIngredient(S stack, int amount) {
-        this(stack, null, amount);
-        Preconditions.checkArgument(amount > 0, "Amount must be greater than 0");
-    }
-
-    public SpecialAmountedIngredient(S stack) {
-        this(stack, null, -1);
-    }
-
-    public SpecialAmountedIngredient(TagKey<T> tag, int amount) {
-        this(null, tag, amount);
-        Preconditions.checkArgument(amount > 0, "Amount must be greater than 0");
-    }
-
-    public abstract SpecialAmountedIngredient<S, T> withAmount(int amount);/* {
-        Preconditions.checkArgument(amount > 0, "Amount must be greater than 0");
-        return new SpecialAmountedIngredient<>(stack, tag, amount);
-    }*/
+    public abstract SpecialAmountedIngredient<S, T> withAmount(int amount);
 
     public S toStack() {
         if (!isTagEmpty()) {
@@ -72,15 +56,7 @@ public abstract class SpecialAmountedIngredient<S, T> {
     }
 
     public int getAmount() {
-        Preconditions.checkState(shouldUseAmount(), "Stack amount should be used instead");
         return amount;
-    }
-
-    /**
-     * @return Whether to use the amount of this SpecialAmountedIngredient or else the amount of the stack
-     */
-    public boolean shouldUseAmount() {
-        return amount != -1;
     }
 
     public boolean isStack() {

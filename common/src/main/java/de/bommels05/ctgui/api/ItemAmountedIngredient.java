@@ -1,6 +1,5 @@
 package de.bommels05.ctgui.api;
 
-import com.google.common.base.Preconditions;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.TagKey;
@@ -12,30 +11,29 @@ import java.util.List;
 public class ItemAmountedIngredient extends SpecialAmountedIngredient<ItemStack, Item> {
 
     protected ItemAmountedIngredient(ItemStack stack, TagKey<Item> tag, int amount) {
-        super(stack, tag, amount);
+        super(stack == null || stack.getCount() == amount ? stack : stack.copyWithCount(amount), tag, amount);
     }
 
     public ItemAmountedIngredient(ItemStack stack, int amount) {
-        super(stack, amount);
+        this(stack, null, amount);
     }
 
     public ItemAmountedIngredient(ItemStack stack) {
-        super(stack);
+        this(stack, stack.getCount());
     }
 
     public ItemAmountedIngredient(TagKey<Item> tag, int amount) {
-        super(tag, amount);
+        this(null, tag, amount);
     }
 
     @Override
     public ItemAmountedIngredient withAmount(int amount) {
-        Preconditions.checkArgument(amount > 0, "Amount must be greater than 0");
         return new ItemAmountedIngredient(getStack(), getTag(), amount);
     }
 
     @Override
     public List<ItemStack> getStacks() {
-        if (shouldUseAmount()) {
+        if (isTag()) {
             return getStacksInternal().stream().map(stack -> stack.copyWithCount(getAmount())).toList();
         }
         return getStacksInternal();

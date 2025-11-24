@@ -1,6 +1,5 @@
 package de.bommels05.ctgui.api;
 
-import com.google.common.base.Preconditions;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.TagKey;
@@ -12,19 +11,19 @@ import java.util.List;
 public class FluidAmountedIngredient extends SpecialAmountedIngredient<FluidStack, Fluid> {
 
     protected FluidAmountedIngredient(FluidStack stack, TagKey<Fluid> tag, int amount) {
-        super(stack, tag, amount);
+        super(stack == null || stack.getAmount() == amount ? stack : stack.copyWithAmount(amount), tag, amount);
     }
 
     public FluidAmountedIngredient(FluidStack stack, int amount) {
-        super(stack, amount);
+        this(stack, null, amount);
     }
 
     public FluidAmountedIngredient(FluidStack stack) {
-        super(stack);
+        this(stack, stack.getAmount());
     }
 
     public FluidAmountedIngredient(TagKey<Fluid> tag, int amount) {
-        super(tag, amount);
+        this(null, tag, amount);
     }
 
     public boolean shouldChangeAmount(FluidAmountedIngredient other) {
@@ -32,19 +31,14 @@ public class FluidAmountedIngredient extends SpecialAmountedIngredient<FluidStac
                 (this.isTag() && other.isTag() && this.getTag().equals(other.getTag()));
     }
 
-    public int getRightAmount() {
-        return shouldUseAmount() ? getAmount() : getStack().getAmount();
-    }
-
     @Override
     public FluidAmountedIngredient withAmount(int amount) {
-        Preconditions.checkArgument(amount > 0, "Amount must be greater than 0");
         return new FluidAmountedIngredient(getStack(), getTag(), amount);
     }
 
     @Override
     public List<FluidStack> getStacks() {
-        if (shouldUseAmount()) {
+        if (isTag()) {
             return getStacksInternal().stream().map(stack -> stack.copyWithAmount(getAmount())).toList();
         }
         return getStacksInternal();

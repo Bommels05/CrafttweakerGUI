@@ -4,8 +4,7 @@
   "package": "de.bommels05.ctgui.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "PauseScreenMixin",
-    "ServerLevelMixin"
+    "PauseScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1
