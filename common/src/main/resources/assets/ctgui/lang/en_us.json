@@ -58,6 +58,7 @@
   "ctgui.added": "Added",
   "ctgui.changed": "Changed",
   "ctgui.removed": "Removed",
+  "ctgui.recipe_edit_tooltip": "Edit Recipe with CraftTweaker GUI",
   "ctgui.recipe_added": "This recipe will be added when recipe changes are applied",
   "ctgui.recipe_changed": "This recipe will be replaced when recipe changes are applied",
   "ctgui.recipe_removed": "This recipe will be removed when recipe changes are applied",

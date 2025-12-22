@@ -4,11 +4,11 @@ import de.bommels05.ctgui.ChangedRecipeManager;
 import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.ViewerUtils;
 import mezz.jei.api.recipe.IFocus;
+import mezz.jei.api.recipe.IRecipeManager;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.advanced.IRecipeManagerPlugin;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.library.recipes.collect.RecipeMap;
-import mezz.jei.library.util.IngredientSupplierHelper;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import org.jetbrains.annotations.NotNull;
@@ -60,10 +60,12 @@ public class InjectionRecipeManagerPlugin implements IRecipeManagerPlugin {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> void addRecipe(RecipeMap map, RecipeType<?> type, ChangedRecipeManager.ChangedRecipe<?> change) {
+    private <T> void addRecipe(RecipeMap map, RecipeType<T> type, ChangedRecipeManager.ChangedRecipe<?> change) {
         T recipe = (T) toRecipeHolder(change);
-        map.addRecipe((RecipeType<T>) type, recipe, IngredientSupplierHelper.getIngredientSupplier(recipe, (IRecipeCategory<T>) RUNTIME.getRecipeManager().createRecipeCategoryLookup().get().filter(
-                category -> category.getRecipeType().getUid().equals(change.getRecipeType().getId())).findFirst().orElseThrow(), RUNTIME.getIngredientManager()));
+
+        IRecipeManager recipeManager = RUNTIME.getRecipeManager();
+        IRecipeCategory<T> recipeCategory = recipeManager.getRecipeCategory(type);
+        map.addRecipe(type, recipe, recipeManager.getRecipeIngredients(recipeCategory, recipe));
     }
 
     private List<ChangedRecipeManager.ChangedRecipe<?>> getChanges() {

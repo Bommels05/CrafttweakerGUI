@@ -12,6 +12,7 @@ import de.bommels05.ctgui.api.UnsupportedViewerException;
 import mezz.jei.api.gui.IRecipeLayoutDrawable;
 import mezz.jei.api.ingredients.ITypedIngredient;
 import mezz.jei.api.recipe.IRecipeManager;
+import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.common.Internal;
 import net.minecraft.client.gui.GuiGraphics;
@@ -84,15 +85,14 @@ public class JeiViewerUtils implements ViewerUtils<Either<IRecipeLayoutDrawable<
     @SuppressWarnings("unchecked")
     private <R2> Optional<IRecipeLayoutDrawable<R2>> tryGetViewerRecipe(SupportedRecipeType<?> type, R2 recipe) throws UnsupportedViewerException {
         IRecipeManager manager = CTGUIJeiPlugin.RUNTIME.getRecipeManager();
-        IRecipeCategory<R2> recipeCategory = manager.createRecipeCategoryLookup().limitTypes(List.of(manager.getRecipeType(type.getId()).orElseThrow(
-                UnsupportedViewerException::new))).get().map(c -> (IRecipeCategory<R2>) c).findFirst().orElseThrow(
-                UnsupportedViewerException::new);
-        try {
-            recipeCategory.setRecipe(null, recipe, null);
-        } catch (ClassCastException e) {
-            //Try it first or else it would be logged by JEI
+        RecipeType<R2> recipeType = (RecipeType<R2>) manager.getRecipeType(type.getId()).orElseThrow(UnsupportedViewerException::new);
+        if (!recipeType.getRecipeClass().isInstance(recipe)) {
             return Optional.empty();
-        } catch (Throwable ignored) {}
+        }
+        IRecipeCategory<R2> recipeCategory = manager.getRecipeCategory(recipeType);
+        if (!recipeCategory.isHandled(recipe)) {
+            return Optional.empty();
+        }
         return manager.createRecipeLayoutDrawable(recipeCategory, recipe, RUNTIME.getJeiHelpers().getFocusFactory().getEmptyFocusGroup());
     }
 
@@ -115,7 +115,8 @@ public class JeiViewerUtils implements ViewerUtils<Either<IRecipeLayoutDrawable<
     public <S, T> void renderIngredientSpecial(SpecialAmountedIngredient<S, T> ingredient, GuiGraphics graphics, int x, int y, float partialTick) {
         List<S> ingredients = ingredient.getStacks();
         if (!ingredients.isEmpty()) {
-            ITypedIngredient<S> typedIngredient = RUNTIME.getIngredientManager().createTypedIngredient(ingredients.get(0)).orElseThrow(() -> new IllegalArgumentException("Unsupported ingredient: " + ingredients.get(0)));
+            S firstIngredient = ingredients.getFirst();
+            ITypedIngredient<S> typedIngredient = RUNTIME.getIngredientManager().createTypedIngredient(firstIngredient, true).orElseThrow(() -> new IllegalArgumentException("Unsupported ingredient: " + firstIngredient));
             PoseStack pose = graphics.pose();
             pose.pushPose();
             pose.translate(x, y, 232);
@@ -168,7 +169,8 @@ public class JeiViewerUtils implements ViewerUtils<Either<IRecipeLayoutDrawable<
 
     public static IRecipeCategory<?> getCategory(ResourceLocation id) throws UnsupportedViewerException {
         IRecipeManager manager = CTGUIJeiPlugin.RUNTIME == null ? Internal.getJeiRuntime().getRecipeManager() : CTGUIJeiPlugin.RUNTIME.getRecipeManager(); //This is used by EmiViewerUtils and EMI disables the Plugin so the runtime never gets set
-        return manager.createRecipeCategoryLookup().limitTypes(List.of(manager.getRecipeType(id).orElseThrow(UnsupportedViewerException::new))).get().findFirst().orElseThrow(UnsupportedViewerException::new);
+        RecipeType<?> recipeType = manager.getRecipeType(id).orElseThrow(UnsupportedViewerException::new);
+        return manager.getRecipeCategory(recipeType);
     }
 
     @SuppressWarnings("unchecked")

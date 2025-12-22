@@ -4,6 +4,8 @@ import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.screen.RecipeEditScreen;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
+import mezz.jei.api.helpers.IGuiHelper;
+import mezz.jei.api.helpers.IJeiHelpers;
 import mezz.jei.api.registration.IAdvancedRegistration;
 import mezz.jei.api.registration.IGuiHandlerRegistration;
 import mezz.jei.api.runtime.IJeiRuntime;
@@ -16,8 +18,11 @@ public class CTGUIJeiPlugin implements IModPlugin {
     @Override
     public void registerAdvanced(IAdvancedRegistration registration) {
         if (CraftTweakerGUI.isJeiActive()) {
-            registration.getJeiHelpers().getAllRecipeTypes().forEach(recipeType -> registration.addRecipeCategoryDecorator(recipeType, new JeiRecipeDecorator<>()));
+            IJeiHelpers jeiHelpers = registration.getJeiHelpers();
+            IGuiHelper guiHelper = jeiHelpers.getGuiHelper();
+            jeiHelpers.getAllRecipeTypes().forEach(recipeType -> registration.addRecipeCategoryDecorator(recipeType, new JeiRecipeDecorator<>()));
             registration.addRecipeManagerPlugin(new InjectionRecipeManagerPlugin());
+            registration.addRecipeButtonFactory(new EditRecipeButtonFactory(guiHelper));
         }
     }
 
