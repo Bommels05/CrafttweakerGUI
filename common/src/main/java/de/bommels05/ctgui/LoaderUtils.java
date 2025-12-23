@@ -47,8 +47,6 @@ public interface LoaderUtils {
 
     public SpecialAmountedIngredient<?, ?> getIngredientFromTag(TagKey<?> tag, int amount);
 
-    public MinecraftServer getServer();
-
     public Path getConfigDir();
 
     public Path getGameDir();

@@ -388,7 +388,7 @@ public class ChangedRecipeManager {
 
         public void setExported(boolean exported) {
             this.exported = exported;
-            if (exported && type != Type.REMOVED && CraftTweakerGUI.isJeiActive()) {
+            if (exported && type != Type.REMOVED && CraftTweakerGUI.isJeiActive()) { //Changes are automatically uninjected in EMI by the reload that actually applies these
                 CraftTweakerGUI.getViewerUtils().unInject(this);
             }
         }

@@ -96,11 +96,6 @@ public class FabricLoaderUtils implements LoaderUtils {
     }
 
     @Override
-    public MinecraftServer getServer() {
-        return Minecraft.getInstance().getSingleplayerServer();
-    }
-
-    @Override
     public Path getConfigDir() {
         return FabricLoader.getInstance().getConfigDir();
     }

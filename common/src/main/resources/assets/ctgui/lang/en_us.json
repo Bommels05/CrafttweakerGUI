@@ -36,7 +36,7 @@
   "ctgui.editing.no_recipe_id": "No recipe id required",
   "ctgui.editing.to_small": "GUI Scale to large",
   "ctgui.editing.to_small_description": "Decrease your GUI Scale to edit a recipe",
-  "ctgui.editing.no_server": "CraftTweaker GUI currently only works correctly in Singleplayer. This also removes the need to upload your script and simplifies testing your recipes.",
+  "ctgui.editing.no_server": "CraftTweaker GUI is designed to be used in Singleplayer. You need to manually upload your generated script each time you export it and after reloading changes will work for other players but not appear in their changes list. Planning changes in singleplayer and uploading the finished script to the server later may work better.",
   "ctgui.list.title": "Changed Recipes",
   "ctgui.list.export": "Export to CraftTweaker",
   "ctgui.list.export_server": " You have to upload the exported script to the server manually!",

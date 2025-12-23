@@ -13,6 +13,7 @@ import net.minecraft.client.gui.components.*;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.*;
+import net.minecraft.client.gui.screens.multiplayer.WarningScreen;
 import net.minecraft.client.gui.screens.options.OptionsScreen;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -93,8 +94,8 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
             exception.display();
             return;
         }
-        if (!Minecraft.getInstance().hasSingleplayerServer()) {
-            Minecraft.getInstance().setScreen(new DisconnectedScreen(null, Component.translatable("ctgui.list.unavailable"), Component.translatable("ctgui.editing.no_server"), CommonComponents.GUI_OK));
+        if (!Minecraft.getInstance().isLocalServer() && !Config.acknowledgedMultiplayer) {
+            Minecraft.getInstance().setScreen(new MultiplayerWarningScreen(this));
             return;
         }
 

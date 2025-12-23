@@ -80,6 +80,6 @@ public class NucleosynthesizingRecipeType extends SupportedRecipeType<BasicNucle
 
     @Override
     public String getCraftTweakerString(BasicNucleosynthesizingRecipe recipe, String id) {
-        return "<recipetype:mekanism:nucleosynthesizing>.addRecipe(\"" + id + "\", " + getCTString(MekanismRecipeUtils.of(recipe.getItemInput())) + ", " + MekanismRecipeUtils.getCTString(recipe.getChemicalInput()) + ", " + getCTString(recipe.getOutputRaw()) + ", " + recipe.getDuration() + ");";
+        return "<recipetype:mekanism:nucleosynthesizing>.addRecipe(\"" + id + "\", " + getCTString(MekanismRecipeUtils.of(recipe.getItemInput())) + ", " + MekanismRecipeUtils.getCTString(recipe.getChemicalInput()) + ", " + getCTString(recipe.getOutputRaw()) + ", " + recipe.getDuration() + ", " + recipe.perTickUsage() + ");";
     }
 }

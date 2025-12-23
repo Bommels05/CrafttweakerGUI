@@ -36,7 +36,7 @@
   "ctgui.editing.no_recipe_id": "Keine Rezept-Id benötigt",
   "ctgui.editing.to_small": "GUI-Größe zu groß",
   "ctgui.editing.to_small_description": "Verringere deine GUI-Größe um ein Rezept zu bearbeiten",
-  "ctgui.editing.no_server": "CraftTweaker GUI funktioniert im Moment nicht im Mehrspieler Modus. Das testen deiner Rezepte im Einzelspieler sorgt auch dafür, dass du keine Skripte auf den Server hochladen musst und vereinfacht so das Testen deiner Rezepte.",
+  "ctgui.editing.no_server": "CraftTweaker GUI ist nicht für das Bearbeiten von Rezepten auf einem Server vorgesehen. Du musst dein generiertes Skript manuell hochladen und auch wenn die Änderungen für andere Spieler Funktionieren, werden die nicht bei ihnen in der Änderungsliste hinzugefügt. Änderungen im Einzelspieler zu planen und dann, wenn sie fertig sind, hochzuladen ist also vielleicht eine bessere Idee.",
   "ctgui.list.title": "Geänderte Rezepte",
   "ctgui.list.export": "Zu CraftTweaker exportieren",
   "ctgui.list.export_server": " Du musst das exportierte Skript manuell zum Server hochladen!",

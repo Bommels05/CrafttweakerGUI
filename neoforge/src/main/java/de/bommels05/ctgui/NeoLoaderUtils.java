@@ -142,11 +142,6 @@ public class NeoLoaderUtils implements LoaderUtils {
     }
 
     @Override
-    public MinecraftServer getServer() {
-        return ServerLifecycleHooks.getCurrentServer();
-    }
-
-    @Override
     public Path getConfigDir() {
         return FMLPaths.CONFIGDIR.get();
     }

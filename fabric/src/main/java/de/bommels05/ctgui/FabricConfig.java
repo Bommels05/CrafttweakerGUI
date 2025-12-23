@@ -13,6 +13,7 @@ public class FabricConfig {
     private static final ModConfigSpec.BooleanValue SAVE_TOAST = BUILDER.comment("Shows a toast when saving recipe changes").define("saveToast", false);
     private static final ModConfigSpec.BooleanValue LIST_BUTTON = BUILDER.pop().comment("Enables a shortcut button in the pause menu to the list of changed recipes").define("listButton", true);
     private static final ModConfigSpec.BooleanValue CUSTOM_RECIPE_INDICATOR = BUILDER.comment("Enables a small indicator for all recipes by CraftTweaker (= Exported Recipe changes). This can be used to indicate changes to players after you are done editing").define("customRecipeIndicator", true);
+    private static final ModConfigSpec.BooleanValue ACKNOWLEDGED_MULTIPLAYER = BUILDER.comment("Disables the warning about editing recipes while on a server").define("acknowledgedMultiplayer", false);
 
     static final ModConfigSpec SPEC = BUILDER.build();
 
@@ -27,6 +28,7 @@ public class FabricConfig {
         }
         Config.listButton = LIST_BUTTON.get();
         Config.customRecipeIndicator = CUSTOM_RECIPE_INDICATOR.get();
+        Config.acknowledgedMultiplayer = ACKNOWLEDGED_MULTIPLAYER.get();
         Config.afterLoad();
     }
 

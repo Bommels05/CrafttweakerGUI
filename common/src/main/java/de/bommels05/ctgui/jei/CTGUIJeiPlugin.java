@@ -30,7 +30,7 @@ public class CTGUIJeiPlugin implements IModPlugin {
     public void registerGuiHandlers(IGuiHandlerRegistration registration) {
         if (CraftTweakerGUI.isJeiActive()) {
             registration.addGuiScreenHandler(RecipeEditScreen.class, guiScreen -> {
-                if (guiScreen.getRecipe() != null && guiScreen.getRecipe().getRecipe() != null) {
+                if (guiScreen.getRecipe() != null && guiScreen.getRecipe().getRecipe() != null && guiScreen.width != 0) {
                     return new EditScreenGuiProperties(guiScreen);
                 }
                 return null;

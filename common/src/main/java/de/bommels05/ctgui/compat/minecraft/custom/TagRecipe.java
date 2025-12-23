@@ -1,11 +1,13 @@
 package de.bommels05.ctgui.compat.minecraft.custom;
 
 import de.bommels05.ctgui.CraftTweakerGUI;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.tags.TagEntry;
 import net.minecraft.tags.TagKey;
 import net.minecraft.tags.TagLoader;
@@ -51,8 +53,10 @@ public class TagRecipe<T> implements Recipe<RecipeInput> {
         this.entries = new ArrayList<>();
 
         //Tag editing is cursed in general...
+        ResourceManager resourceManager = Minecraft.getInstance().hasSingleplayerServer() ?
+                Minecraft.getInstance().getSingleplayerServer().getResourceManager() : Minecraft.getInstance().getResourceManager();
         Map<ResourceLocation, List<TagLoader.EntryWithSource>> tags = new TagLoader<>(null, Registries.tagsDirPath(tag.registry()))
-                .load(CraftTweakerGUI.getLoaderUtils().getServer().getResourceManager());
+                .load(resourceManager);
         List<TagLoader.EntryWithSource> entries = tags.get(tag.location());
         if (entries != null) {
             for (TagEntry entry : entries.stream().map(TagLoader.EntryWithSource::entry).toList()) {

@@ -33,7 +33,7 @@ public class ChangeListScreen extends Screen {
                 ChangedRecipeManager.export();
                 MutableComponent text = Component.translatable("ctgui.export_notice");
                 if (!minecraft.isLocalServer()) {
-                    text = text.append(Component.translatable("ctgui.list.export_server").withStyle(ChatFormatting.RED));
+                    text = text.append("\n").append(Component.translatable("ctgui.list.export_server").withStyle(ChatFormatting.RED));
                     minecraft.setScreen(new DisconnectedScreen(this, Component.translatable("ctgui.list.export"), text, CommonComponents.GUI_OK));
                 } else {
                     minecraft.setScreen(new ClosingConfirmScreen(this, b -> {

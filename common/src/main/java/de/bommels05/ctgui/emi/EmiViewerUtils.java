@@ -63,8 +63,14 @@ public class EmiViewerUtils implements ViewerUtils<EmiRecipe> {
     @Override
     public <T extends Recipe<?>> void inject(ChangedRecipeManager.ChangedRecipe<T> recipe) {
         try {
+            ResourceLocation id;
+            try {
+                id = CraftTweakerGUI.rl(CraftTweakerGUI.MOD_ID, recipe.getId());
+            } catch (Throwable t) {
+                LOGGER.debug("Cant inject recipe without valid ID: {}", recipe);
+                return;
+            }
             initFields();
-            ResourceLocation id = CraftTweakerGUI.rl(CraftTweakerGUI.MOD_ID, recipe.getId());
             EmiRecipes.recipeIds.put(recipe.getRecipe(), id);
             EmiRecipe r = getViewerRecipe(recipe.getRecipeType(), recipe.getRecipe());
             r.getInputs().stream().map(EmiIngredient::getEmiStacks).forEach(stacks -> {
@@ -91,9 +97,15 @@ public class EmiViewerUtils implements ViewerUtils<EmiRecipe> {
     @Override
     public <T extends Recipe<?>> void unInject(ChangedRecipeManager.ChangedRecipe<T> recipe) {
         try {
+            ResourceLocation id;
+            try {
+                id = CraftTweakerGUI.rl(CraftTweakerGUI.MOD_ID, recipe.getId());
+            } catch (Throwable t) {
+                LOGGER.debug("Cant inject recipe without valid ID: {}", recipe);
+                return;
+            }
             initFields();
             EmiRecipe r = getViewerRecipe(recipe.getRecipeType(), recipe.getRecipe());
-            ResourceLocation id = CraftTweakerGUI.rl(CraftTweakerGUI.MOD_ID, recipe.getId());
             r.getInputs().stream().map(EmiIngredient::getEmiStacks).forEach(stacks -> {
                 for (EmiStack input : stacks) {
                     List<EmiRecipe> recipes = new ArrayList<>(byInput.get(input).stream().filter(r2 -> !id.equals(getOriginalId(r2))).toList());
