@@ -43,7 +43,7 @@ public class NucleosynthesizingRecipeType extends SupportedRecipeType<BasicNucle
             return new BasicNucleosynthesizingRecipe(r.getItemInput(), MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getChemicalInput()), r.getOutputRaw(), r.getDuration(), r.perTickUsage());
         }, r -> {
             return MekanismRecipeUtils.of(r.getChemicalInput());
-        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.ANTIMATTER.get(), 2)), (stack, up) ->
+        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.ANTIMATTER, 2)), (stack, up) ->
                 perTickUsage.get() ? MekanismRecipeUtils.limitedChemicalAmountSetter(stack, up) :
                         MekanismRecipeUtils.chemicalAmountSetter(stack, up, 1, 10));
 
@@ -60,7 +60,8 @@ public class NucleosynthesizingRecipeType extends SupportedRecipeType<BasicNucle
         super.onInitialize(recipe);
         if (recipe == null) {
             duration.set(500);
-            return new BasicNucleosynthesizingRecipe(IngredientCreatorAccess.item().from(UNSET), IngredientCreatorAccess.chemicalStack().from(MekanismChemicals.ANTIMATTER, 2), UNSET, 500, false);
+            return new BasicNucleosynthesizingRecipe(IngredientCreatorAccess.item().from(UNSET),
+                    IngredientCreatorAccess.chemicalStack().fromHolder(MekanismChemicals.ANTIMATTER, 2), UNSET, 500, false);
         }
         duration.set(recipe.getDuration());
         perTickUsage.set(recipe.perTickUsage());

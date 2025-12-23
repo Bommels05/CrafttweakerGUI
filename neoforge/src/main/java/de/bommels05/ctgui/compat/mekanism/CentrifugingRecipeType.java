@@ -12,7 +12,6 @@ import mekanism.client.recipe_viewer.emi.MekanismEmiRecipeCategory;
 import mekanism.client.recipe_viewer.emi.recipe.ChemicalToChemicalEmiRecipe;
 import mekanism.common.registries.MekanismBlocks;
 import mekanism.common.registries.MekanismChemicals;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import org.jetbrains.annotations.Nullable;
@@ -26,20 +25,20 @@ public class CentrifugingRecipeType extends SupportedRecipeType<BasicCentrifugin
             return new BasicCentrifugingRecipe(MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getInput()), r.getOutputRaw());
         }, r -> {
             return MekanismRecipeUtils.of(r.getInput());
-        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN.get(), 1)), MekanismRecipeUtils::limitedChemicalAmountSetter);
+        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN, 1)), MekanismRecipeUtils::limitedChemicalAmountSetter);
         addAreaScrollAmountEmptyRightClick(129, 0, 18, 60, (r, input) -> {
             ChemicalStack stack = input.toStack();
             return new BasicCentrifugingRecipe(r.getInput(), stack.getChemical() == r.getOutputRaw().getChemical() ? stack : stack.copyWithAmount(r.getOutputRaw().getAmount()));
         }, r -> {
             return new ChemicalAmountedIngredient(r.getOutputRaw());
-        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN.get(), 1)), MekanismRecipeUtils::limitedChemicalAmountSetter);
+        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN, 1)), MekanismRecipeUtils::limitedChemicalAmountSetter);
     }
 
     @Override
     public BasicCentrifugingRecipe onInitialize(@Nullable BasicCentrifugingRecipe recipe) throws UnsupportedRecipeException {
         super.onInitialize(recipe);
         if (recipe == null) {
-            return new BasicCentrifugingRecipe(IngredientCreatorAccess.chemicalStack().from(MekanismChemicals.OXYGEN, 1), new ChemicalStack(MekanismChemicals.OXYGEN.get(), 1));
+            return new BasicCentrifugingRecipe(IngredientCreatorAccess.chemicalStack().fromHolder(MekanismChemicals.OXYGEN, 1), new ChemicalStack(MekanismChemicals.OXYGEN, 1));
         }
         return recipe;
     }

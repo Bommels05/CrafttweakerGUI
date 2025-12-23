@@ -40,13 +40,13 @@ public class SeperatingRecipeType extends SupportedRecipeType<BasicElectrolysisR
             return new BasicElectrolysisRecipe(r.getInput(), r.getEnergyMultiplier(), stack.getChemical() == r.getLeftChemicalOutput().getChemical() ? stack : stack.copyWithAmount(r.getLeftChemicalOutput().getAmount()), r.getRightChemicalOutput());
         }, r -> {
             return new ChemicalAmountedIngredient(r.getLeftChemicalOutput());
-        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN.get(), 10)), MekanismRecipeUtils::limitedChemicalAmountSetter);
+        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN, 10)), MekanismRecipeUtils::limitedChemicalAmountSetter);
         addAreaScrollAmountEmptyRightClick(96, 9, 18, 30, (r, input) -> {
             ChemicalStack stack = input.toStack();
             return new BasicElectrolysisRecipe(r.getInput(), r.getEnergyMultiplier(), r.getLeftChemicalOutput(), stack.getChemical() == r.getRightChemicalOutput().getChemical() ? stack : stack.copyWithAmount(r.getRightChemicalOutput().getAmount()));
         }, r -> {
             return new ChemicalAmountedIngredient(r.getRightChemicalOutput());
-        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN.get(), 10)), MekanismRecipeUtils::limitedChemicalAmountSetter);
+        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN, 10)), MekanismRecipeUtils::limitedChemicalAmountSetter);
 
         addOption(energyMultiplier, (r, energyMultiplier) -> {
             return new BasicElectrolysisRecipe(r.getInput(), energyMultiplier, r.getLeftChemicalOutput(), r.getRightChemicalOutput());
@@ -57,8 +57,8 @@ public class SeperatingRecipeType extends SupportedRecipeType<BasicElectrolysisR
     public BasicElectrolysisRecipe onInitialize(@Nullable BasicElectrolysisRecipe recipe) throws UnsupportedRecipeException {
         super.onInitialize(recipe);
         if (recipe == null) {
-            return new BasicElectrolysisRecipe(IngredientCreatorAccess.fluid().from(Fluids.WATER, 10), 1,
-                    new ChemicalStack(MekanismChemicals.OXYGEN.get(), 10), new ChemicalStack(MekanismChemicals.OXYGEN.get(), 10));
+            return new BasicElectrolysisRecipe(MekanismRecipeUtils.from(Fluids.WATER, 10), 1,
+                    new ChemicalStack(MekanismChemicals.OXYGEN, 10), new ChemicalStack(MekanismChemicals.OXYGEN, 10));
         }
         energyMultiplier.set(recipe.getEnergyMultiplier());
         return recipe;

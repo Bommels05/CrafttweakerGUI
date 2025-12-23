@@ -35,13 +35,13 @@ public class DissolutingRecipeType extends SupportedRecipeType<BasicChemicalDiss
             return new BasicChemicalDissolutionRecipe(r.getItemInput(), MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getChemicalInput()), r.getOutputRaw(), r.perTickUsage());
         }, r -> {
             return MekanismRecipeUtils.of(r.getChemicalInput());
-        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN.get(), 1)), (stack, up) -> MekanismRecipeUtils.chemicalAmountSetter(stack, up, 1, 10));
+        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN, 1)), (stack, up) -> MekanismRecipeUtils.chemicalAmountSetter(stack, up, 1, 10));
         addAreaScrollAmountEmptyRightClick(128, 10, 18, 60, (r, input) -> {
             ChemicalStack stack = input.toStack();
             return new BasicChemicalDissolutionRecipe(r.getItemInput(), r.getChemicalInput(), stack.getChemical() == r.getOutputRaw().getChemical() ? stack : stack.copyWithAmount(r.getOutputRaw().getAmount()), r.perTickUsage());
         }, r -> {
             return new ChemicalAmountedIngredient(r.getOutputRaw());
-        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN.get(), 1000)), (stack, up) ->
+        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN, 1000)), (stack, up) ->
                 perTickUsage.get() ? MekanismRecipeUtils.limitedChemicalAmountSetter(stack, up) : MekanismRecipeUtils.chemicalAmountSetter(stack, up));
         addOption(perTickUsage, (r, value) -> {
             return new BasicChemicalDissolutionRecipe(r.getItemInput(), r.getChemicalInput(), r.getOutputRaw(), value);
@@ -53,8 +53,9 @@ public class DissolutingRecipeType extends SupportedRecipeType<BasicChemicalDiss
         super.onInitialize(recipe);
         if (recipe == null) {
             perTickUsage.set(true);
-            return new BasicChemicalDissolutionRecipe(IngredientCreatorAccess.item().from(UNSET), IngredientCreatorAccess.chemicalStack().from(MekanismChemicals.OXYGEN, 1),
-                    new ChemicalStack(MekanismChemicals.OXYGEN.get(), 1000), true);
+            return new BasicChemicalDissolutionRecipe(IngredientCreatorAccess.item().from(UNSET),
+                    IngredientCreatorAccess.chemicalStack().fromHolder(MekanismChemicals.OXYGEN, 1),
+                    new ChemicalStack(MekanismChemicals.OXYGEN, 1000), true);
         }
         perTickUsage.set(recipe.perTickUsage());
         return recipe;

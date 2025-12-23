@@ -30,7 +30,7 @@ public class CondensentratingRecipeType extends SupportedRecipeType<BasicRotaryR
             return new BasicRotaryRecipe(MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getChemicalInput()), r.getFluidOutputRaw());
         }, r -> {
             return MekanismRecipeUtils.of(r.getChemicalInput());
-        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN.get(), 1)), MekanismRecipeUtils::limitedChemicalAmountSetter);
+        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN, 1)), MekanismRecipeUtils::limitedChemicalAmountSetter);
         addAreaScrollAmountEmptyRightClick(130, 1, 18, 60, (r, input) -> {
             FluidStack stack = input.toStack();
             return new BasicRotaryRecipe(r.getChemicalInput(), stack.getFluid() == r.getFluidOutputRaw().getFluid() ? stack : stack.copyWithAmount(r.getFluidOutputRaw().getAmount()));
@@ -43,7 +43,7 @@ public class CondensentratingRecipeType extends SupportedRecipeType<BasicRotaryR
     public BasicRotaryRecipe onInitialize(@Nullable BasicRotaryRecipe recipe) throws UnsupportedRecipeException {
         super.onInitialize(recipe);
         if (recipe == null) {
-            return new BasicRotaryRecipe(IngredientCreatorAccess.chemicalStack().from(MekanismChemicals.OXYGEN, 1), new FluidStack(Fluids.WATER, 1));
+            return new BasicRotaryRecipe(IngredientCreatorAccess.chemicalStack().fromHolder(MekanismChemicals.OXYGEN, 1), new FluidStack(Fluids.WATER, 1));
         }
         return recipe;
     }

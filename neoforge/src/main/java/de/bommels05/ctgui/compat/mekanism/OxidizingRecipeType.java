@@ -32,14 +32,14 @@ public class OxidizingRecipeType extends SupportedRecipeType<BasicChemicalOxidiz
             return new BasicChemicalOxidizerRecipe(r.getInput(), stack.getChemical() == r.getOutputRaw().getChemical() ? stack : stack.copyWithAmount(r.getOutputRaw().getAmount()));
         }, r -> {
             return  new ChemicalAmountedIngredient(r.getOutputRaw());
-        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN.get(), 100)), MekanismRecipeUtils::chemicalAmountSetter);
+        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN, 100)), MekanismRecipeUtils::chemicalAmountSetter);
     }
 
     @Override
     public BasicChemicalOxidizerRecipe onInitialize(@Nullable BasicChemicalOxidizerRecipe recipe) throws UnsupportedRecipeException {
         super.onInitialize(recipe);
         if (recipe == null) {
-            return new BasicChemicalOxidizerRecipe(IngredientCreatorAccess.item().from(UNSET), new ChemicalStack(MekanismChemicals.OXYGEN.get(), 100));
+            return new BasicChemicalOxidizerRecipe(IngredientCreatorAccess.item().from(UNSET), new ChemicalStack(MekanismChemicals.OXYGEN, 100));
         }
         return recipe;
     }

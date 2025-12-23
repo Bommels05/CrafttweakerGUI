@@ -20,6 +20,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 import org.jetbrains.annotations.Nullable;
 
 public class ChemicalWashingRecipeType extends SupportedRecipeType<BasicWashingRecipe> {
@@ -36,7 +37,7 @@ public class ChemicalWashingRecipeType extends SupportedRecipeType<BasicWashingR
             return new BasicWashingRecipe(r.getFluidInput(), MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getChemicalInput()), r.getOutputRaw());
         }, r -> {
             return MekanismRecipeUtils.of(r.getChemicalInput());
-        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.PROCESSED_RESOURCES.get(PrimaryResource.IRON).getDirtySlurry(), 1)),
+        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.PROCESSED_RESOURCES.get(PrimaryResource.IRON), 1)),
                 MekanismRecipeUtils::limitedChemicalAmountSetter);
         addAreaScrollAmountEmptyRightClick(124, 0, 18, 60, (r, input) -> {
                     ChemicalStack stack = input.toStack();
@@ -51,8 +52,9 @@ public class ChemicalWashingRecipeType extends SupportedRecipeType<BasicWashingR
     public BasicWashingRecipe onInitialize(@Nullable BasicWashingRecipe recipe) throws UnsupportedRecipeException {
         super.onInitialize(recipe);
         if (recipe == null) {
-            return new BasicWashingRecipe(IngredientCreatorAccess.fluid().from(Fluids.WATER, 5),
-                    IngredientCreatorAccess.chemicalStack().from(MekanismChemicals.PROCESSED_RESOURCES.get(PrimaryResource.IRON).getDirtySlurry(), 1), new ChemicalStack(MekanismChemicals.PROCESSED_RESOURCES.get(PrimaryResource.IRON).getCleanSlurry(), 1));
+            return new BasicWashingRecipe(MekanismRecipeUtils.from(Fluids.WATER, 5),
+                    IngredientCreatorAccess.chemicalStack().fromHolder(MekanismChemicals.PROCESSED_RESOURCES.get(PrimaryResource.IRON), 1),
+                    new ChemicalStack(MekanismChemicals.PROCESSED_RESOURCES.get(PrimaryResource.IRON).getCleanSlurry(), 1));
         }
         return recipe;
     }

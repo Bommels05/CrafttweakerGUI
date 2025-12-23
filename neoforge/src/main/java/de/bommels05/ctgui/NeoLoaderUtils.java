@@ -10,7 +10,6 @@ import de.bommels05.ctgui.api.FluidAmountedIngredient;
 import de.bommels05.ctgui.api.SpecialAmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.compat.mekanism.ChemicalAmountedIngredient;
-import de.bommels05.ctgui.compat.mekanism.MekanismEmiUtils;
 import de.bommels05.ctgui.compat.mekanism.MekanismRecipeUtils;
 import de.bommels05.ctgui.compat.minecraft.custom.CompostingRecipe;
 import de.bommels05.ctgui.compat.minecraft.custom.FuelRecipe;
@@ -168,7 +167,7 @@ public class NeoLoaderUtils implements LoaderUtils {
             return EmiStack.of(fluidStack.getFluid(), fluidStack.getAmount());
         } else if (ModList.get().isLoaded("mekanism")) {
             if (stack instanceof ChemicalStack chemicalStack) {
-                return ChemicalEmiStack.create(chemicalStack);
+                return new ChemicalEmiStack(chemicalStack);
             }
         }
         throw new IllegalArgumentException("Unsupported ingredient");
@@ -183,15 +182,6 @@ public class NeoLoaderUtils implements LoaderUtils {
             return MekanismRecipeUtils.from(emiStack.getKey(), emiStack.getAmount());
         }
         return null;
-    }
-
-    @Override
-    public void emiInit(Object registry) {
-        EmiInitRegistry reg = (EmiInitRegistry) registry;
-        if (ModList.get().isLoaded("mekanism")) {
-            //Needs to be in a separate class because of class loading issues without emi
-            MekanismEmiUtils.init(reg);
-        }
     }
 
     @Override

@@ -40,7 +40,7 @@ public class InfusingRecipeType extends SupportedRecipeType<BasicMetallurgicInfu
             return new BasicMetallurgicInfuserRecipe(r.getItemInput(), MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getChemicalInput()), r.getOutputRaw(), r.perTickUsage());
         }, r -> {
             return MekanismRecipeUtils.of(r.getChemicalInput());
-        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.REDSTONE.get(), 10)), (stack, up) ->
+        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.REDSTONE, 10)), (stack, up) ->
                 perTickUsage.get() ? MekanismRecipeUtils.limitedChemicalAmountSetter(stack, up) :
                         MekanismRecipeUtils.chemicalAmountSetter(stack, up, 1, 10, 100));
         addOption(perTickUsage, (r, value) -> {
@@ -52,7 +52,8 @@ public class InfusingRecipeType extends SupportedRecipeType<BasicMetallurgicInfu
     public BasicMetallurgicInfuserRecipe onInitialize(@Nullable BasicMetallurgicInfuserRecipe recipe) throws UnsupportedRecipeException {
         super.onInitialize(recipe);
         if (recipe == null) {
-            return new BasicMetallurgicInfuserRecipe(IngredientCreatorAccess.item().from(UNSET), IngredientCreatorAccess.chemicalStack().from(MekanismChemicals.REDSTONE, 10), UNSET, false);
+            return new BasicMetallurgicInfuserRecipe(IngredientCreatorAccess.item().from(UNSET),
+                    IngredientCreatorAccess.chemicalStack().fromHolder(MekanismChemicals.REDSTONE, 10), UNSET, false);
         }
         perTickUsage.set(recipe.perTickUsage());
         return recipe;

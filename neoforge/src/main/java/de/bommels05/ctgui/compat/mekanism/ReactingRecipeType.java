@@ -48,7 +48,7 @@ public class ReactingRecipeType extends SupportedRecipeType<BasicPressurizedReac
             return new BasicPressurizedReactionRecipe(r.getInputSolid(), r.getInputFluid(), MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getInputChemical()), r.getEnergyRequired(), r.getDuration(), r.getOutputItem(), r.getOutputChemical());
         }, r -> {
             return MekanismRecipeUtils.of(r.getInputChemical());
-        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN.get(), 100)), MekanismRecipeUtils::chemicalAmountSetter);
+        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN, 100)), MekanismRecipeUtils::chemicalAmountSetter);
         addAreaScrollAmountEmptyRightClick(136, 29, 18, 30, (r, input) -> {
             ChemicalStack stack = input.toStack();
             return new BasicPressurizedReactionRecipe(r.getInputSolid(), r.getInputFluid(), r.getInputChemical(), r.getEnergyRequired(), r.getDuration(), stack.isEmpty() ? convertToUnset(r.getOutputItem()) : convertUnset(r.getOutputItem()), stack.getChemical() == r.getOutputChemical().getChemical() ? stack : stack.copyWithAmount(r.getOutputChemical().getAmount() == 0 ? 100 : r.getOutputChemical().getAmount()));
@@ -69,8 +69,8 @@ public class ReactingRecipeType extends SupportedRecipeType<BasicPressurizedReac
         super.onInitialize(recipe);
         if (recipe == null) {
             duration.set(20);
-            return new BasicPressurizedReactionRecipe(IngredientCreatorAccess.item().from(UNSET), IngredientCreatorAccess.fluid().from(Fluids.WATER, 1000),
-                    IngredientCreatorAccess.chemicalStack().from(MekanismChemicals.OXYGEN, 100), 0, 20, UNSET, ChemicalStack.EMPTY);
+            return new BasicPressurizedReactionRecipe(IngredientCreatorAccess.item().from(UNSET), MekanismRecipeUtils.from(Fluids.WATER, 1000),
+                    IngredientCreatorAccess.chemicalStack().fromHolder(MekanismChemicals.OXYGEN, 100), 0, 20, UNSET, ChemicalStack.EMPTY);
         }
         energyRequired.set(recipe.getEnergyRequired());
         duration.set(recipe.getDuration());

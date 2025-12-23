@@ -32,14 +32,14 @@ public class ChemicalConvertingRecipeType extends SupportedRecipeType<BasicChemi
             return new BasicChemicalConversionRecipe(r.getInput(), stack.getChemical() == r.getOutputRaw().getChemical() ? stack : stack.copyWithAmount(r.getOutputRaw().getAmount()));
         }, r -> {
             return new ChemicalAmountedIngredient(r.getOutputRaw());
-        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN.get(), 100)), MekanismRecipeUtils::chemicalAmountSetter);
+        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN, 100)), MekanismRecipeUtils::chemicalAmountSetter);
     }
 
     @Override
     public BasicChemicalConversionRecipe onInitialize(@Nullable BasicChemicalConversionRecipe recipe) throws UnsupportedRecipeException {
         super.onInitialize(recipe);
         if (recipe == null) {
-            return new BasicChemicalConversionRecipe(IngredientCreatorAccess.item().from(UNSET), new ChemicalStack(MekanismChemicals.OXYGEN.get(), 100));
+            return new BasicChemicalConversionRecipe(IngredientCreatorAccess.item().from(UNSET), new ChemicalStack(MekanismChemicals.OXYGEN, 100));
         }
         return recipe;
     }

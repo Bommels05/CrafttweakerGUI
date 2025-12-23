@@ -41,7 +41,7 @@ public class PaintingRecipeType extends SupportedRecipeType<BasicPaintingRecipe>
             return new BasicPaintingRecipe(r.getItemInput(), MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getChemicalInput()), r.getOutputRaw(), r.perTickUsage());
         }, r -> {
             return MekanismRecipeUtils.of(r.getChemicalInput());
-        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.PIGMENT_COLOR_LOOKUP.get(EnumColor.RED).getChemical(), 50)), (stack, up) ->
+        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.PIGMENT_COLOR_LOOKUP.get(EnumColor.RED), 50)), (stack, up) ->
                 perTickUsage.get() ? MekanismRecipeUtils.limitedChemicalAmountSetter(stack, up) : MekanismRecipeUtils.chemicalAmountSetter(stack, up));
         addOption(perTickUsage, (r, value) -> {
             return new BasicPaintingRecipe(r.getItemInput(), r.getChemicalInput(), r.getOutputRaw(), value);
@@ -52,7 +52,8 @@ public class PaintingRecipeType extends SupportedRecipeType<BasicPaintingRecipe>
     public BasicPaintingRecipe onInitialize(@Nullable BasicPaintingRecipe recipe) throws UnsupportedRecipeException {
         super.onInitialize(recipe);
         if (recipe == null) {
-            return new BasicPaintingRecipe(IngredientCreatorAccess.item().from(UNSET), IngredientCreatorAccess.chemicalStack().from(MekanismChemicals.PIGMENT_COLOR_LOOKUP.get(EnumColor.RED), 50), UNSET, false);
+            return new BasicPaintingRecipe(IngredientCreatorAccess.item().from(UNSET),
+                    IngredientCreatorAccess.chemicalStack().fromHolder(MekanismChemicals.PIGMENT_COLOR_LOOKUP.get(EnumColor.RED), 50), UNSET, false);
         }
         perTickUsage.set(recipe.perTickUsage());
         return recipe;

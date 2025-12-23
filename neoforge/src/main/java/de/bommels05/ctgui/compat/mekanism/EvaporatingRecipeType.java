@@ -41,7 +41,7 @@ public class EvaporatingRecipeType extends SupportedRecipeType<BasicFluidToFluid
     public BasicFluidToFluidRecipe onInitialize(@Nullable BasicFluidToFluidRecipe recipe) throws UnsupportedRecipeException {
         super.onInitialize(recipe);
         if (recipe == null) {
-            return new BasicFluidToFluidRecipe(IngredientCreatorAccess.fluid().from(Fluids.WATER, 1), new FluidStack(Fluids.WATER, 1));
+            return new BasicFluidToFluidRecipe(MekanismRecipeUtils.from(Fluids.WATER, 1), new FluidStack(Fluids.WATER, 1));
         }
         return recipe;
     }

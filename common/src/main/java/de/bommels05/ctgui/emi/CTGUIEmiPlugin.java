@@ -69,9 +69,4 @@ public class CTGUIEmiPlugin implements EmiPlugin {
             }
         });
     }
-
-    @Override
-    public void initialize(EmiInitRegistry registry) {
-        CraftTweakerGUI.getLoaderUtils().emiInit(registry);
-    }
 }

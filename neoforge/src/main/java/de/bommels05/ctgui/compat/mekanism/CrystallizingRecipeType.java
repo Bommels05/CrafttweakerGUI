@@ -32,14 +32,14 @@ public class CrystallizingRecipeType extends SupportedRecipeType<BasicChemicalCr
             return new BasicChemicalCrystallizerRecipe(MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getInput()), r.getOutputRaw());
         }, r -> {
             return MekanismRecipeUtils.of(r.getInput());
-        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN.get(), 100)), MekanismRecipeUtils::chemicalAmountSetter);
+        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN, 100)), MekanismRecipeUtils::chemicalAmountSetter);
     }
 
     @Override
     public BasicChemicalCrystallizerRecipe onInitialize(@Nullable BasicChemicalCrystallizerRecipe recipe) throws UnsupportedRecipeException {
         super.onInitialize(recipe);
         if (recipe == null) {
-            return new BasicChemicalCrystallizerRecipe(IngredientCreatorAccess.chemicalStack().from(MekanismChemicals.OXYGEN, 100), UNSET);
+            return new BasicChemicalCrystallizerRecipe(IngredientCreatorAccess.chemicalStack().fromHolder(MekanismChemicals.OXYGEN, 100), UNSET);
         }
         return recipe;
     }

@@ -26,26 +26,26 @@ public class ChemicalInfusingRecipeType extends SupportedRecipeType<BasicChemica
             return new BasicChemicalInfuserRecipe(MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getLeftInput()), r.getRightInput(), r.getOutputRaw());
         }, r -> {
             return MekanismRecipeUtils.of(r.getLeftInput());
-        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN.get(), 1)), MekanismRecipeUtils::limitedChemicalAmountSetter);
+        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN, 1)), MekanismRecipeUtils::limitedChemicalAmountSetter);
         addAreaScrollAmountEmptyRightClick(130, 10, 18, 60, (r, stack) -> {
             return new BasicChemicalInfuserRecipe(r.getLeftInput(), MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getRightInput()), r.getOutputRaw());
         }, r -> {
             return MekanismRecipeUtils.of(r.getRightInput());
-        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN.get(), 1)), MekanismRecipeUtils::limitedChemicalAmountSetter);
+        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN, 1)), MekanismRecipeUtils::limitedChemicalAmountSetter);
         addAreaScrollAmountEmptyRightClick(76, 1, 18, 60, (r, input) -> {
             ChemicalStack stack = input.toStack();
-            return new BasicChemicalInfuserRecipe(r.getLeftInput(), r.getRightInput(), stack.getChemical() == r.getOutputRaw().getChemical() ? stack : new ChemicalStack(stack.getChemical(), r.getOutputRaw().getAmount()));
+            return new BasicChemicalInfuserRecipe(r.getLeftInput(), r.getRightInput(), stack.getChemical() == r.getOutputRaw().getChemical() ? stack : stack.copyWithAmount(r.getOutputRaw().getAmount()));
         }, r -> {
             return new ChemicalAmountedIngredient(r.getOutputRaw());
-        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN.get(), 2)), MekanismRecipeUtils::limitedChemicalAmountSetter);
+        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN, 2)), MekanismRecipeUtils::limitedChemicalAmountSetter);
     }
 
     @Override
     public BasicChemicalInfuserRecipe onInitialize(@Nullable BasicChemicalInfuserRecipe recipe) throws UnsupportedRecipeException {
         super.onInitialize(recipe);
         if (recipe == null) {
-            return new BasicChemicalInfuserRecipe(IngredientCreatorAccess.chemicalStack().from(MekanismChemicals.OXYGEN, 1),
-                    IngredientCreatorAccess.chemicalStack().from(MekanismChemicals.OXYGEN, 1), new ChemicalStack(MekanismChemicals.OXYGEN.get(), 2));
+            return new BasicChemicalInfuserRecipe(IngredientCreatorAccess.chemicalStack().fromHolder(MekanismChemicals.OXYGEN, 1),
+                    IngredientCreatorAccess.chemicalStack().fromHolder(MekanismChemicals.OXYGEN, 1), new ChemicalStack(MekanismChemicals.OXYGEN, 2));
         }
         return recipe;
     }

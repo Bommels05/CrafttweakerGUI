@@ -26,20 +26,21 @@ public class NeutronActivatingRecipeType extends SupportedRecipeType<BasicActiva
             return new BasicActivatingRecipe(MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getInput()), r.getOutputRaw());
         }, r -> {
             return MekanismRecipeUtils.of(r.getInput());
-        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN.get(), 1)), MekanismRecipeUtils::limitedChemicalAmountSetter);
+        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN, 1)), MekanismRecipeUtils::limitedChemicalAmountSetter);
         addAreaScrollAmountEmptyRightClick(129, 0, 18, 60, (r, input) -> {
             ChemicalStack stack = input.toStack();
             return new BasicActivatingRecipe(r.getInput(), stack.getChemical() == r.getOutputRaw().getChemical() ? stack : stack.copyWithAmount(r.getOutputRaw().getAmount()));
         }, r -> {
             return new ChemicalAmountedIngredient(r.getOutputRaw());
-        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN.get(), 1)), MekanismRecipeUtils::limitedChemicalAmountSetter);
+        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN, 1)), MekanismRecipeUtils::limitedChemicalAmountSetter);
     }
 
     @Override
     public BasicActivatingRecipe onInitialize(@Nullable BasicActivatingRecipe recipe) throws UnsupportedRecipeException {
         super.onInitialize(recipe);
         if (recipe == null) {
-            return new BasicActivatingRecipe(IngredientCreatorAccess.chemicalStack().from(MekanismChemicals.OXYGEN, 1), new ChemicalStack(MekanismChemicals.OXYGEN.get(), 1));
+            return new BasicActivatingRecipe(IngredientCreatorAccess.chemicalStack().fromHolder(MekanismChemicals.OXYGEN, 1),
+                    new ChemicalStack(MekanismChemicals.OXYGEN, 1));
         }
         return recipe;
     }

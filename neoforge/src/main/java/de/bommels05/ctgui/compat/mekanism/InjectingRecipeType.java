@@ -40,7 +40,7 @@ public class InjectingRecipeType extends SupportedRecipeType<BasicInjectingRecip
             return new BasicInjectingRecipe(r.getItemInput(), MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getChemicalInput()), r.getOutputRaw(), r.perTickUsage());
         }, r -> {
             return MekanismRecipeUtils.of(r.getChemicalInput());
-        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN.get(), 1)), (stack, up) ->
+        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN, 1)), (stack, up) ->
                 perTickUsage.get() ? MekanismRecipeUtils.limitedChemicalAmountSetter(stack, up) : MekanismRecipeUtils.chemicalAmountSetter(stack, up));
         addOption(perTickUsage, (r, value) -> {
             return new BasicInjectingRecipe(r.getItemInput(), r.getChemicalInput(), r.getOutputRaw(), value);
@@ -52,7 +52,8 @@ public class InjectingRecipeType extends SupportedRecipeType<BasicInjectingRecip
         super.onInitialize(recipe);
         if (recipe == null) {
             perTickUsage.set(true);
-            return new BasicInjectingRecipe(IngredientCreatorAccess.item().from(UNSET), IngredientCreatorAccess.chemicalStack().from(MekanismChemicals.OXYGEN, 1), UNSET, true);
+            return new BasicInjectingRecipe(IngredientCreatorAccess.item().from(UNSET),
+                    IngredientCreatorAccess.chemicalStack().fromHolder(MekanismChemicals.OXYGEN, 1), UNSET, true);
         }
         perTickUsage.set(recipe.perTickUsage());
         return recipe;

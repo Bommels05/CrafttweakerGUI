@@ -29,17 +29,17 @@ public class PigmentExtractingRecipeType extends SupportedRecipeType<BasicPigmen
         });
         addAreaScrollAmountEmptyRightClick(113, 1, 18, 60, (r, input) -> {
             ChemicalStack stack = input.toStack();
-            return new BasicPigmentExtractingRecipe(r.getInput(), stack.getChemical() == r.getOutputRaw().getChemical() ? stack : new ChemicalStack(stack.getChemical(), r.getOutputRaw().getAmount()));
+            return new BasicPigmentExtractingRecipe(r.getInput(), stack.getChemical() == r.getOutputRaw().getChemical() ? stack : stack.copyWithAmount(r.getOutputRaw().getAmount()));
         }, r -> {
             return new ChemicalAmountedIngredient(r.getOutputRaw());
-        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.PIGMENT_COLOR_LOOKUP.get(EnumColor.RED).getChemical(), 100)), MekanismRecipeUtils::chemicalAmountSetter);
+        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.PIGMENT_COLOR_LOOKUP.get(EnumColor.RED), 100)), MekanismRecipeUtils::chemicalAmountSetter);
     }
 
     @Override
     public BasicPigmentExtractingRecipe onInitialize(@Nullable BasicPigmentExtractingRecipe recipe) throws UnsupportedRecipeException {
         super.onInitialize(recipe);
         if (recipe == null) {
-            return new BasicPigmentExtractingRecipe(IngredientCreatorAccess.item().from(UNSET), new ChemicalStack(MekanismChemicals.PIGMENT_COLOR_LOOKUP.get(EnumColor.RED).getChemical(), 100));
+            return new BasicPigmentExtractingRecipe(IngredientCreatorAccess.item().from(UNSET), new ChemicalStack(MekanismChemicals.PIGMENT_COLOR_LOOKUP.get(EnumColor.RED), 100));
         }
         return recipe;
     }

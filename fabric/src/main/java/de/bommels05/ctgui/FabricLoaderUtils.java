@@ -126,11 +126,6 @@ public class FabricLoaderUtils implements LoaderUtils {
     }
 
     @Override
-    public void emiInit(Object registry) {
-        EmiInitRegistry reg = (EmiInitRegistry) registry;
-    }
-
-    @Override
     public ShapedRecipe tryGetFromMekanismRecipe(Recipe<?> recipe) {
         throw new UnsupportedOperationException();
     }

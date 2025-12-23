@@ -40,7 +40,7 @@ public class OsmiumCompressingRecipeType extends SupportedRecipeType<BasicCompre
             return new BasicCompressingRecipe(r.getItemInput(), MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getChemicalInput()), r.getOutputRaw(), r.perTickUsage());
         }, r -> {
             return MekanismRecipeUtils.of(r.getChemicalInput());
-        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OSMIUM.get(), 1)), (stack, up) ->
+        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OSMIUM, 1)), (stack, up) ->
                 perTickUsage.get() ? MekanismRecipeUtils.limitedChemicalAmountSetter(stack, up) : MekanismRecipeUtils.chemicalAmountSetter(stack, up));
         addOption(perTickUsage, (r, value) -> {
             return new BasicCompressingRecipe(r.getItemInput(), r.getChemicalInput(), r.getOutputRaw(), value);
@@ -51,7 +51,8 @@ public class OsmiumCompressingRecipeType extends SupportedRecipeType<BasicCompre
     public BasicCompressingRecipe onInitialize(@Nullable BasicCompressingRecipe recipe) throws UnsupportedRecipeException {
         super.onInitialize(recipe);
         if (recipe == null) {
-            return new BasicCompressingRecipe(IngredientCreatorAccess.item().from(UNSET), IngredientCreatorAccess.chemicalStack().from(MekanismChemicals.OSMIUM, 1), UNSET, true);
+            return new BasicCompressingRecipe(IngredientCreatorAccess.item().from(UNSET),
+                    IngredientCreatorAccess.chemicalStack().fromHolder(MekanismChemicals.OSMIUM, 1), UNSET, true);
         }
         perTickUsage.set(recipe.perTickUsage());
         return recipe;

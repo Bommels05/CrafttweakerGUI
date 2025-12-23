@@ -2,6 +2,7 @@ package de.bommels05.ctgui.compat.mekanism;
 
 import de.bommels05.ctgui.api.AmountedIngredient;
 import de.bommels05.ctgui.api.FluidAmountedIngredient;
+import mekanism.api.MekanismAPI;
 import mekanism.api.chemical.Chemical;
 import mekanism.api.chemical.ChemicalStack;
 import mekanism.api.recipes.ingredients.ChemicalStackIngredient;
@@ -11,6 +12,9 @@ import mekanism.api.recipes.ingredients.chemical.TagChemicalIngredient;
 import mekanism.api.recipes.ingredients.creator.IngredientCreatorAccess;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.level.material.Fluid;
+import net.neoforged.neoforge.fluids.crafting.FluidIngredient;
+import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 import net.neoforged.neoforge.fluids.crafting.TagFluidIngredient;
 
 public class MekanismRecipeUtils {
@@ -90,7 +94,7 @@ public class MekanismRecipeUtils {
     }
 
     public static String getCTString(ChemicalStack stack) {
-        String s = "<chemical:" + stack.getTypeRegistryName() + ">";
+        String s = "<chemical:" + stack.getChemicalHolder().getRegisteredName() + ">";
         if (stack.getAmount() > 1) {
             return s + " * " + stack.getAmount();
         }
@@ -116,7 +120,11 @@ public class MekanismRecipeUtils {
     }
 
     public static ChemicalStack from(Chemical chemical, long amount) {
-        return new ChemicalStack(chemical, amount);
+        return new ChemicalStack(MekanismAPI.CHEMICAL_REGISTRY.wrapAsHolder(chemical), amount);
+    }
+
+    public static FluidStackIngredient from(Fluid fluid, int amount) {
+        return IngredientCreatorAccess.fluid().from(SizedFluidIngredient.of(fluid, amount));
     }
 
 }

@@ -9,12 +9,10 @@ import de.bommels05.ctgui.api.UnsupportedViewerException;
 import mekanism.api.MekanismAPI;
 import mekanism.api.chemical.ChemicalStack;
 import mekanism.api.recipes.basic.BasicRotaryRecipe;
-import mekanism.api.recipes.ingredients.creator.IngredientCreatorAccess;
 import mekanism.client.recipe_viewer.emi.MekanismEmiRecipeCategory;
 import mekanism.client.recipe_viewer.emi.recipe.RotaryEmiRecipe;
 import mekanism.common.registries.MekanismBlocks;
 import mekanism.common.registries.MekanismChemicals;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.material.Fluids;
@@ -31,7 +29,7 @@ public class DecondensentratingRecipeType extends SupportedRecipeType<BasicRotar
             return new BasicRotaryRecipe(r.getFluidInput(), stack.getChemical() == r.getChemicalOutputRaw().getChemical() ? stack : stack.copyWithAmount(r.getChemicalOutputRaw().getAmount()));
         }, r -> {
             return new ChemicalAmountedIngredient(r.getChemicalOutputRaw());
-        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN.get(), 1)), MekanismRecipeUtils::limitedChemicalAmountSetter);
+        }, () -> new ChemicalAmountedIngredient(new ChemicalStack(MekanismChemicals.OXYGEN, 1)), MekanismRecipeUtils::limitedChemicalAmountSetter);
         addAreaScrollAmountEmptyRightClick(130, 1, 18, 60, (r, stack) -> {
             return new BasicRotaryRecipe(MekanismRecipeUtils.toIngredientKeepAmount(stack, r.getFluidInput()), r.getChemicalOutputRaw());
         }, r -> {
@@ -43,7 +41,7 @@ public class DecondensentratingRecipeType extends SupportedRecipeType<BasicRotar
     public BasicRotaryRecipe onInitialize(@Nullable BasicRotaryRecipe recipe) throws UnsupportedRecipeException {
         super.onInitialize(recipe);
         if (recipe == null) {
-            return new BasicRotaryRecipe(IngredientCreatorAccess.fluid().from(Fluids.WATER, 1), new ChemicalStack(MekanismChemicals.OXYGEN.get(), 1));
+            return new BasicRotaryRecipe(MekanismRecipeUtils.from(Fluids.WATER, 1), new ChemicalStack(MekanismChemicals.OXYGEN, 1));
         }
         return recipe;
     }

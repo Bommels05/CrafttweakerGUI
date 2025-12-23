@@ -60,8 +60,6 @@ public interface LoaderUtils {
 
     //Same as above, actually needs an EmiIngredient
     public Object getFromEmiStack(Object stack);
-    //Needs an EmiInitRegistry
-    public void emiInit(Object registry);
 
     public ShapedRecipe tryGetFromMekanismRecipe(Recipe<?> recipe);
 
