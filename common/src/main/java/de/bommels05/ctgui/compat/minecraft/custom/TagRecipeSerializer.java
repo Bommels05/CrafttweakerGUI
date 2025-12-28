@@ -25,10 +25,11 @@ public class TagRecipeSerializer implements RecipeSerializer<TagRecipe<?>> {
         MapCodec<TagRecipe<?>> oldCodec = RecordCodecBuilder.mapCodec(recipe ->
                 recipe.group(
                         ResourceLocation.CODEC.fieldOf("id").forGetter(r -> r.id),
-                        Codec.list(BuiltInRegistries.ITEM.byNameCodec()).fieldOf("items").orElse(List.of()).forGetter(r -> null),
+                        Codec.list(ItemStack.SINGLE_ITEM_CODEC).fieldOf("items").orElse(List.of()).forGetter(r -> null),
                         Codec.list(ResourceLocation.CODEC).fieldOf("itemTags").orElse(List.of()).forGetter(r -> null)
                 ).apply(recipe, (id, items, itemTags) -> {
-                    return new TagRecipe<>(id, BuiltInRegistries.ITEM, itemTags.stream().map(r -> TagKey.create(Registries.ITEM, r)).toList(), items);
+                    return new TagRecipe<>(id, BuiltInRegistries.ITEM, itemTags.stream().map(r -> TagKey.create(Registries.ITEM, r)).toList(),
+                            items.stream().map(ItemStack::getItem).toList());
                 })
         );
         MapCodec<TagRecipe> newCodec = RecordCodecBuilder.mapCodec(recipe ->
@@ -51,11 +52,10 @@ public class TagRecipeSerializer implements RecipeSerializer<TagRecipe<?>> {
 
             @Override
             public <T> DataResult<TagRecipe<?>> decode(DynamicOps<T> ops, MapLike<T> input) {
-                DataResult<TagRecipe<?>> result = ((MapCodec<TagRecipe<?>>) (MapCodec<?>) newCodec).decode(ops, input);
-                if (result.isError()) {
+                if (input.get("item") != null) {
                     return oldCodec.decode(ops, input);
                 }
-                return result;
+                return ((MapCodec<TagRecipe<?>>) (MapCodec<?>) newCodec).decode(ops, input);
             }
 
             @Override

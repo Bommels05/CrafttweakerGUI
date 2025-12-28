@@ -278,7 +278,6 @@ public class ChangedRecipeManager {
             this(type, id, originalId, recipe, originalRecipe, recipeType, false);
         }
 
-        @SuppressWarnings("unchecked")
         private ChangedRecipe(Type type, String id, ResourceLocation originalId, T recipe, T originalRecipe, SupportedRecipeType<T> recipeType, boolean exported) {
             this.type = type;
             this.id = id;

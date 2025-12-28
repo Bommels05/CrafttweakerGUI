@@ -46,8 +46,8 @@
     "crafttweaker": ">=${min_crafttweaker_version}",
     "forgeconfigapiport": ">=${min_fabric_config_version}"
   },
-  "suggests": {
-    "emi": ">=${min_emi_fabric_version}",
-    "jei": ">=${min_jei_version}"
+  "breaks": {
+    "emi": "<${min_emi_fabric_version}",
+    "jei": "<${min_jei_version}"
   }
 }
