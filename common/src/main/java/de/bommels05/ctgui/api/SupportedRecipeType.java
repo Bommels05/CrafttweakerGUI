@@ -1,8 +1,10 @@
 package de.bommels05.ctgui.api;
 
+import com.blamejared.crafttweaker.api.data.op.IDataOps;
 import com.blamejared.crafttweaker.api.ingredient.IIngredient;
 import com.blamejared.crafttweaker.api.ingredient.type.IngredientWithAmount;
 import com.blamejared.crafttweaker.api.util.ItemStackUtil;
+import com.blamejared.crafttweaker.natives.component.ExpandDataComponentType;
 import com.mojang.datafixers.util.Either;
 import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.screen.RecipeEditScreen;
@@ -13,6 +15,8 @@ import dev.emi.emi.api.recipe.EmiRecipeCategory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -31,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
@@ -166,7 +171,30 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
      * @return The CraftTweaker representation of the stack
      */
     protected String getCTString(ItemStack stack) {
-        return ItemStackUtil.getCommandString(stack);
+        return getCommandString(stack);
+    }
+
+    //Copied from CraftTweaker ItemStackUtil with client side registry access
+    private String getCommandString(ItemStack stack) {
+        StringBuilder sb = new StringBuilder("<item:").append(BuiltInRegistries.ITEM.getKey(stack.getItem())).append('>');
+
+        DataComponentPatch.SplitResult split = stack.getComponentsPatch().split();
+        split.added().filter(Predicate.not(DataComponentType::isTransient)).forEach(typedDataComponent -> {
+            sb.append(".withJsonComponent(")
+                    .append(ExpandDataComponentType.getCommandString(typedDataComponent.type()))
+                    .append(", ")
+                    .append(typedDataComponent.encodeValue(IDataOps.INSTANCE.withRegistryAccess(Minecraft.getInstance().level.registryAccess())).getOrThrow())
+                    .append(")");
+        });
+        split.removed().forEach(dataComponentType -> sb.append(".without(")
+                .append(ExpandDataComponentType.getCommandString(dataComponentType))
+                .append(")"));
+
+        if(!stack.isEmpty() && stack.getCount() != 1) {
+            sb.append(" * ").append(stack.getCount());
+        }
+
+        return sb.toString();
     }
 
     /**

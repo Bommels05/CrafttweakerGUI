@@ -16,6 +16,7 @@ import net.minecraft.data.CachedOutput;
 import net.minecraft.data.structures.NbtToSnbt;
 import net.minecraft.nbt.*;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
@@ -170,9 +171,16 @@ public class ChangedRecipeManager {
         LOGGER.info("Loaded " + i + " recipe changes");
     }
 
+    private static RegistryOps<Tag> getRegistryOps() {
+        if (Minecraft.getInstance().level == null) {
+            throw new IllegalStateException("Tried to get RegistryOps before loading the level");
+        }
+        return RegistryOps.create(NbtOps.INSTANCE, Minecraft.getInstance().level.registryAccess());
+    }
+
     @SuppressWarnings("unchecked")
     private static <T extends Recipe<?>> Tag toTag(RecipeSerializer<?> serializer, Recipe<?> recipe) {
-        DataResult<Tag> result = ((RecipeSerializer<T>) serializer).codec().encode((T) recipe, NbtOps.INSTANCE, NbtOps.INSTANCE.mapBuilder()).build((Tag) null);
+        DataResult<Tag> result = ((RecipeSerializer<T>) serializer).codec().encode((T) recipe, getRegistryOps(), NbtOps.INSTANCE.mapBuilder()).build((Tag) null);
         if (result.isSuccess()) {
             return result.getOrThrow();
         }
@@ -182,7 +190,7 @@ public class ChangedRecipeManager {
     @SuppressWarnings("unchecked")
     private static <T extends Recipe<?>> T fromTag(RecipeSerializer<?> serializer, Tag tag, SupportedRecipeType<?> recipeType) {
         AtomicReference<String> error = new AtomicReference<>(tag.toString());
-        Optional<T> result = ((RecipeSerializer<T>) serializer).codec().decode(NbtOps.INSTANCE, NbtOps.INSTANCE.getMap(tag).getOrThrow()).resultOrPartial(error::set);
+        Optional<T> result = ((RecipeSerializer<T>) serializer).codec().decode(getRegistryOps(), NbtOps.INSTANCE.getMap(tag).getOrThrow()).resultOrPartial(error::set);
         if (result.isPresent()) {
             try {
                 T recipe = result.get();
