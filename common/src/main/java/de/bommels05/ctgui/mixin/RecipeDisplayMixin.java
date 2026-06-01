@@ -1,14 +1,9 @@
 package de.bommels05.ctgui.mixin;
 
-import com.blamejared.crafttweaker.api.CraftTweakerConstants;
-import de.bommels05.ctgui.ChangedRecipeManager;
-import de.bommels05.ctgui.Config;
 import de.bommels05.ctgui.CraftTweakerGUI;
-import de.bommels05.ctgui.api.RecipeTypeManager;
 import de.bommels05.ctgui.emi.RecipeEditButtonWidget;
 import dev.emi.emi.api.recipe.EmiRecipe;
 import dev.emi.emi.api.widget.Widget;
-import dev.emi.emi.recipe.EmiTagRecipe;
 import dev.emi.emi.screen.RecipeDisplay;
 import dev.emi.emi.widget.RecipeDefaultButtonWidget;
 import org.spongepowered.asm.mixin.Final;

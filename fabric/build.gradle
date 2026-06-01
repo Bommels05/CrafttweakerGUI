@@ -44,7 +44,7 @@ dependencies {
 
 processResources {
     var replaceProperties = [
-            minecraft_version: minecraft_version, min_emi_fabric_version: min_emi_fabric_version,
+            minecraft_version: minecraft_version, min_emi_version: min_emi_version,
             min_fabric_loader_version: min_fabric_loader_version, neo_version_range: neo_version_range,
             min_fabric_api_version: min_fabric_api_version,
             mod_id: mod_id, mod_version: mod_version,

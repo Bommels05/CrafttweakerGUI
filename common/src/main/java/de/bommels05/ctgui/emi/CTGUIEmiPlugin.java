@@ -27,8 +27,8 @@ public class CTGUIEmiPlugin implements EmiPlugin {
     @Override
     @SuppressWarnings({"unchecked"})
     public void register(EmiRegistry registry) {
-        registry.addExclusionArea(RecipeEditScreen.class, (screen, consumer) -> consumer.accept(
-                new Bounds(screen.getMinX(), screen.getMinY(), screen.getMaxX() - screen.getMinX(), screen.getMaxY() - screen.getMinY())));
+        registry.addScreenBoundsProvider(RecipeEditScreen.class, screen ->
+                new Bounds(screen.getMinX(), screen.getMinY(), screen.getMaxX() - screen.getMinX(), screen.getMaxY() - screen.getMinY()));
         registry.addExclusionArea(RecipeEditScreen.class, (screen, consumer) -> consumer.accept(
                 new Bounds(screen.getOptionsMinX(), screen.getOptionsMinY(), screen.getOptionsMaxX() - screen.getOptionsMinX(), screen.getOptionsMaxY() - screen.getOptionsMinY())));
         registry.addExclusionArea(RecipeEditScreen.class, (screen, consumer) -> consumer.accept(

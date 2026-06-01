@@ -9,16 +9,15 @@
     "EmiRenderHelperMixin",
     "EmiTagsMixin",
     "EmiIngredientMixin",
-    "EmiScreenBaseMixin",
     "RecipeScreenMixin",
     "ShapedRecipePatternMixin",
     "EmiRecipesMixin",
-    "EmiApiMixin",
     "RecipesGuiMixin",
     "CraftingGridHelperMixin",
     "EmiFuelRecipeAccessor",
     "EmiCompostingRecipeAccessor",
-    "EmiInfoRecipeAccessor"
+    "EmiInfoRecipeAccessor",
+    "EmiTagKeyMixin"
   ],
   "injectors": {
     "defaultRequire": 1

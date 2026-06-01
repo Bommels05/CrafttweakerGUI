@@ -37,7 +37,7 @@ config="ctgui.neoforge.mixins.json"
 [[dependencies."${mod_id}"]]
     modId="emi"
     type="optional"
-    versionRange="[${min_emi_neo_version},)"
+    versionRange="[${min_emi_version}+neoforge,)"
     ordering="AFTER"
     side="CLIENT"
 [[dependencies."${mod_id}"]]

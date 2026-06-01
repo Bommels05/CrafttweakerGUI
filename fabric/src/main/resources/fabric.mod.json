@@ -47,7 +47,7 @@
     "forgeconfigapiport": ">=${min_fabric_config_version}"
   },
   "breaks": {
-    "emi": "<${min_emi_fabric_version}",
+    "emi": "<${min_emi_version}+fabric",
     "jei": "<${min_jei_version}"
   }
 }

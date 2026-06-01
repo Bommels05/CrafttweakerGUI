@@ -7,7 +7,11 @@ import de.bommels05.ctgui.compat.minecraft.custom.CompostingRecipeType;
 import de.bommels05.ctgui.compat.minecraft.custom.FuelRecipeType;
 import de.bommels05.ctgui.compat.minecraft.custom.InfoRecipeType;
 import de.bommels05.ctgui.compat.minecraft.custom.TagRecipeType;
+import dev.emi.emi.config.EmiConfig;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 
 public class CraftTweakerGUI {
     public static final String MOD_ID = "ctgui";
@@ -50,6 +54,17 @@ public class CraftTweakerGUI {
         }
         if (loaderUtils.isModLoaded("jeitweaker")) { //Emi also shows the jei info recipes
             RecipeTypeManager.addType(new InfoRecipeType());
+        }
+    }
+
+    public static void handleJoin(Player player) {
+        if (Config.editMode && CraftTweakerGUI.getLoaderUtils().isModLoaded("emi")) {
+            //Disabled by default but required
+            EmiConfig.showRecipeDecorators = true;
+            EmiConfig.writeConfig();
+        }
+        if (Config.editMode && !Config.noWarning) {
+            player.sendSystemMessage(Component.translatable("ctgui.editing.options_warning").withStyle(ChatFormatting.GOLD));
         }
     }
 

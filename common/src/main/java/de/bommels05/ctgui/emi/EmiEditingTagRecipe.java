@@ -1,7 +1,6 @@
 package de.bommels05.ctgui.emi;
 
 import de.bommels05.ctgui.CraftTweakerGUI;
-import de.bommels05.ctgui.ViewerUtils;
 import de.bommels05.ctgui.compat.minecraft.custom.TagRecipeType;
 import dev.emi.emi.api.recipe.EmiRecipe;
 import dev.emi.emi.api.recipe.EmiResolutionRecipe;
@@ -12,6 +11,7 @@ import dev.emi.emi.api.stack.TagEmiIngredient;
 import dev.emi.emi.api.widget.WidgetHolder;
 import dev.emi.emi.recipe.EmiTagRecipe;
 import dev.emi.emi.registry.EmiTags;
+import dev.emi.emi.runtime.EmiTagKey;
 import dev.emi.emi.screen.WidgetGroup;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -19,9 +19,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.material.Fluid;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +36,7 @@ public class EmiEditingTagRecipe extends EmiTagRecipe {
         super(key);
         this.type = type;
         for (TagKey<?> tag : tags) {
-            List<EmiStack> values = EmiTags.getRawValues(tag);
+            List<EmiStack> values = EmiTags.getRawValues(EmiTagKey.of(tag));
             ingredients.add(new TagEmiIngredient(tag, values.isEmpty() ? List.of(EmiStack.of(Items.BARRIER)) : values, 1));
         }
 

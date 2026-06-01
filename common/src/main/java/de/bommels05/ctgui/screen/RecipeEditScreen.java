@@ -247,7 +247,7 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
 
     @Override
     public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        super.renderBackground(graphics, mouseX, mouseY, partialTick);
+        super.renderTransparentBackground(graphics);
 
         ScreenUtils.renderContainerBackground(graphics, getMinX(), getMinY() - 4, getMaxX() - getMinX(), getMaxY() - (getMinY() - 4));
         ScreenUtils.renderContainerBackground(graphics, getTagMinX() - 5, getTagMinY() - 3, getTagMaxX() - (getTagMinX() - 8), getTagMaxY() - (getTagMinY() - 5));

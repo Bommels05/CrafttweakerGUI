@@ -34,7 +34,6 @@ public class NeoConfig {
         Config.listButton = LIST_BUTTON.get();
         Config.customRecipeIndicator = CUSTOM_RECIPE_INDICATOR.get();
         Config.acknowledgedMultiplayer = ACKNOWLEDGED_MULTIPLAYER.get();
-        Config.afterLoad();
     }
 
     public static void setEditMode(boolean value) {

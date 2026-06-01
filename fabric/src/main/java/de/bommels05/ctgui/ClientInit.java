@@ -3,17 +3,13 @@ package de.bommels05.ctgui;
 import de.bommels05.ctgui.compat.minecraft.custom.*;
 import de.bommels05.ctgui.emi.EmiViewerUtils;
 import de.bommels05.ctgui.jei.JeiViewerUtils;
-import de.bommels05.ctgui.screen.ChangeListScreen;
 import fuzs.forgeconfigapiport.fabric.api.neoforge.v4.NeoForgeConfigRegistry;
 import fuzs.forgeconfigapiport.fabric.api.neoforge.v4.NeoForgeModConfigEvents;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -55,9 +51,7 @@ public class ClientInit implements ClientModInitializer {
         CraftTweakerGUI.initVanillaRecipeTypes();
 
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-            if (Config.editMode && !Config.noWarning) {
-                handler.getPlayer().sendSystemMessage(Component.translatable("ctgui.editing.options_warning").withStyle(ChatFormatting.GOLD));
-            }
+            CraftTweakerGUI.handleJoin(handler.getPlayer());
         });
     }
 

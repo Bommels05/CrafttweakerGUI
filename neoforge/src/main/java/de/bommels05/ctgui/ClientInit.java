@@ -8,7 +8,6 @@ import de.bommels05.ctgui.jei.JeiViewerUtils;
 import de.bommels05.ctgui.registry.RecipeSerializers;
 import de.bommels05.ctgui.registry.RecipeTypes;
 import de.bommels05.ctgui.screen.ChangeListScreen;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.PauseScreen;
@@ -23,7 +22,6 @@ import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.client.loading.ClientModLoader;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforgespi.language.MavenVersionAdapter;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 
@@ -94,9 +92,7 @@ public class ClientInit {
 
     @SubscribeEvent
     public void onJoin(PlayerEvent.PlayerLoggedInEvent event) {
-        if (Config.editMode && !Config.noWarning) {
-            event.getEntity().sendSystemMessage(Component.translatable("ctgui.editing.options_warning").withStyle(ChatFormatting.GOLD));
-        }
+        CraftTweakerGUI.handleJoin(event.getEntity());
     }
 
     @SubscribeEvent
