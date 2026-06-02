@@ -34,7 +34,10 @@ dependencies {
 
     modApi "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:${fabric_config_version}"
     modImplementation("com.terraformersmc:modmenu:${modmenu_version}") { transitive = false }
-    modImplementation("dev.emi:emi-fabric:${emi_version}")
+    if (use_jei)
+        modCompileOnly("dev.emi:emi-fabric:${emi_version}")
+    else
+        modImplementation("dev.emi:emi-fabric:${emi_version}")
     modImplementation("mezz.jei:jei-${minecraft_version}-fabric:${jei_version}")
     modCompileOnly("com.blamejared.crafttweaker:CraftTweaker-fabric-${minecraft_version}:${crafttweaker_version}") {
         transitive = false

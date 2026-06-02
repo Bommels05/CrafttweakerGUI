@@ -31,7 +31,10 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionNeoForge")) { transitive = false }
 
-    implementation "dev.emi:emi-neoforge:${emi_version}"
+    if (use_jei)
+        compileOnly "dev.emi:emi-neoforge:${emi_version}"
+    else
+        implementation "dev.emi:emi-neoforge:${emi_version}"
     implementation "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
     implementation("com.blamejared.crafttweaker:CraftTweaker-neoforge-${minecraft_version}:${crafttweaker_version}") {
         transitive = false
