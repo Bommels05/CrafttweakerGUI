@@ -1,6 +1,6 @@
 package de.bommels05.ctgui;
 
-import com.google.gson.JsonElement;
+import com.google.gson.*;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.DataResult;
@@ -13,8 +13,6 @@ import de.bommels05.ctgui.api.UnsupportedViewerException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.data.CachedOutput;
-import net.minecraft.data.structures.NbtToSnbt;
 import net.minecraft.nbt.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.RegistryOps;
@@ -25,10 +23,7 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -37,11 +32,12 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class ChangedRecipeManager {
-
-    public static final Path CHANGE_FILE = CraftTweakerGUI.getLoaderUtils().getConfigDir().resolve("ctgui/changed_recipes.snbt");
-    public static final Path OLD_CHANGE_FILE = CraftTweakerGUI.getLoaderUtils().getConfigDir().resolve("ctgui/changed_recipes.snbt.old");
+    public static final Path CHANGE_FILE = CraftTweakerGUI.getLoaderUtils().getConfigDir().resolve("ctgui/changed_recipes.json");
+    public static final Path OLD_CHANGE_FILE = CHANGE_FILE.resolveSibling("changed_recipes.json.old");
+    public static final Path LEGACY_CHANGE_FILE = CHANGE_FILE.resolveSibling("changed_recipes.snbt");
     public static final Path SCRIPT_FILE = CraftTweakerGUI.getLoaderUtils().getGameDir().resolve("scripts/ctgui_generated.zs");
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final List<ChangedRecipe<?>> changedRecipes = new ArrayList<>();
     private static boolean savedOld = false;
     static {
@@ -84,29 +80,31 @@ public class ChangedRecipeManager {
     }
 
     public static void save() {
-        CompoundTag root = new CompoundTag();
-        ListTag changes = new ListTag();
+        JsonObject root = new JsonObject();
+        JsonArray changes = new JsonArray();
         for (ChangedRecipe<?> change : changedRecipes) {
             try {
-                CompoundTag changeTag = new CompoundTag();
-                changeTag.putString("type", change.type.name());
-                changeTag.putBoolean("exported", change.exported);
-                changeTag.putString("recipeType", change.getRecipeType().getId().toString());
+                JsonObject changeTag = new JsonObject();
+                changeTag.addProperty("type", change.type.name());
+                changeTag.addProperty("exported", change.exported);
+                changeTag.addProperty("recipeType", change.getRecipeType().getId().toString());
                 if (change.type == ChangedRecipe.Type.ADDED) {
-                    changeTag.putString("id", change.id);
+                    changeTag.addProperty("id", change.id);
                 } else if (change.type == ChangedRecipe.Type.CHANGED) {
-                    changeTag.putString("id", change.id);
-                    changeTag.putString("originalId", change.originalId.toString());
+                    changeTag.addProperty("id", change.id);
+                    changeTag.addProperty("originalId", change.originalId.toString());
                 } else {
-                    changeTag.putString("originalId", change.originalId.toString());
+                    changeTag.addProperty("originalId", change.originalId.toString());
                 }
-                RecipeSerializer<?> serializer = change.recipe.getSerializer();
-                changeTag.putString("serializer", BuiltInRegistries.RECIPE_SERIALIZER.getKey(serializer).toString());
-                changeTag.put("recipe", toTag(serializer, change.recipe));
+                String serializerName = BuiltInRegistries.RECIPE_SERIALIZER.getKey(change.recipe.getSerializer()).toString();
+                changeTag.addProperty("serializer", serializerName);
+                changeTag.add("recipe", toJson(change.recipe));
                 if (change.type == ChangedRecipe.Type.CHANGED && change.originalRecipe != null) {
-                    RecipeSerializer<?> oldSerializer = change.originalRecipe.getSerializer();
-                    changeTag.putString("oldSerializer", BuiltInRegistries.RECIPE_SERIALIZER.getKey(oldSerializer).toString());
-                    changeTag.put("originalRecipe", toTag(oldSerializer, change.originalRecipe));
+                    String oldSerializerName = BuiltInRegistries.RECIPE_SERIALIZER.getKey(change.originalRecipe.getSerializer()).toString();
+                    if (!serializerName.equals(oldSerializerName)) {
+                        changeTag.addProperty("oldSerializer", oldSerializerName);
+                    }
+                    changeTag.add("originalRecipe", toJson(change.originalRecipe));
                 }
                 changes.add(changeTag);
             } catch (Throwable t) {
@@ -114,7 +112,7 @@ public class ChangedRecipeManager {
                 toastWithChat(Component.translatable("ctgui.saving_error_title"), Component.translatable("ctgui.error_message"));
             }
         }
-        root.put("changes", changes);
+        root.add("changes", changes);
         try {
             File old = OLD_CHANGE_FILE.toFile();
             if (!savedOld) {
@@ -125,7 +123,11 @@ public class ChangedRecipeManager {
             } else {
                 CHANGE_FILE.toFile().delete();
             }
-            NbtToSnbt.writeSnbt(CachedOutput.NO_CACHE, CHANGE_FILE, NbtUtils.structureToSnbt(root));
+
+            FileWriter writer = new FileWriter(CHANGE_FILE.toFile());
+            GSON.toJson(root, writer);
+            writer.close();
+
             if (Config.saveToast) {
                 toastWithChat(Component.translatable("ctgui.changes_saved_title"), Component.translatable("ctgui.changes_saved"));
             }
@@ -140,7 +142,36 @@ public class ChangedRecipeManager {
         int i = 0;
         if (CHANGE_FILE.toFile().exists()) {
             try {
-                BufferedReader reader = Files.newBufferedReader(CHANGE_FILE);
+                FileReader reader = new FileReader(CHANGE_FILE.toFile());
+                JsonObject root = GSON.fromJson(reader, JsonObject.class);
+                reader.close();
+                JsonArray changes = root.getAsJsonArray("changes");
+                for (JsonElement tag : changes) {
+                    try {
+                        JsonObject change = tag.getAsJsonObject();
+                        ChangedRecipe.Type type = ChangedRecipe.Type.valueOf(change.get("type").getAsString());
+                        SupportedRecipeType<?> recipeType = RecipeTypeManager.getType(CraftTweakerGUI.rl(change.get("recipeType").getAsString()));;
+                        RecipeSerializer<?> serializer = BuiltInRegistries.RECIPE_SERIALIZER.get(CraftTweakerGUI.rl(change.get("serializer").getAsString()));
+                        RecipeSerializer<?> oldSerializer = change.has("oldSerializer") ? BuiltInRegistries.RECIPE_SERIALIZER.get(CraftTweakerGUI.rl(change.get("oldSerializer").getAsString())) : serializer;
+                        changedRecipes.add(new ChangedRecipe<>(type, type != ChangedRecipe.Type.REMOVED ? change.get("id").getAsString() : null,
+                                type != ChangedRecipe.Type.ADDED ? CraftTweakerGUI.rl(change.get("originalId").getAsString()) : null,
+                                fromTag(serializer, JsonOps.INSTANCE, change.get("recipe"), recipeType),
+                                type == ChangedRecipe.Type.CHANGED && change.has("originalRecipe") ? fromTag(oldSerializer, JsonOps.INSTANCE, change.get("originalRecipe"), recipeType) : null,
+                                recipeType, change.get("exported").getAsBoolean()));
+                        i++;
+                    } catch (Throwable t) {
+                        LOGGER.error("Could not load recipe change, ignoring", t);
+                        toastWithChat(Component.translatable("ctgui.loading_error_title"), Component.translatable("ctgui.error_message"));
+                    }
+                }
+            } catch (IOException e) {
+                LOGGER.error("Could not load recipe changes", e);
+                toastWithChat(Component.translatable("ctgui.loading_error_title"), Component.translatable("ctgui.error_message"));
+            }
+        } else if (LEGACY_CHANGE_FILE.toFile().exists()) {
+            LOGGER.info("Loading recipe changes in SNBT format");
+            try {
+                BufferedReader reader = Files.newBufferedReader(LEGACY_CHANGE_FILE);
                 CompoundTag root = NbtUtils.snbtToStructure(IOUtils.toString(reader));
                 ListTag changes = root.getList("changes", Tag.TAG_COMPOUND);
                 for (Tag tag : changes) {
@@ -152,8 +183,8 @@ public class ChangedRecipeManager {
                         RecipeSerializer<?> oldSerializer = change.contains("oldSerializer") ? BuiltInRegistries.RECIPE_SERIALIZER.get(CraftTweakerGUI.rl(change.getString("oldSerializer"))) : serializer;
                         changedRecipes.add(new ChangedRecipe<>(type, type != ChangedRecipe.Type.REMOVED ? change.getString("id") : null,
                                 type != ChangedRecipe.Type.ADDED ? CraftTweakerGUI.rl(change.getString("originalId")) : null,
-                                fromTag(serializer, change.get("recipe"), recipeType),
-                                type == ChangedRecipe.Type.CHANGED && change.contains("originalRecipe") ? fromTag(oldSerializer, change.get("originalRecipe"), recipeType) : null,
+                                fromTag(serializer, NbtOps.INSTANCE, change.get("recipe"), recipeType),
+                                type == ChangedRecipe.Type.CHANGED && change.contains("originalRecipe") ? fromTag(oldSerializer, NbtOps.INSTANCE, change.get("originalRecipe"), recipeType) : null,
                                 recipeType, change.getBoolean("exported")));
                         i++;
                     } catch (Throwable t) {
@@ -169,7 +200,7 @@ public class ChangedRecipeManager {
         if (!SCRIPT_FILE.toFile().exists()) {
             changedRecipes.forEach(recipe -> recipe.setExported(false));
         }
-        LOGGER.info("Loaded " + i + " recipe changes");
+        LOGGER.info("Loaded {} recipe changes", i);
     }
 
     private static <T> RegistryOps<T> getRegistryOps(DynamicOps<T> ops) {
@@ -177,15 +208,6 @@ public class ChangedRecipeManager {
             throw new IllegalStateException("Tried to get RegistryOps before loading the level");
         }
         return RegistryOps.create(ops, Minecraft.getInstance().level.registryAccess());
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T extends Recipe<?>> Tag toTag(RecipeSerializer<?> serializer, Recipe<?> recipe) {
-        DataResult<Tag> result = ((RecipeSerializer<T>) serializer).codec().encode((T) recipe, getRegistryOps(NbtOps.INSTANCE), NbtOps.INSTANCE.mapBuilder()).build((Tag) null);
-        if (result.isSuccess()) {
-            return result.getOrThrow();
-        }
-        throw new RuntimeException("Recipe could not be serialized: " + result.error().map(DataResult.Error::message).orElse(recipe.toString()));
     }
 
     @SuppressWarnings("unchecked")
@@ -198,9 +220,9 @@ public class ChangedRecipeManager {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T extends Recipe<?>> T fromTag(RecipeSerializer<?> serializer, Tag tag, SupportedRecipeType<?> recipeType) {
+    private static <T extends Recipe<?>, E> T fromTag(RecipeSerializer<?> serializer, DynamicOps<E> ops, E tag, SupportedRecipeType<?> recipeType) {
         AtomicReference<String> error = new AtomicReference<>(tag.toString());
-        Optional<T> result = ((RecipeSerializer<T>) serializer).codec().decode(getRegistryOps(NbtOps.INSTANCE), NbtOps.INSTANCE.getMap(tag).getOrThrow()).resultOrPartial(error::set);
+        Optional<T> result = ((RecipeSerializer<T>) serializer).codec().decode(getRegistryOps(ops), ops.getMap(tag).getOrThrow()).resultOrPartial(error::set);
         if (result.isPresent()) {
             try {
                 T recipe = result.get();
