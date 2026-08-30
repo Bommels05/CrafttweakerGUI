@@ -31,7 +31,7 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionNeoForge")) { transitive = false }
 
-    if (use_jei)
+    if (Boolean.parseBoolean(use_jei))
         compileOnly "dev.emi:emi-neoforge:${emi_version}"
     else
         implementation "dev.emi:emi-neoforge:${emi_version}"
@@ -42,6 +42,11 @@ dependencies {
 
     implementation "mekanism:Mekanism:${mekanism_version}"
     runtimeOnly "mekanism:Mekanism:${mekanism_version}:generators"
+
+    implementation("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") { transitive = false }
+    runtimeOnly("net.createmod.ponder:ponder-neoforge:${create_ponder_version}+mc${minecraft_version}")
+    runtimeOnly("dev.engine-room.flywheel:flywheel-neoforge-${minecraft_version}:${create_flywheel_version}")
+    runtimeOnly("com.tterrag.registrate:Registrate:${create_registrate_version}")
 }
 
 processResources {

@@ -34,7 +34,7 @@ dependencies {
 
     modApi "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:${fabric_config_version}"
     modImplementation("com.terraformersmc:modmenu:${modmenu_version}") { transitive = false }
-    if (use_jei)
+    if (Boolean.parseBoolean(use_jei))
         modCompileOnly("dev.emi:emi-fabric:${emi_version}")
     else
         modImplementation("dev.emi:emi-fabric:${emi_version}")

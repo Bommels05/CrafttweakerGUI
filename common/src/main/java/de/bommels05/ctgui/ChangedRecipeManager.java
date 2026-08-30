@@ -1,10 +1,11 @@
 package de.bommels05.ctgui;
 
+import com.google.gson.JsonElement;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.datafixers.util.Either;
-import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.JsonOps;
 import de.bommels05.ctgui.api.RecipeTypeManager;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
@@ -171,16 +172,25 @@ public class ChangedRecipeManager {
         LOGGER.info("Loaded " + i + " recipe changes");
     }
 
-    private static RegistryOps<Tag> getRegistryOps() {
+    private static <T> RegistryOps<T> getRegistryOps(DynamicOps<T> ops) {
         if (Minecraft.getInstance().level == null) {
             throw new IllegalStateException("Tried to get RegistryOps before loading the level");
         }
-        return RegistryOps.create(NbtOps.INSTANCE, Minecraft.getInstance().level.registryAccess());
+        return RegistryOps.create(ops, Minecraft.getInstance().level.registryAccess());
     }
 
     @SuppressWarnings("unchecked")
     private static <T extends Recipe<?>> Tag toTag(RecipeSerializer<?> serializer, Recipe<?> recipe) {
-        DataResult<Tag> result = ((RecipeSerializer<T>) serializer).codec().encode((T) recipe, getRegistryOps(), NbtOps.INSTANCE.mapBuilder()).build((Tag) null);
+        DataResult<Tag> result = ((RecipeSerializer<T>) serializer).codec().encode((T) recipe, getRegistryOps(NbtOps.INSTANCE), NbtOps.INSTANCE.mapBuilder()).build((Tag) null);
+        if (result.isSuccess()) {
+            return result.getOrThrow();
+        }
+        throw new RuntimeException("Recipe could not be serialized: " + result.error().map(DataResult.Error::message).orElse(recipe.toString()));
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends Recipe<?>> JsonElement toJson(T recipe) {
+        DataResult<JsonElement> result = ((RecipeSerializer<T>) recipe.getSerializer()).codec().encode(recipe, getRegistryOps(JsonOps.INSTANCE), JsonOps.INSTANCE.mapBuilder()).build((JsonElement) null);
         if (result.isSuccess()) {
             return result.getOrThrow();
         }
@@ -190,7 +200,7 @@ public class ChangedRecipeManager {
     @SuppressWarnings("unchecked")
     private static <T extends Recipe<?>> T fromTag(RecipeSerializer<?> serializer, Tag tag, SupportedRecipeType<?> recipeType) {
         AtomicReference<String> error = new AtomicReference<>(tag.toString());
-        Optional<T> result = ((RecipeSerializer<T>) serializer).codec().decode(getRegistryOps(), NbtOps.INSTANCE.getMap(tag).getOrThrow()).resultOrPartial(error::set);
+        Optional<T> result = ((RecipeSerializer<T>) serializer).codec().decode(getRegistryOps(NbtOps.INSTANCE), NbtOps.INSTANCE.getMap(tag).getOrThrow()).resultOrPartial(error::set);
         if (result.isPresent()) {
             try {
                 T recipe = result.get();

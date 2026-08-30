@@ -35,6 +35,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import org.slf4j.Logger;
 
 import java.lang.reflect.Field;
@@ -189,7 +190,7 @@ public class EmiViewerUtils implements ViewerUtils<EmiRecipe> {
         } catch (UnsupportedViewerException e) {
             if (CraftTweakerGUI.getLoaderUtils().isModLoaded("jei")) {
                 try {
-                    return new JemiRecipe<>(getCategory(type.getId()), (IRecipeCategory<R2>) JeiViewerUtils.getCategory(type.getId()), recipe);
+                    return new JemiRecipe<>(getCategory(type.getId()), (IRecipeCategory<RecipeHolder<R2>>) JeiViewerUtils.getCategory(type.getId()), new RecipeHolder<>(CraftTweakerGUI.rl(CraftTweakerGUI.MOD_ID, "null"), recipe));
                 } catch (UnsupportedViewerException ignored) {}
             }
             throw e;

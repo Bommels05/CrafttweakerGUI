@@ -1,6 +1,9 @@
 package de.bommels05.ctgui;
 
 import de.bommels05.ctgui.api.RecipeTypeManager;
+import de.bommels05.ctgui.compat.create.MixingRecipeType;
+import de.bommels05.ctgui.compat.create.PressingRecipeType;
+import de.bommels05.ctgui.compat.create.MillingRecipeType;
 import de.bommels05.ctgui.compat.mekanism.*;
 import de.bommels05.ctgui.compat.minecraft.BrewingRecipeType;
 import de.bommels05.ctgui.emi.EmiViewerUtils;
@@ -87,6 +90,12 @@ public class ClientInit {
             RecipeTypeManager.addType(new NucleosynthesizingRecipeType());
             RecipeTypeManager.addType(new CondensentratingRecipeType());
             RecipeTypeManager.addType(new DecondensentratingRecipeType());
+        }
+        if (ModList.get().isLoaded("create")) {
+            RecipeTypeManager.addType(new PressingRecipeType());
+            RecipeTypeManager.addType(new MillingRecipeType());
+            RecipeTypeManager.addType(new de.bommels05.ctgui.compat.create.CrushingRecipeType());
+            //RecipeTypeManager.addType(new MixingRecipeType());
         }
     }
 

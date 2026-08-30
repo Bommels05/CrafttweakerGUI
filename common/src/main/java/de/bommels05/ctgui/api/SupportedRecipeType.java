@@ -3,9 +3,9 @@ package de.bommels05.ctgui.api;
 import com.blamejared.crafttweaker.api.data.op.IDataOps;
 import com.blamejared.crafttweaker.api.ingredient.IIngredient;
 import com.blamejared.crafttweaker.api.ingredient.type.IngredientWithAmount;
-import com.blamejared.crafttweaker.api.util.ItemStackUtil;
 import com.blamejared.crafttweaker.natives.component.ExpandDataComponentType;
 import com.mojang.datafixers.util.Either;
+import de.bommels05.ctgui.ChangedRecipeManager;
 import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.screen.RecipeEditScreen;
 import de.bommels05.ctgui.api.option.RecipeOption;
@@ -225,6 +225,14 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
      */
     protected String getCTString(AmountedIngredient ingredient) {
         return new IngredientWithAmount(IIngredient.fromIngredient(ingredient.ingredient()), ingredient.amount()).getCommandString();
+    }
+
+    /**
+     * Returns the CraftTweaker representation of the recipe being added using the JSON API
+     * @return The CraftTweaker representation of the recipe being added using the JSON API
+     */
+    protected String getCTJsonString(Recipe<?> recipe, String id) {
+        return "<recipetype:" + BuiltInRegistries.RECIPE_TYPE.getKey(recipe.getType()) + ">.addJsonRecipe(\"" + id + "\", " + ChangedRecipeManager.toJson(recipe) + ");";
     }
 
     public R onDragAndDrop(R recipe, int x, int y, AmountedIngredient ingredient) {
