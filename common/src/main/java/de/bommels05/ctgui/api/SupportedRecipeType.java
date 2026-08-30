@@ -1,6 +1,8 @@
 package de.bommels05.ctgui.api;
 
+import com.blamejared.crafttweaker.api.data.IData;
 import com.blamejared.crafttweaker.api.data.op.IDataOps;
+import com.blamejared.crafttweaker.api.data.visitor.DataToStringVisitor;
 import com.blamejared.crafttweaker.api.ingredient.IIngredient;
 import com.blamejared.crafttweaker.api.ingredient.type.IngredientWithAmount;
 import com.blamejared.crafttweaker.natives.component.ExpandDataComponentType;
@@ -20,6 +22,7 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -179,11 +182,12 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
         StringBuilder sb = new StringBuilder("<item:").append(BuiltInRegistries.ITEM.getKey(stack.getItem())).append('>');
 
         DataComponentPatch.SplitResult split = stack.getComponentsPatch().split();
+        RegistryOps<IData> registryOps = IDataOps.INSTANCE.withRegistryAccess(Minecraft.getInstance().level.registryAccess());
         split.added().filter(Predicate.not(DataComponentType::isTransient)).forEach(typedDataComponent -> {
             sb.append(".withJsonComponent(")
                     .append(ExpandDataComponentType.getCommandString(typedDataComponent.type()))
                     .append(", ")
-                    .append(typedDataComponent.encodeValue(IDataOps.INSTANCE.withRegistryAccess(Minecraft.getInstance().level.registryAccess())).getOrThrow())
+                    .append(typedDataComponent.encodeValue(registryOps).getOrThrow().accept(DataToStringVisitor.ESCAPE))
                     .append(")");
         });
         split.removed().forEach(dataComponentType -> sb.append(".without(")
