@@ -48,6 +48,7 @@
   },
   "breaks": {
     "emi": "<${min_emi_version}+fabric",
-    "jei": "<${min_jei_version}"
+    "jei": "<${min_jei_version}",
+    "alloy_forgery": "<${min_alloy_forgery_version}"
   }
 }

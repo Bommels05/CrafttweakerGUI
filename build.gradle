@@ -59,6 +59,18 @@ allprojects {
         maven {
             url = "https://maven.ithundxr.dev/snapshots"
         }
+        maven {
+            url "https://cursemaven.com"
+            content {
+                includeGroup "curse.maven"
+            }
+        }
+        maven {
+            url 'https://maven.wispforest.io'
+            content {
+                includeGroupAndSubgroups "io.wispforest"
+            }
+        }
     }
 
     tasks.withType(JavaCompile) {

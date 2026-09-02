@@ -27,7 +27,7 @@ public class TextRecipeOption<R extends Recipe<?>> implements RecipeOption<Strin
     }
 
     @Override
-    public void addToScreen(RecipeEditScreen<?> screen, int x, int y) {
+    public void addToScreen(RecipeEditScreen<R> screen, int x, int y) {
         editBox = new EditBox(screen.getFont(), x, y, 100, 18, Component.empty());
         editBox.setMaxLength(256);
         editBox.setTooltip(Tooltip.create(tooltip));

@@ -43,6 +43,9 @@ dependencies {
         transitive = false
     }
     modLocalRuntime("com.blamejared.crafttweaker:CraftTweaker-fabric-${minecraft_version}:${crafttweaker_version}")
+
+    modRuntimeOnly("curse.maven:alloy-forgery-438718:${alloy_forgery_file_id}")
+    modRuntimeOnly("io.wispforest:owo-lib:${alloy_forgery_owo_version}")
 }
 
 processResources {
@@ -52,7 +55,7 @@ processResources {
             min_fabric_api_version: min_fabric_api_version,
             mod_id: mod_id, mod_version: mod_version,
             min_jei_version: min_jei_version, min_crafttweaker_version: min_crafttweaker_version,
-            min_mekanism_version: min_mekanism_version, min_fabric_config_version: min_fabric_config_version
+            min_alloy_forgery_version: min_alloy_forgery_version, min_fabric_config_version: min_fabric_config_version
     ]
     inputs.properties replaceProperties
 

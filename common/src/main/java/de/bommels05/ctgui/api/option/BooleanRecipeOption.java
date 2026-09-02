@@ -28,7 +28,7 @@ public class BooleanRecipeOption<R extends Recipe<?>> implements RecipeOption<Bo
     }
 
     @Override
-    public void addToScreen(RecipeEditScreen<?> screen, int x, int y) {
+    public void addToScreen(RecipeEditScreen<R> screen, int x, int y) {
         checkBox = new BetterCheckBox(x, y, name, screen.getFont(), value, value -> screen.handleRecipeOption(value, listener));
         if (tooltip != null) {
             checkBox.setTooltip(Tooltip.create(tooltip));

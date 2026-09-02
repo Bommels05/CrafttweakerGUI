@@ -7,11 +7,13 @@ loom {
 }
 
 dependencies {
-    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    modCompileOnly("net.fabricmc:fabric-loader:${fabric_loader_version}")
 
-    implementation "dev.emi:emi-neoforge:${emi_version}"
-    implementation "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
-    implementation("com.blamejared.crafttweaker:CraftTweaker-neoforge-${minecraft_version}:${crafttweaker_version}") {
+    compileOnly("dev.emi:emi-neoforge:${emi_version}")
+    compileOnly("mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}")
+    compileOnly("com.blamejared.crafttweaker:CraftTweaker-neoforge-${minecraft_version}:${crafttweaker_version}") {
         transitive = false
     }
+
+    modCompileOnly("curse.maven:alloy-forgery-438718:5611901")
 }

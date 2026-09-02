@@ -9,6 +9,7 @@ import com.blamejared.crafttweaker.natives.component.ExpandDataComponentType;
 import com.mojang.datafixers.util.Either;
 import de.bommels05.ctgui.ChangedRecipeManager;
 import de.bommels05.ctgui.CraftTweakerGUI;
+import de.bommels05.ctgui.api.option.AdvancedRecipeOption;
 import de.bommels05.ctgui.screen.RecipeEditScreen;
 import de.bommels05.ctgui.api.option.RecipeOption;
 import dev.emi.emi.api.EmiApi;
@@ -36,10 +37,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
+import java.util.function.*;
 
 /**
  * A recipe type that can be edited
@@ -104,7 +102,7 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
      * @return The CraftTweaker command to remove the recipe
      */
     public String getCraftTweakerRemoveString(R recipe, ResourceLocation id) {
-        return "<recipetype:" + this.id + ">.removeByName(\"" + id + "\");";
+        return "<recipetype:" + BuiltInRegistries.RECIPE_TYPE.getKey(recipe.getType()) + ">.removeByName(\"" + id + "\");";
     }
 
     /**
@@ -147,6 +145,15 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
      */
     public boolean needsRecipeId() {
         return true;
+    }
+
+    /**
+     * Makes changes to the original recipe of a changed recipe so that it can be serialized (This should normally already be the case)
+     * @param recipe A recipe in its form before passing through {@link #onInitialize(Recipe)} but which is known to pass through it successfully
+     * @return The same recipe in a state acceptable by its recipe serializer
+     */
+    public R makeOriginalRecipeSavable(R recipe) {
+        return recipe;
     }
 
     /**
@@ -311,6 +318,18 @@ public abstract class SupportedRecipeType<R extends Recipe<?>> {
      */
     protected <T> void addOption(RecipeOption<T, R> option, BiFunction<R, T, R> handler) {
         option.addListener(handler);
+        options.add(option);
+    }
+
+    /**
+     * Adds a new {@link AdvancedRecipeOption} to this type
+     * @param option The option
+     * @param handler The handler that is called when the option is changed and returns the modified recipe
+     * @param advancedFilter The filter that is checked before the handler runs when the option is changed
+     */
+    protected <T> void addOption(AdvancedRecipeOption<T, R> option, BiFunction<R, T, R> handler, BiPredicate<R, T> advancedFilter) {
+        option.addListener(handler);
+        option.addAdvancedFilter(advancedFilter);
         options.add(option);
     }
 

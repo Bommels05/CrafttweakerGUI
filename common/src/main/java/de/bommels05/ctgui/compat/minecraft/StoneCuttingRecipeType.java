@@ -5,17 +5,12 @@ import de.bommels05.ctgui.api.AmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
 import de.bommels05.ctgui.api.UnsupportedRecipeException;
 import de.bommels05.ctgui.api.UnsupportedViewerException;
-import dev.emi.emi.api.recipe.EmiRecipe;
 import dev.emi.emi.recipe.EmiStonecuttingRecipe;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.StonecutterRecipe;
 
-import javax.swing.plaf.PanelUI;
-
 public class StoneCuttingRecipeType extends SupportedRecipeType<StonecutterRecipe> {
-
 
     public StoneCuttingRecipeType() {
         super(CraftTweakerGUI.rl("minecraft:stonecutting"));

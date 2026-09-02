@@ -1,6 +1,5 @@
 package de.bommels05.ctgui.api.option;
 
-import de.bommels05.ctgui.screen.BetterCheckBox;
 import de.bommels05.ctgui.screen.RecipeEditScreen;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Tooltip;
@@ -10,7 +9,6 @@ import net.minecraft.world.item.crafting.Recipe;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 /**
  * Used to replace the function of the recipe id field
@@ -20,9 +18,9 @@ public class RecipeIdFieldRecipeOption<R extends Recipe<?>> implements RecipeOpt
 
     private final Component tooltip;
     private BiFunction<R, String, R> listener;
-    private Predicate<String> filter;
+    private final Predicate<String> filter;
     private EditBox box;
-    private RecipeEditScreen<?> screen;
+    private RecipeEditScreen<R> screen;
     private String value;
 
     public RecipeIdFieldRecipeOption(Component tooltip, Predicate<String> filter) {
@@ -31,7 +29,7 @@ public class RecipeIdFieldRecipeOption<R extends Recipe<?>> implements RecipeOpt
     }
 
     @Override
-    public void addToScreen(RecipeEditScreen<?> screen, int x, int y) {
+    public void addToScreen(RecipeEditScreen<R> screen, int x, int y) {
         this.screen = screen;
     }
 

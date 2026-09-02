@@ -25,7 +25,7 @@ public class RangedRecipeOption<R extends Recipe<?>> implements RecipeOption<Int
     }
 
     @Override
-    public void addToScreen(RecipeEditScreen<?> screen, int x, int y) {
+    public void addToScreen(RecipeEditScreen<R> screen, int x, int y) {
         slider = new Slider(screen, x, y);
         screen.addRenderableWidget(slider);
     }
@@ -64,9 +64,9 @@ public class RangedRecipeOption<R extends Recipe<?>> implements RecipeOption<Int
     }
 
     private class Slider extends AbstractSliderButton {
-        private final RecipeEditScreen<?> screen;
+        private final RecipeEditScreen<R> screen;
 
-        public Slider(RecipeEditScreen<?> screen, int x, int y) {
+        public Slider(RecipeEditScreen<R> screen, int x, int y) {
             super(x, y, 100, 18, Component.empty(), 0);
             this.screen = screen;
             setValue(RangedRecipeOption.this.value);

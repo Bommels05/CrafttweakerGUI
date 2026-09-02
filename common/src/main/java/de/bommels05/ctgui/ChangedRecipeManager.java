@@ -104,7 +104,7 @@ public class ChangedRecipeManager {
                     if (!serializerName.equals(oldSerializerName)) {
                         changeTag.addProperty("oldSerializer", oldSerializerName);
                     }
-                    changeTag.add("originalRecipe", toJson(change.originalRecipe));
+                    changeTag.add("originalRecipe", toJson(change.getOriginalRecipe()));
                 }
                 changes.add(changeTag);
             } catch (Throwable t) {
@@ -410,7 +410,7 @@ public class ChangedRecipeManager {
         }
 
         public T getOriginalRecipe() {
-            return originalRecipe;
+            return recipeType.makeOriginalRecipeSavable(originalRecipe);
         }
 
         public ChangedRecipe<T> getOriginalRemoveChange() {

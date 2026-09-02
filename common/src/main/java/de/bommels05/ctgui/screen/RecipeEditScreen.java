@@ -13,7 +13,6 @@ import net.minecraft.client.gui.components.*;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.*;
-import net.minecraft.client.gui.screens.multiplayer.WarningScreen;
 import net.minecraft.client.gui.screens.options.OptionsScreen;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -32,6 +31,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 
 public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
 
@@ -445,9 +445,17 @@ public class RecipeEditScreen<R extends Recipe<?>> extends Screen {
         return id + "_" + i;
     }
 
-    @SuppressWarnings("unchecked")
-    public <T, RT extends Recipe<?>> void handleRecipeOption(T value, BiFunction<RT, T, RT> handler) {
-        changeRecipe((R) handler.apply((RT) recipe.getRecipe(), value));
+    public <T> void handleRecipeOption(T value, BiFunction<R, T, R> handler) {
+        handleRecipeOption(value, handler, (r, t) -> true);
+    }
+
+    public <T> boolean handleRecipeOption(T value, BiFunction<R, T, R> handler, BiPredicate<R, T> advancedFilter) {
+        R r = recipe.getRecipe();
+        if (advancedFilter.test(r, value)) {
+            changeRecipe(handler.apply(r, value));
+            return true;
+        }
+        return false;
     }
 
     //Exposed for Recipe Options

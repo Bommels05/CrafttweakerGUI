@@ -17,7 +17,9 @@
     "EmiFuelRecipeAccessor",
     "EmiCompostingRecipeAccessor",
     "EmiInfoRecipeAccessor",
-    "EmiTagKeyMixin"
+    "EmiTagKeyMixin",
+    "AlloyForgeryEmiRecipeMixin",
+    "CustomButtonWidgetAccessor"
   ],
   "injectors": {
     "defaultRequire": 1
