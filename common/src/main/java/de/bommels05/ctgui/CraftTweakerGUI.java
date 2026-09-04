@@ -3,6 +3,8 @@ package de.bommels05.ctgui;
 import com.blamejared.crafttweaker.api.CraftTweakerConstants;
 import de.bommels05.ctgui.api.RecipeTypeManager;
 import de.bommels05.ctgui.compat.alloyforgery.AlloyForgeRecipeType;
+import de.bommels05.ctgui.compat.farmersdelight.CookingRecipeType;
+import de.bommels05.ctgui.compat.farmersdelight.CuttingRecipeType;
 import de.bommels05.ctgui.compat.minecraft.*;
 import de.bommels05.ctgui.compat.minecraft.custom.CompostingRecipeType;
 import de.bommels05.ctgui.compat.minecraft.custom.FuelRecipeType;
@@ -10,11 +12,13 @@ import de.bommels05.ctgui.compat.minecraft.custom.InfoRecipeType;
 import de.bommels05.ctgui.compat.minecraft.custom.TagRecipeType;
 import dev.emi.emi.config.EmiConfig;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class CraftTweakerGUI {
@@ -62,6 +66,10 @@ public class CraftTweakerGUI {
         if (loaderUtils.isModLoaded("alloy_forgery")) {
             RecipeTypeManager.addType(new AlloyForgeRecipeType());
         }
+        if (loaderUtils.isModLoaded("farmersdelight")) {
+            RecipeTypeManager.addType(new CuttingRecipeType());
+            RecipeTypeManager.addType(new CookingRecipeType());
+        }
     }
 
     public static void handleJoin(Player player) {
@@ -92,6 +100,18 @@ public class CraftTweakerGUI {
             newMap.put(key, value);
         }
         return newMap;
+    }
+
+    public static <T> NonNullList<T> copyWithSize(List<T> list, T defaultValue) {
+        return copyWithSize(list, defaultValue, list.size());
+    }
+
+    public static <T> NonNullList<T> copyWithSize(List<T> list, T defaultValue, int size) {
+        NonNullList<T> result = NonNullList.withSize(size, defaultValue);
+        for (int i = 0; i < size && i < list.size(); i++) {
+            result.set(i, list.get(i));
+        }
+        return result;
     }
 
     //For better 1.20.1 porting

@@ -16,4 +16,5 @@ dependencies {
     }
 
     modCompileOnly("curse.maven:alloy-forgery-438718:5611901")
+    modCompileOnly("vectorwing:FarmersDelight:${minecraft_version}-${farmers_delight_fabric_version}+refabricated")
 }

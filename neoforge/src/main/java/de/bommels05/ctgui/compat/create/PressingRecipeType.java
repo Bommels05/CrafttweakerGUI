@@ -31,8 +31,8 @@ public class PressingRecipeType extends SupportedRecipeType<PressingRecipe> {
 
     private void initAreas() {
         clearAreas();
-        addAreaScrollAmountEmptyRightClick(27, 51, 17, 17, (r, am) -> {
-            return getBuilder().require(am.ingredient()).withItemOutputs((NonNullList<ProcessingOutput>) r.getRollableResults()).build();
+        addAreaEmptyRightClick(27, 51, 17, 17, (r, am) -> {
+            return getBuilder().require(am.ensureAmount(1, 1).ingredient()).withItemOutputs((NonNullList<ProcessingOutput>) r.getRollableResults()).build();
         }, r -> {
             return new AmountedIngredient(r.getIngredients().get(0), 1);
         });
@@ -53,6 +53,8 @@ public class PressingRecipeType extends SupportedRecipeType<PressingRecipe> {
         if (recipe == null) {
             return getBuilder().require(Ingredient.EMPTY).output(ItemStack.EMPTY).build();
         }
+        outputCount.set(recipe.getRollableResults().size());
+        initAreas();
         return null;
     }
 

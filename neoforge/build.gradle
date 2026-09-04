@@ -1,5 +1,5 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "7.1.2"
+    id "com.gradleup.shadow" version "9.6.1"
 }
 
 architectury {
@@ -47,6 +47,8 @@ dependencies {
     runtimeOnly("net.createmod.ponder:ponder-neoforge:${create_ponder_version}+mc${minecraft_version}")
     runtimeOnly("dev.engine-room.flywheel:flywheel-neoforge-${minecraft_version}:${create_flywheel_version}")
     runtimeOnly("com.tterrag.registrate:Registrate:${create_registrate_version}")
+
+    modRuntimeOnly("curse.maven:farmers-delight-398521:${farmers_delight_neoforge_file_id}")
 }
 
 processResources {
@@ -56,7 +58,8 @@ processResources {
             loader_version_range: loader_version_range,
             mod_id: mod_id, mod_version: mod_version,
             min_jei_version: min_jei_version, min_crafttweaker_version: min_crafttweaker_version,
-            min_mekanism_version: min_mekanism_version
+            min_mekanism_version: min_mekanism_version, min_create_version: min_create_version,
+            min_farmers_delight_version: min_farmers_delight_version
     ]
     inputs.properties replaceProperties
 

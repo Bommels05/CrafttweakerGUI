@@ -9,7 +9,7 @@ import net.minecraft.world.item.crafting.Recipe;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
-public class TextRecipeOption<R extends Recipe<?>> implements RecipeOption<String, R> {
+public class StringRecipeOption<R extends Recipe<?>> implements RecipeOption<String, R> {
 
     private EditBox editBox;
     private BiFunction<R, String, R> listener;
@@ -17,12 +17,12 @@ public class TextRecipeOption<R extends Recipe<?>> implements RecipeOption<Strin
     private final Component tooltip;
     private String value;
 
-    public TextRecipeOption(Component tooltip, Predicate<String> validator) {
+    public StringRecipeOption(Component tooltip, Predicate<String> validator) {
         this.tooltip = tooltip;
         this.validator = validator;
     }
 
-    public TextRecipeOption(Component tooltip) {
+    public StringRecipeOption(Component tooltip) {
         this(tooltip, value -> true);
     }
 

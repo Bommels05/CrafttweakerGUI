@@ -32,6 +32,7 @@
   "ctgui.editing.options.alloy_forgery.fuel_per_tick": "Brennstoffverbrauch pro tick (Standartmäßig gibt Kohle 1000 und Lava 24000)",
   "ctgui.editing.options.alloy_forgery.min_forge_tier": "Minimal benötigte Stufe",
   "ctgui.editing.options.alloy_forgery.override_count": "Überschreibungen",
+  "ctgui.editing.options.farmers_delight.sound": "Standart Werkzeug/Block Geräusch Überschreibung",
   "ctgui.editing.vanilla_smelting_recipe": "Dieses Rezept ist eigentlich ein vanilla Rezept und das originale Ofenrezept muss bearbeitet werden",
   "ctgui.editing.vanilla_blasting_recipe": "Dieses Rezept ist eigentlich ein vanilla Rezept und das originale Schmelzofenrezept muss bearbeitet werden",
   "ctgui.editing.milling_recipe": "Dieses Rezept ist eigentlich ein Mahlsteinrezept und das originale Rezept muss bearbeitet werden",

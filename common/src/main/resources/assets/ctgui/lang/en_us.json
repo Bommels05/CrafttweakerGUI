@@ -32,6 +32,7 @@
   "ctgui.editing.options.alloy_forgery.fuel_per_tick": "Fuel consumed per tick (By default coal gives 1000 and lava bucket gives 24000)",
   "ctgui.editing.options.alloy_forgery.min_forge_tier": "Minimum required forge tier",
   "ctgui.editing.options.alloy_forgery.override_count": "Tier overrides",
+  "ctgui.editing.options.farmers_delight.sound": "Default tool/block sound override",
   "ctgui.editing.vanilla_smelting_recipe": "This recipe is actually a vanilla smelting recipe and the original smelting recipe has to be edited",
   "ctgui.editing.vanilla_blasting_recipe": "This recipe is actually a vanilla blasting recipe and the original blasting recipe has to be edited",
   "ctgui.editing.milling_recipe": "This recipe is actually a milling recipe and the original milling recipe has to be edited",

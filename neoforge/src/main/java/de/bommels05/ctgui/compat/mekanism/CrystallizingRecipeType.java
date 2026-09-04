@@ -12,14 +12,12 @@ import mekanism.api.recipes.ingredients.creator.IngredientCreatorAccess;
 import mekanism.client.recipe_viewer.emi.MekanismEmiRecipeCategory;
 import mekanism.client.recipe_viewer.emi.recipe.ChemicalCrystallizerEmiRecipe;
 import mekanism.common.registries.MekanismChemicals;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import org.jetbrains.annotations.Nullable;
 
 public class CrystallizingRecipeType extends SupportedRecipeType<BasicChemicalCrystallizerRecipe> {
 
-    @SuppressWarnings("unchecked")
     public CrystallizingRecipeType() {
         super(CraftTweakerGUI.rl(MekanismAPI.MEKANISM_MODID, "crystallizing"));
 

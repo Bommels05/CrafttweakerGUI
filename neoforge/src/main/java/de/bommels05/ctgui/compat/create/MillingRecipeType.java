@@ -55,6 +55,8 @@ public class MillingRecipeType extends SupportedRecipeType<MillingRecipe> {
         if (recipe == null) {
             return getBuilder().require(Ingredient.EMPTY).output(ItemStack.EMPTY).build();
         }
+        outputCount.set(recipe.getRollableResults().size());
+        initAreas();
         return null;
     }
 

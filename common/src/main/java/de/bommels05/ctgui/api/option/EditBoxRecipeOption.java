@@ -22,6 +22,7 @@ public abstract class EditBoxRecipeOption<T extends Comparable<T>, R extends Rec
         this.tooltip = tooltip;
         this.min = min;
         this.max = max;
+        reset();
     }
 
     @Override

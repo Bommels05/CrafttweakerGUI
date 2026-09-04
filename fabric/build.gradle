@@ -1,5 +1,5 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "7.1.2"
+    id "com.gradleup.shadow" version "9.6.1"
 }
 
 architectury {
@@ -46,6 +46,10 @@ dependencies {
 
     modRuntimeOnly("curse.maven:alloy-forgery-438718:${alloy_forgery_file_id}")
     modRuntimeOnly("io.wispforest:owo-lib:${alloy_forgery_owo_version}")
+
+    modRuntimeOnly("vectorwing:FarmersDelight:${minecraft_version}-${farmers_delight_fabric_version}+refabricated") {
+        transitive = false
+    }
 }
 
 processResources {

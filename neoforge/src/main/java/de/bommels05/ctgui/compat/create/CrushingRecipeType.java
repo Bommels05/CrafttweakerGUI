@@ -60,6 +60,8 @@ public class CrushingRecipeType extends SupportedRecipeType<AbstractCrushingReci
         } else if (!(recipe instanceof CrushingRecipe)) {
             throw new UnsupportedRecipeException(Component.translatable("ctgui.editing.unsupported"));
         }
+        outputCount.set(recipe.getRollableResults().size());
+        initAreas();
         return null;
     }
 

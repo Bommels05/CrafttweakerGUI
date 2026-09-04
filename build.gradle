@@ -1,6 +1,6 @@
 plugins {
-    id "architectury-plugin" version "3.4.+"
-    id "dev.architectury.loom" version "1.11-SNAPSHOT" apply false
+    id "architectury-plugin" version "3.5.+"
+    id "dev.architectury.loom" version "1.17-SNAPSHOT" apply false
 }
 
 architectury {
@@ -40,14 +40,13 @@ allprojects {
             url = "https://maven.gnomecraft.net/releases"
         }
         maven {
-            url = 'https://maven.blamejared.com'
-            name = 'BlameJared Maven'
+            url = "https://maven.blamejared.com"
         }
         maven {
-            url = 'https://modmaven.dev/'
+            url = "https://modmaven.dev/"
         }
         maven {
-            url = 'https://maven.neoforged.net/releases'
+            url = "https://maven.neoforged.net/releases"
         }
         maven {
             name = "Fuzs Mod Resources"
@@ -60,15 +59,21 @@ allprojects {
             url = "https://maven.ithundxr.dev/snapshots"
         }
         maven {
-            url "https://cursemaven.com"
+            url = "https://cursemaven.com"
             content {
                 includeGroup "curse.maven"
             }
         }
         maven {
-            url 'https://maven.wispforest.io'
+            url = "https://maven.wispforest.io"
             content {
                 includeGroupAndSubgroups "io.wispforest"
+            }
+        }
+        maven {
+            url = 'https://maven.cassian.cc'
+            content {
+                includeGroup "vectorwing"
             }
         }
     }

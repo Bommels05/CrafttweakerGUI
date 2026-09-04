@@ -22,6 +22,7 @@ public class RangedRecipeOption<R extends Recipe<?>> implements RecipeOption<Int
         this.name = name;
         this.min = min;
         this.max = max;
+        reset();
     }
 
     @Override
@@ -84,7 +85,7 @@ public class RangedRecipeOption<R extends Recipe<?>> implements RecipeOption<Int
         }
 
         public void setValue(int value) {
-            this.value = (value - min) / getStep();
+            this.value = (value - min) * getStep();
         }
 
         public int getValue() {

@@ -1,8 +1,5 @@
 package de.bommels05.ctgui.compat.minecraft;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
-import com.mojang.serialization.JsonOps;
 import de.bommels05.ctgui.CraftTweakerGUI;
 import de.bommels05.ctgui.api.AmountedIngredient;
 import de.bommels05.ctgui.api.SupportedRecipeType;
@@ -14,7 +11,6 @@ import dev.emi.emi.recipe.EmiShapelessRecipe;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 
@@ -64,7 +60,7 @@ public class CraftingRecipeType extends SupportedRecipeType<CraftingRecipe> {
         addOption(shapeless, (r, value) -> {
             if (value) {
                 if (r instanceof ShapedRecipe recipe) {
-                    return new ShapelessRecipe(recipe.getGroup(), recipe.category(), recipe.getResultItem(regAccess()), NonNullList.of(null, recipe.getIngredients().stream().filter(ingredient -> !ingredient.isEmpty()).toArray(Ingredient[]::new)));
+                    return new ShapelessRecipe(recipe.getGroup(), recipe.category(), recipe.getResultItem(regAccess()), CraftTweakerGUI.copyWithSize(recipe.getIngredients().stream().filter(ingredient -> !ingredient.isEmpty()).toList(), Ingredient.EMPTY));
                 }
             } else {
                 if (r instanceof ShapelessRecipe recipe) {
@@ -176,7 +172,7 @@ public class CraftingRecipeType extends SupportedRecipeType<CraftingRecipe> {
                 ingredients.add(ingredient);
             }
         }
-        return new ShapelessRecipe(recipe.getGroup(), recipe.category(), recipe.getResultItem(regAccess()), NonNullList.of(null, ingredients.toArray(Ingredient[]::new)));
+        return new ShapelessRecipe(recipe.getGroup(), recipe.category(), recipe.getResultItem(regAccess()), CraftTweakerGUI.copyWithSize(ingredients, Ingredient.EMPTY));
     }
 
     private ShapedRecipe setOutput(ShapedRecipe recipe, ItemStack stack) {
