@@ -47,7 +47,7 @@ dependencies {
     modRuntimeOnly("curse.maven:alloy-forgery-438718:${alloy_forgery_file_id}")
     modRuntimeOnly("io.wispforest:owo-lib:${alloy_forgery_owo_version}")
 
-    modRuntimeOnly("vectorwing:FarmersDelight:${minecraft_version}-${farmers_delight_fabric_version}+refabricated") {
+    modImplementation("vectorwing:FarmersDelight:${minecraft_version}-${farmers_delight_fabric_version}+refabricated") {
         transitive = false
     }
 }

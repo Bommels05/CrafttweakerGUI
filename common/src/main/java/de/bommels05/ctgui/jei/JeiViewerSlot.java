@@ -46,10 +46,7 @@ public class JeiViewerSlot implements ViewerSlot {
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         graphics.pose().translate(1, 1, 0);
-        this.slot.draw(graphics);
-        if (mouseOver(mouseX, mouseY)) {
-            this.slot.drawHoverOverlays(graphics);
-        }
+        this.slot.draw(graphics, mouseOver(mouseX, mouseY));
         graphics.pose().translate(-1, -1, 0);
     }
 
