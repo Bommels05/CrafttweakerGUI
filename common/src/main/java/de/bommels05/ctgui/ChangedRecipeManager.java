@@ -115,16 +115,22 @@ public class ChangedRecipeManager {
         root.add("changes", changes);
         try {
             File old = OLD_CHANGE_FILE.toFile();
+            File file = CHANGE_FILE.toFile();
             if (!savedOld) {
                 //Only backup the changes once per session. Else the file is saved too often to be useful, especially in singleplayer
                 old.delete();
-                CHANGE_FILE.toFile().renameTo(old);
+                file.renameTo(old);
                 savedOld = true;
             } else {
-                CHANGE_FILE.toFile().delete();
+                file.delete();
             }
 
-            FileWriter writer = new FileWriter(CHANGE_FILE.toFile());
+            if (!file.getParentFile().exists()) {
+                if (!file.getParentFile().mkdirs()) {
+                    throw new IOException("Unable to create config directory: " + CHANGE_FILE);
+                }
+            }
+            FileWriter writer = new FileWriter(file);
             GSON.toJson(root, writer);
             writer.close();
 
