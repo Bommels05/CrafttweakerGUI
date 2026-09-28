@@ -41,7 +41,7 @@ public abstract class RecipesGuiMixin extends Screen {
     @Inject(method = "<init>", at = @At(value = "RETURN"), remap = false)
     protected void addButton(CallbackInfo ci) {
         if (Config.editMode) {
-            crafttweakerGUI$newRecipeButton = new BetterIconButton(13, 13, CraftTweakerGUI.rl("jei:textures/jei/atlas/gui/icons/recipe_transfer.png"), 7, 7, button -> {
+            crafttweakerGUI$newRecipeButton = new BetterIconButton(13, 13, CraftTweakerGUI.rl(CraftTweakerGUI.getLoaderUtils().isModVersionAtLeast("jei", "19.57.0.445") ? "jei:textures/gui/sprites/icons/recipe_transfer.png" : "jei:textures/jei/atlas/gui/icons/recipe_transfer.png"), 7, 7, button -> {
                 Minecraft.getInstance().setScreen(new RecipeEditScreen<>(new JeiSupportedRecipe<>(logic.getSelectedRecipeCategory().getRecipeType().getUid()), null));
             });
             crafttweakerGUI$newRecipeButton.active = false;

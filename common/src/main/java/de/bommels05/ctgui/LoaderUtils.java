@@ -6,7 +6,6 @@ import de.bommels05.ctgui.compat.minecraft.custom.FuelRecipe;
 import de.bommels05.ctgui.compat.minecraft.custom.InfoRecipe;
 import de.bommels05.ctgui.compat.minecraft.custom.TagRecipe;
 import net.minecraft.core.Registry;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -18,6 +17,8 @@ import java.nio.file.Path;
 public interface LoaderUtils {
 
     public boolean isModLoaded(String id);
+
+    public boolean isModVersionAtLeast(String id, String version);
 
     public void setEditMode(boolean value);
 

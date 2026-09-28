@@ -5,11 +5,10 @@ import de.bommels05.ctgui.compat.minecraft.custom.CompostingRecipe;
 import de.bommels05.ctgui.compat.minecraft.custom.FuelRecipe;
 import de.bommels05.ctgui.compat.minecraft.custom.InfoRecipe;
 import de.bommels05.ctgui.compat.minecraft.custom.TagRecipe;
-import dev.emi.emi.api.EmiInitRegistry;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.Minecraft;
+import net.fabricmc.loader.api.Version;
+import net.fabricmc.loader.api.VersionParsingException;
 import net.minecraft.core.Registry;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -23,6 +22,17 @@ public class FabricLoaderUtils implements LoaderUtils {
     @Override
     public boolean isModLoaded(String id) {
         return FabricLoader.getInstance().isModLoaded(id);
+    }
+
+    @Override
+    public boolean isModVersionAtLeast(String id, String version) {
+        return FabricLoader.getInstance().getModContainer(id).map(modContainer -> {
+            try {
+                return modContainer.getMetadata().getVersion().compareTo(Version.parse(version)) >= 0;
+            } catch (VersionParsingException e) {
+                throw new IllegalArgumentException(e);
+            }
+        }).orElse(false);
     }
 
     @Override

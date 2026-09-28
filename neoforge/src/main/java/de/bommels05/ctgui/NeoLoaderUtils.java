@@ -17,7 +17,6 @@ import de.bommels05.ctgui.compat.minecraft.custom.InfoRecipe;
 import de.bommels05.ctgui.compat.minecraft.custom.TagRecipe;
 import de.bommels05.ctgui.registry.RecipeSerializers;
 import de.bommels05.ctgui.registry.RecipeTypes;
-import dev.emi.emi.api.EmiInitRegistry;
 import dev.emi.emi.api.stack.EmiStack;
 import dev.emi.emi.api.stack.FluidEmiStack;
 import mekanism.api.MekanismAPI;
@@ -29,7 +28,6 @@ import mekanism.common.registries.MekanismRecipeSerializersInternal;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -39,7 +37,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.server.ServerLifecycleHooks;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 
 import java.nio.file.Path;
 
@@ -48,6 +46,12 @@ public class NeoLoaderUtils implements LoaderUtils {
     @Override
     public boolean isModLoaded(String id) {
         return ModList.get().isLoaded(id);
+    }
+
+    @Override
+    public boolean isModVersionAtLeast(String id, String version) {
+        return ModList.get().getModContainerById(id).map(c -> c.getModInfo().getVersion().compareTo(
+                new DefaultArtifactVersion(version)) >= 0).orElse(false);
     }
 
     @Override
